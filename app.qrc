@@ -1,0 +1,15 @@
+<RCC>
+  <qresource prefix="icons" >
+    <file>icons/document-new.png</file>
+    <file>icons/document-save.png</file>
+    <file>icons/zoom-out.png</file>
+    <file>icons/zoom-in.png</file>
+    <file>icons/export.png</file>
+    <file>icons/stop.png</file>
+    <file>icons/step.png</file>
+    <file>icons/open.png</file>
+    <file>icons/play.png</file>
+    <file>icons/pause.png</file>
+    <file>icons/reset.png</file>
+  </qresource>
+</RCC>

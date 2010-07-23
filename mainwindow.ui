@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>681</width>
+    <height>510</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="toolButtonStyle">
+   <enum>Qt::ToolButtonTextUnderIcon</enum>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QGridLayout" name="gridLayout">
+    <property name="margin">
+     <number>0</number>
+    </property>
+    <item row="0" column="0">
+     <widget class="QScrollArea" name="scrollArea">
+      <property name="frameShape">
+       <enum>QFrame::NoFrame</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Plain</enum>
+      </property>
+      <property name="lineWidth">
+       <number>0</number>
+      </property>
+      <property name="alignment">
+       <set>Qt::AlignCenter</set>
+      </property>
+      <widget class="QWidget" name="scrollAreaWidgetContents">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>0</y>
+         <width>681</width>
+         <height>383</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>681</width>
+     <height>25</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>&amp;File</string>
+    </property>
+    <addaction name="actionNew"/>
+    <addaction name="separator"/>
+    <addaction name="actionOpen"/>
+    <addaction name="actionSave"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuSimulation">
+    <property name="title">
+     <string>&amp;Simulation</string>
+    </property>
+    <addaction name="actionReset"/>
+    <addaction name="actionStop"/>
+    <addaction name="actionStep"/>
+    <addaction name="actionPlay"/>
+   </widget>
+   <widget class="QMenu" name="menu_Tools">
+    <property name="title">
+     <string>&amp;Tools</string>
+    </property>
+    <addaction name="actionPlaceRobot"/>
+    <addaction name="separator"/>
+    <addaction name="actionAddObstacles"/>
+    <addaction name="actionRemoveObstacles"/>
+    <addaction name="separator"/>
+    <addaction name="actionMarkAsExplored"/>
+    <addaction name="actionMarkAsUnexplored"/>
+   </widget>
+   <addaction name="menuFile"/>
+   <addaction name="menuSimulation"/>
+   <addaction name="menu_Tools"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>48</width>
+     <height>48</height>
+    </size>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionNew"/>
+   <addaction name="actionOpen"/>
+   <addaction name="actionSave"/>
+   <addaction name="separator"/>
+   <addaction name="actionDummy"/>
+   <addaction name="separator"/>
+   <addaction name="actionZoomOut"/>
+   <addaction name="actionZoomIn"/>
+   <addaction name="separator"/>
+   <addaction name="actionExport"/>
+   <addaction name="separator"/>
+  </widget>
+  <action name="actionQuit">
+   <property name="text">
+    <string>&amp;Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Q</string>
+   </property>
+  </action>
+  <action name="actionOpen">
+   <property name="icon">
+    <iconset resource="app.qrc">
+     <normaloff>:/icons/icons/open.png</normaloff>:/icons/icons/open.png</iconset>
+   </property>
+   <property name="text">
+    <string>&amp;Open...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionReset">
+   <property name="icon">
+    <iconset resource="app.qrc">
+     <normaloff>:/icons/icons/reset.png</normaloff>:/icons/icons/reset.png</iconset>
+   </property>
+   <property name="text">
+    <string>Reset</string>
+   </property>
+  </action>
+  <action name="actionPlay">
+   <property name="icon">
+    <iconset resource="app.qrc">
+     <normaloff>:/icons/icons/play.png</normaloff>:/icons/icons/play.png</iconset>
+   </property>
+   <property name="text">
+    <string>Play</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+Space</string>
+   </property>
+  </action>
+  <action name="actionStop">
+   <property name="icon">
+    <iconset resource="app.qrc">
+     <normaloff>:/icons/icons/stop.png</normaloff>:/icons/icons/stop.png</iconset>
+   </property>
+   <property name="text">
+    <string>Stop</string>
+   </property>
+   <property name="shortcut">
+    <string>P</string>
+   </property>
+  </action>
+  <action name="actionStep">
+   <property name="icon">
+    <iconset resource="app.qrc">
+     <normaloff>:/icons/icons/step.png</normaloff>:/icons/icons/step.png</iconset>
+   </property>
+   <property name="text">
+    <string>Step</string>
+   </property>
+   <property name="shortcut">
+    <string>Space</string>
+   </property>
+  </action>
+  <action name="actionExport">
+   <property name="icon">
+    <iconset resource="app.qrc">
+     <normaloff>:/icons/icons/export.png</normaloff>:/icons/icons/export.png</iconset>
+   </property>
+   <property name="text">
+    <string>Export</string>
+   </property>
+  </action>
+  <action name="actionZoomIn">
+   <property name="icon">
+    <iconset resource="app.qrc">
+     <normaloff>:/icons/icons/zoom-in.png</normaloff>:/icons/icons/zoom-in.png</iconset>
+   </property>
+   <property name="text">
+    <string>Zoom In</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom In</string>
+   </property>
+  </action>
+  <action name="actionZoomOut">
+   <property name="icon">
+    <iconset resource="app.qrc">
+     <normaloff>:/icons/icons/zoom-out.png</normaloff>:/icons/icons/zoom-out.png</iconset>
+   </property>
+   <property name="text">
+    <string>Zoom Out</string>
+   </property>
+   <property name="toolTip">
+    <string>Zoom Out</string>
+   </property>
+  </action>
+  <action name="actionAddObstacles">
+   <property name="text">
+    <string>Add &amp;Obstacles</string>
+   </property>
+  </action>
+  <action name="actionRemoveObstacles">
+   <property name="text">
+    <string>&amp;Remove Obstacles</string>
+   </property>
+  </action>
+  <action name="actionMarkAsExplored">
+   <property name="text">
+    <string>Mark as &amp;Explored</string>
+   </property>
+  </action>
+  <action name="actionMarkAsUnexplored">
+   <property name="text">
+    <string>Mark as &amp;Unexplored</string>
+   </property>
+  </action>
+  <action name="actionPlaceRobot">
+   <property name="text">
+    <string>&amp;Place Robot</string>
+   </property>
+  </action>
+  <action name="actionNew">
+   <property name="icon">
+    <iconset resource="app.qrc">
+     <normaloff>:/icons/icons/document-new.png</normaloff>:/icons/icons/document-new.png</iconset>
+   </property>
+   <property name="text">
+    <string>New...</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="icon">
+    <iconset resource="app.qrc">
+     <normaloff>:/icons/icons/document-save.png</normaloff>:/icons/icons/document-save.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save...</string>
+   </property>
+   <property name="toolTip">
+    <string>Save Scene</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionDummy">
+   <property name="text">
+    <string>dummy</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="app.qrc"/>
+ </resources>
+ <connections/>
+</ui>

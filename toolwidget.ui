@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>ToolWidget</class>
+ <widget class="QWidget" name="ToolWidget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>203</width>
+    <height>82</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QComboBox" name="cmbTool">
+     <item>
+      <property name="text">
+       <string>Place Robot</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Add Obstacles</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Remove Obstacles</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Mark as Explored</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>Mark as Unexplored</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Radius:</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QDoubleSpinBox" name="sbRadius">
+       <property name="suffix">
+        <string>m</string>
+       </property>
+       <property name="minimum">
+        <double>0.100000000000000</double>
+       </property>
+       <property name="maximum">
+        <double>5.000000000000000</double>
+       </property>
+       <property name="singleStep">
+        <double>0.100000000000000</double>
+       </property>
+       <property name="value">
+        <double>1.000000000000000</double>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
