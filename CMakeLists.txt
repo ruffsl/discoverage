@@ -61,8 +61,8 @@ QT4_WRAP_CPP( discoverage_MOC_SRCS ${discoverage_MOC_HDRS} )
 include_directories( ${CMAKE_BINARY_DIR} )
 
 # here we instruct CMake to build "sample" executable from all of the source files
-add_executable( explore ${discoverage_SRCS} ${discoverage_MOC_SRCS} ${discoverage_UIS} ${discoverage_RC_SRCS})
+add_executable( discoverage ${discoverage_SRCS} ${discoverage_MOC_SRCS} ${discoverage_UIS} ${discoverage_RC_SRCS})
 
 # last thing we have to do is to tell CMake what libraries our executable needs,
 # luckily FIND_PACKAGE prepared QT_LIBRARIES variable for us:
-target_link_libraries( explore ${QT_LIBRARIES} )
+target_link_libraries( discoverage ${QT_LIBRARIES} )
