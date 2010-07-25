@@ -1,3 +1,22 @@
+/* This file is part of the DisCoverage project.
+
+   Copyright (C) Dominik Haumann <dhaumann at rtr.tu-darmstadt.de>
+
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License
+   as published by the Free Software Foundation; either version 2
+   of the License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software Foundation,
+   Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+
 #include "gridmap.h"
 
 #include <QPainter>
@@ -258,14 +277,14 @@ Path GridMap::aStar(const QPoint& from, const QPoint& to)
         { -1,  1},           // links-unten
         { -1, -1}            // links-oben
     };
-    
+
     QTime time;
     time.start();
 
     // Multiset sowie ein Iterator
     std::multiset<PathField> queue;
     std::multiset<PathField>::iterator itr;
-    
+
     // 1.Add starting square
     Cell *pCell = &m_map[from.x()][from.y()];
     pCell->m_costG = 0;
@@ -290,7 +309,7 @@ Path GridMap::aStar(const QPoint& from, const QPoint& to)
             success = true;
             break;
         }
-        
+
         // Alle angrenzenden Felder bearbeiten
         for (int i = 0; i < 8; ++i) {
             // Nachbarzelle
@@ -300,7 +319,7 @@ Path GridMap::aStar(const QPoint& from, const QPoint& to)
             // Testen ob neue x/y-Position gültig ist ( Rand ist ausgenommen )
             if (!isValidField(ax, ay))
                 continue;
-            
+
             pCell = &m_map[ax][ay];
 
             // Kosten um zu diesem Feld zu gelangen:
@@ -341,7 +360,7 @@ Path GridMap::aStar(const QPoint& from, const QPoint& to)
             dirtyCells.append(pCell);
         }
     }
-    
+
 //     qDebug() << "A-Star" << time.elapsed();
 
     Path path;
@@ -369,9 +388,9 @@ Path GridMap::aStar(const QPoint& from, const QPoint& to)
             path.m_length += nParent < 4 ? 1.0f : 1.41421356f;
         }
     }
-    
+
 //     qDebug() << "reconstruction" << time.elapsed();
-    
+
     foreach (Cell* cell, dirtyCells) {
         cell->m_costF = 0.0f;
         cell->m_costG = 0.0f;
@@ -380,7 +399,7 @@ Path GridMap::aStar(const QPoint& from, const QPoint& to)
     }
 //     qDebug() << "cleanup" << time.elapsed();
 
-//     qDebug() << "dirty cells:" << dirtyCells.size();
+    qDebug() << "dirty cells:" << dirtyCells.size();
 
     return path;
 }
@@ -392,10 +411,10 @@ float GridMap::heuristic(const QPoint& start, const QPoint& end)
 
         // the bigger the const value, the faster the path finding
         // the smaller the const value, the more accurate is the result
-        return 1 * qMax(dx, dy);
-        
+//        return 1 * qMax(dx, dy);
+
         // better approximation for distance
-//         return qMin(dx, dy) * 1.4 + (qMax(dx, dy) - qMin(dx, dy));
+        return qMin(dx, dy) * 1.4 + (qMax(dx, dy) - qMin(dx, dy));
 }
 
 // kate: replace-tabs on; indent-width 4;
