@@ -198,9 +198,7 @@ void RobotHandler::updateDisCoverage()
     m_allPaths.clear();
     GridMap&m = scene()->map();
     QPoint pt = currentCell();
-    foreach (Cell* q, frontiers) {
-        m_allPaths.append(m.aStar(pt, q->index()));
-    }
+    m_allPaths = m.frontierPaths(pt);
 
     float delta = -M_PI;
     QPointF pi = m.cell(pt.x(), pt.y()).rect().center();

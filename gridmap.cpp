@@ -263,6 +263,136 @@ public:
 };
 
 
+QList<Path> GridMap::frontierPaths(const QPoint& start)
+{
+    static int directionMap[8][2] = {
+        // x   y
+        {  0, -1},           // oben
+        {  1,  0},           // rechts
+        {  0,  1},           // unten
+        { -1,  0},           // links
+        {  1, -1},           // rechts-oben
+        {  1,  1},           // rechts-unten
+        { -1,  1},           // links-unten
+        { -1, -1}            // links-oben
+    };
+
+    QTime time;
+    time.start();
+
+    // Multiset sowie ein Iterator
+    std::multiset<PathField> queue;
+    std::multiset<PathField>::iterator itr;
+
+    // Add starting square
+    Cell *pCell = &m_map[start.x()][start.y()];
+    pCell->m_costG = 0;
+    pCell->m_costF = 0;
+    pCell->setPathState(Cell::PathOpen);
+    queue.insert(PathField(start, pCell));
+
+    while (!queue.empty())
+    {
+        // Knoten mit den niedrigsten Kosten aus der Liste holen
+        PathField f = *queue.begin();
+        queue.erase(queue.begin());
+
+        f.cell->setPathState(Cell::PathClose);  // Jetzt geschlossen
+        int x = f.x, y = f.y;
+
+        // Alle angrenzenden Felder bearbeiten
+        for (int i = 0; i < 8; ++i) {
+            // Nachbarzelle
+            int ax = x + directionMap[i][0];
+            int ay = y + directionMap[i][1];
+
+            // Testen ob neue x/y-Position gültig ist ( Rand ist ausgenommen )
+            if (!isValidField(ax, ay))
+                continue;
+
+            pCell = &m_map[ax][ay];
+
+            // Kosten um zu diesem Feld zu gelangen:
+            const float factor = i > 3 ? 1.41421356f : 1.0f;
+            float G = f.cell->m_costG + factor * pCell->cellCost();   // Vorherige + aktuelle Kosten vom Start
+
+            // Ignorieren wenn Knoten geschlossen ist und bessere Kosten hat
+            if (pCell->pathState() == Cell::PathClose && pCell->m_costG < G)
+                continue;
+
+            // Cell ist bereits in der Queue, nur ersetzen wenn Kosten besser
+            if (pCell->pathState() == Cell::PathOpen)
+            {
+                if (pCell->m_costG < G)
+                    continue;
+
+                // Alten Eintrag aus der Queue entfernen
+                itr = queue.find(PathField(QPoint( ax, ay), pCell));
+                if (itr != queue.end())
+                {
+                    // Es können mehrere Einträge mit den gleichen Kosten vorhanden sein
+                    // wir müssen den richtigen suchen
+                    while ((*itr).cell != pCell)
+                        itr++;
+
+                    queue.erase(itr);
+                }
+            }
+
+            // Knoten berechnen
+            pCell->m_costG  = G;
+            pCell->m_costF  = G + 0;
+            pCell->m_pathParent = i;
+
+            // Zu OPEN hinzufügen
+            pCell->setPathState(Cell::PathOpen);
+            queue.insert(PathField( QPoint( ax, ay ), pCell));
+        }
+    }
+
+    QList<Path> m_frontierPaths;
+    foreach (Cell* frontier, m_frontierCache) {
+        // den Weg vom Ziel zum Start zurueckverfolgen und markieren
+        int x = frontier->index().x();
+        int y = frontier->index().y();
+        int nParent;
+
+        Path path;
+        while (true) {
+            pCell = &m_map[x][y];
+            nParent = pCell->m_pathParent;
+            path.m_path.prepend(QPoint(x, y));
+
+            // Abbrechen wenn wir am Startknoten angekommen sind
+            if( nParent == -1 )
+                break;
+
+            x -= directionMap[nParent][0];
+            y -= directionMap[nParent][1];
+
+            path.m_cost += pCell->cellCost();
+            path.m_length += nParent < 4 ? 1.0f : 1.41421356f;
+        }
+        m_frontierPaths.append(path);
+    }
+
+//     qDebug() << "reconstruction" << time.elapsed();
+
+    for (int a = 0; a < m_map.size(); ++a) {
+        for (int b = 0; b < m_map[0].size(); ++b) {
+            Cell& cell = m_map[a][b];
+            cell.m_costF = 0.0f;
+            cell.m_costG = 0.0f;
+            cell.m_pathParent = -1;
+            cell.setPathState(Cell::PathNone);
+        }
+    }
+//     qDebug() << "cleanup" << time.elapsed();
+
+    return m_frontierPaths;
+}
+
+
 Path GridMap::aStar(const QPoint& from, const QPoint& to)
 {
     QList<Cell*> dirtyCells;
@@ -291,7 +421,6 @@ Path GridMap::aStar(const QPoint& from, const QPoint& to)
     pCell->m_costF = heuristic(from, to);
     pCell->setPathState(Cell::PathOpen);
     queue.insert(PathField(from, pCell));
-    dirtyCells.append(pCell);
 
     bool success = false;
 
@@ -300,6 +429,7 @@ Path GridMap::aStar(const QPoint& from, const QPoint& to)
         // Knoten mit den niedrigsten Kosten aus der Liste holen
         PathField f = *queue.begin();
         queue.erase(queue.begin());
+        dirtyCells.append(f.cell);
 
         f.cell->setPathState(Cell::PathClose);  // Jetzt geschlossen
         int x = f.x, y = f.y;
@@ -357,7 +487,6 @@ Path GridMap::aStar(const QPoint& from, const QPoint& to)
             // Zu OPEN hinzufügen
             pCell->setPathState(Cell::PathOpen);
             queue.insert(PathField( QPoint( ax, ay ), pCell));
-            dirtyCells.append(pCell);
         }
     }
 

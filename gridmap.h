@@ -87,6 +87,7 @@ class GridMap
     // path finding
     //
     public:
+        QList<Path> frontierPaths(const QPoint& start);
         Path aStar(const QPoint& from, const QPoint& to);
         float heuristic(const QPoint& start, const QPoint& end);
 
