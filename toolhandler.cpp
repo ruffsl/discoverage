@@ -1,3 +1,22 @@
+/* This file is part of the DisCoverage project.
+
+   Copyright (C) Dominik Haumann <dhaumann at rtr.tu-darmstadt.de>
+
+   This program is free software; you can redistribute it and/or
+   modify it under the terms of the GNU General Public License
+   as published by the Free Software Foundation; either version 2
+   of the License, or (at your option) any later version.
+
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
+
+   You should have received a copy of the GNU General Public License
+   along with this program; if not, write to the Free Software Foundation,
+   Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+*/
+
 #include "toolhandler.h"
 #include "scene.h"
 #include "mainwindow.h"
@@ -110,9 +129,9 @@ void ToolHandler::highlightCurrentCell(QPainter& p)
         p.fillRect(r, Qt::green);
         p.drawRect(r);
         p.setOpacity(1.0);
-    }   
+    }
 }
-//END ToolHandler        
+//END ToolHandler
 
 
 
@@ -209,9 +228,13 @@ void RobotHandler::updateDisCoverage()
 
 float RobotHandler::disCoverage(const QPointF& pos, float delta, const QPointF& q, const Path& path)
 {
+    if (path.m_path.size() < 2) {
+        return 0.0f;
+    }
+
     const float theta = 0.5;
     const float sigma = 2.0;
-    
+
     const QPoint& p1 = path.m_path[0];
     const QPoint& p2 = path.m_path[1];
 
@@ -259,7 +282,7 @@ static bool inCircle(qreal x, qreal y, qreal radius, qreal px, qreal py)
 {
     qreal dx = x - px;
     qreal dy = y - py;
-    
+
     return (dx*dx + dy*dy) < radius*radius;
 }
 
@@ -314,20 +337,20 @@ void ObstacleHandler::updateObstacles()
             destState = Cell::Obstacle;
         }
     }
-    
+
     int cx = mapToCell(mousePosition().x());
     int cy = mapToCell(mousePosition().y());
 
     qreal x = mapToMap(mousePosition().x());
     qreal y = mapToMap(mousePosition().y());
-    
+
     GridMap& m = scene()->map();
 
     int cr = operationRadius() / m.resolution();
 
     int xStart = qMax(0, cx - cr - 1);
     int xEnd = qMin(m.size().width() - 1, cx + cr + 1);
-    
+
     int yStart = qMax(0, cy - cr - 1);
     int yEnd = qMin(m.size().height() - 1, cy + cr + 1);
     for (int a = xStart; a <= xEnd; ++a) {
@@ -378,7 +401,7 @@ void ExplorationHandler::draw(QPainter& p)
     ToolHandler::draw(p);
     highlightCurrentCell(p);
     drawOperationRadius(p);
-    
+
 }
 
 void ExplorationHandler::mouseMoveEvent(QMouseEvent* event)
@@ -411,14 +434,14 @@ void ExplorationHandler::updateExploredState()
 
     qreal x = mapToMap(mousePosition().x());
     qreal y = mapToMap(mousePosition().y());
-    
+
     GridMap& m = scene()->map();
 
     int cr = operationRadius() / m.resolution();
 
     int xStart = qMax(0, cx - cr - 1);
     int xEnd = qMin(m.size().width() - 1, cx + cr + 1);
-    
+
     int yStart = qMax(0, cy - cr - 1);
     int yEnd = qMin(m.size().height() - 1, cy + cr + 1);
     for (int a = xStart; a <= xEnd; ++a) {
@@ -436,7 +459,7 @@ void ExplorationHandler::updateExploredState()
                 if (inCircle(x, y, operationRadius(), x1, y2)) ++count;
                 if (inCircle(x, y, operationRadius(), x2, y1)) ++count;
                 if (inCircle(x, y, operationRadius(), x2, y2)) ++count;
-                
+
                 if (count == 4) {
                     m.setState(c, destState);
                     m.updateCell(a, b);
