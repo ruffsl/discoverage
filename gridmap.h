@@ -28,6 +28,7 @@
 #include <QtCore/QSet>
 
 class QSettings;
+class GridMap;
 
 class Path
 {
@@ -36,6 +37,8 @@ class Path
         QList<QPoint> m_path;
         float m_cost;
         float m_length;
+        
+        void beautify(GridMap& gridMap);
 };
 
 class GridMap
@@ -87,6 +90,7 @@ class GridMap
     // path finding
     //
     public:
+        bool pathVisible(const QPoint& from, const QPoint& to);
         QList<Path> frontierPaths(const QPoint& start);
         Path aStar(const QPoint& from, const QPoint& to);
         float heuristic(const QPoint& start, const QPoint& end);

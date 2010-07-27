@@ -57,6 +57,10 @@ class Cell
             return m_state & Obstacle;
         }
 
+        inline bool isPassable() const {
+            return ! ((m_state & Explored) && (m_state & Obstacle));
+        }
+
         inline State state() const {
             return m_state;
         }

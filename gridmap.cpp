@@ -28,6 +28,26 @@
 #include <math.h>
 #include <set>
 
+void Path::beautify(GridMap& gridMap)
+{
+    int start = 0;
+
+    while (start < m_path.size() - 2) {
+        int end = start + 1;
+        while (end + 1 < m_path.size() && 
+            gridMap.pathVisible(m_path[start], m_path[end + 1]))
+        {
+            ++end;
+        }
+
+        if (start + 1 < end) {
+            m_path.erase(m_path.begin() + start + 1, m_path.begin() + end);
+        }
+        ++start;
+    }
+}
+
+
 GridMap::GridMap()
     : m_scaleFactor(4.0)
     , m_resolution(0.2)
@@ -306,7 +326,7 @@ QList<Path> GridMap::frontierPaths(const QPoint& start)
             int ax = x + directionMap[i][0];
             int ay = y + directionMap[i][1];
 
-            // Testen ob neue x/y-Position gültig ist ( Rand ist ausgenommen )
+            // Testen ob neue x/y-Position gï¿½ltig ist ( Rand ist ausgenommen )
             if (!isValidField(ax, ay))
                 continue;
 
@@ -330,8 +350,8 @@ QList<Path> GridMap::frontierPaths(const QPoint& start)
                 itr = queue.find(PathField(QPoint( ax, ay), pCell));
                 if (itr != queue.end())
                 {
-                    // Es können mehrere Einträge mit den gleichen Kosten vorhanden sein
-                    // wir müssen den richtigen suchen
+                    // Es kï¿½nnen mehrere Eintrï¿½ge mit den gleichen Kosten vorhanden sein
+                    // wir mï¿½ssen den richtigen suchen
                     while ((*itr).cell != pCell)
                         itr++;
 
@@ -344,7 +364,7 @@ QList<Path> GridMap::frontierPaths(const QPoint& start)
             pCell->m_costF  = G + 0;
             pCell->m_pathParent = i;
 
-            // Zu OPEN hinzufügen
+            // Zu OPEN hinzufï¿½gen
             pCell->setPathState(Cell::PathOpen);
             queue.insert(PathField( QPoint( ax, ay ), pCell));
         }
@@ -446,7 +466,7 @@ Path GridMap::aStar(const QPoint& from, const QPoint& to)
             int ax = x + directionMap[i][0];
             int ay = y + directionMap[i][1];
 
-            // Testen ob neue x/y-Position gültig ist ( Rand ist ausgenommen )
+            // Testen ob neue x/y-Position gï¿½ltig ist ( Rand ist ausgenommen )
             if (!isValidField(ax, ay))
                 continue;
 
@@ -470,8 +490,8 @@ Path GridMap::aStar(const QPoint& from, const QPoint& to)
                 itr = queue.find(PathField(QPoint( ax, ay), pCell));
                 if (itr != queue.end())
                 {
-                    // Es können mehrere Einträge mit den gleichen Kosten vorhanden sein
-                    // wir müssen den richtigen suchen
+                    // Es kï¿½nnen mehrere Eintrï¿½ge mit den gleichen Kosten vorhanden sein
+                    // wir mï¿½ssen den richtigen suchen
                     while ((*itr).cell != pCell)
                         itr++;
 
@@ -484,7 +504,7 @@ Path GridMap::aStar(const QPoint& from, const QPoint& to)
             pCell->m_costF  = G + heuristic(QPoint(ax, ay), to); // Kosten vom Start + Kosten zum Ziel
             pCell->m_pathParent = i;
 
-            // Zu OPEN hinzufügen
+            // Zu OPEN hinzufï¿½gen
             pCell->setPathState(Cell::PathOpen);
             queue.insert(PathField( QPoint( ax, ay ), pCell));
         }
@@ -544,6 +564,66 @@ float GridMap::heuristic(const QPoint& start, const QPoint& end)
 
         // better approximation for distance
         return qMin(dx, dy) * 1.4 + (qMax(dx, dy) - qMin(dx, dy));
+}
+
+bool GridMap::pathVisible(const QPoint& from, const QPoint& to)
+{
+    int ystep, xstep;    // the step on y and x axis
+    int error;           // the error accumulated during the increment
+    int y = from.y();
+    int x = from.x();    // the line points
+    int ddy, ddx;        // compulsory variables: the double values of dy and dx
+    int dx = to.x() - from.x();
+    int dy = to.y() - from.y();
+//     result.append( start );  // first point
+    // NB the last point can't be here, because of its previous point (which has to be verified)
+    if (dy < 0) {
+        ystep = -1;
+        dy = -dy;
+    } else {
+        ystep = 1;
+    }
+
+    if (dx < 0) {
+        xstep = -1;
+        dx = -dx;
+    } else {
+        xstep = 1;
+    }
+
+    ddy = 2 * dy;  // work with double values for full precision
+    ddx = 2 * dx;
+    if (ddx >= ddy) {  // first octant (0 <= slope <= 1)
+        // compulsory initialization (even for errorprev, needed when dx==dy)
+        error = dx;  // start in the middle of the square
+        for( int i = 0 ; i < dx ; ++i )
+        {  // do not use the first point (already done)
+            x += xstep;
+            error += ddy;
+            if (error > ddx) {  // increment y if AFTER the middle ( > )
+                y += ystep;
+                error -= ddx;
+            }
+            if (!m_map[x][y].isPassable())
+                return false;
+//             result.append( QPoint( x, y ) );
+        }
+    } else {  // the same as above
+        error = dy;
+        for( int i = 0 ; i < dy ; ++i)
+        {
+            y += ystep;
+            error += ddx;
+            if (error > ddy) {
+                x += xstep;
+                error -= ddy;
+            }
+            if (!m_map[x][y].isPassable())
+                return false;
+//             result.append( QPoint( x, y ) );
+        }
+    }
+    return true;
 }
 
 // kate: replace-tabs on; indent-width 4;
