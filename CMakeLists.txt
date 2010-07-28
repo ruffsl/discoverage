@@ -16,6 +16,7 @@ set(discoverage_SRCS
 set( discoverage_MOC_HDRS
   mainwindow.h
   scene.h
+  discoveragehandler.h
 )
 
 # some .ui files
@@ -23,6 +24,7 @@ set( discoverage_UIS
   mainwindow.ui
   toolwidget.ui
   newscenedialog.ui
+  discoveragewidget.ui
 )
 
 # and finally an resource file

@@ -20,21 +20,98 @@
 #include "discoveragehandler.h"
 #include "scene.h"
 #include "mainwindow.h"
+#include "ui_discoveragewidget.h"
 
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
 #include <QtCore/QDebug>
+#include <QtGui/QDockWidget>
 
 #include <math.h>
 
 //BEGIN DisCoverageHandler
 DisCoverageHandler::DisCoverageHandler(Scene* scene)
-    : ToolHandler(scene)
+    : QObject()
+    , ToolHandler(scene)
+    , m_dock(0)
+    , m_ui(0)
 {
 }
 
 DisCoverageHandler::~DisCoverageHandler()
 {
+    delete m_ui;
+}
+
+void DisCoverageHandler::toolHandlerActive(bool activated)
+{
+    dockWidget()->setVisible(activated);
+}
+
+QDockWidget* DisCoverageHandler::dockWidget()
+{
+    if (!m_dock) {
+        m_dock = new QDockWidget("DisCoverage", scene()->mainWindow());
+        m_ui = new Ui::DisCoverageWidget();
+        QWidget* w = new QWidget();
+        m_ui->setupUi(w);
+        m_dock->setWidget(w);
+        scene()->mainWindow()->addDockWidget(Qt::RightDockWidgetArea, m_dock);
+        
+        connect(m_ui->chkShowVectorField, SIGNAL(toggled(bool)), this, SLOT(showVectorField(bool)));
+    }
+    return m_dock;
+}
+
+void DisCoverageHandler::showVectorField(bool show)
+{
+    if (!show) {
+        m_vectorField.clear();
+    } else {
+        GridMap&m = scene()->map();
+        const QSize s = m.size();
+        const qreal resolution = m.resolution();
+        m_vectorField = QVector<QVector<QLineF> >(s.width(), QVector<QLineF>(s.height()));
+
+        const QSet<Cell*>& frontiers = m.frontiers();
+        for (int a = 0; a < s.width(); ++a) {
+            for (int b = 0; b < s.height(); ++b) {
+                if (m.cell(a, b).state() != (Cell::Free | Cell::Explored)) {
+                    continue;
+                }
+                qDebug() << "next one" << a << b;
+                QPointF center(resolution / 2.0 + a * resolution,
+                               resolution / 2.0 + b * resolution);
+
+                QList<Path> allPaths;
+                allPaths = m.frontierPaths(QPoint(a, b));
+                for (int i = 0; i < allPaths.size(); ++i) {
+                    allPaths[i].beautify(m);
+                }
+
+                float delta = -M_PI;
+                float sMax = 0.0f;
+                float deltaMax = 0.0f;
+                while (delta < M_PI) {
+                    float s = 0;
+                    int i = 0;
+                    foreach (Cell* q, frontiers) {
+                        s += disCoverage(center, delta, q->rect().center(), allPaths[i]);
+                        ++i;
+                    }
+                    
+                    if (s > sMax) {
+                        sMax = s;
+                        deltaMax = delta;
+                    }
+                    delta += 0.1f;
+                }
+                m_vectorField[a][b].setP1(center);
+                m_vectorField[a][b].setP2(QPointF(center.x() + resolution, center.y()));
+                m_vectorField[a][b].setAngle(-deltaMax * 180.0 / M_PI);
+            }
+        }
+    }
 }
 
 void DisCoverageHandler::draw(QPainter& p)
@@ -45,17 +122,25 @@ void DisCoverageHandler::draw(QPainter& p)
 
     GridMap &m = scene()->map();
     p.scale(m.scaleFactor(), m.scaleFactor());
-
+    
     QPainter::RenderHints rh = p.renderHints();
     p.setRenderHints(QPainter::Antialiasing, true);
-    foreach (const Path& path, m_allPaths) {
-
-        for (int i = 0; i < path.m_path.size() - 1; ++i) {
-            const QPoint& a = path.m_path[i];
-            const QPoint& b = path.m_path[i+1];
-            p.drawLine(m.cell(a.x(), a.y()).rect().center(), m.cell(b.x(), b.y()).rect().center());
+    
+    for (int a = 0; a < m_vectorField.size(); ++a) {
+        const int s = m_vectorField[0].size();
+        for (int b = 0; b < s; ++b) {
+            p.drawLine(m_vectorField[a][b]);
         }
     }
+
+//     foreach (const Path& path, m_allPaths) {
+// 
+//         for (int i = 0; i < path.m_path.size() - 1; ++i) {
+//             const QPoint& a = path.m_path[i];
+//             const QPoint& b = path.m_path[i+1];
+//             p.drawLine(m.cell(a.x(), a.y()).rect().center(), m.cell(b.x(), b.y()).rect().center());
+//         }
+//     }
 
     if (m_allPaths.size()) {
         const QPointF& pathPt = m_allPaths.first().m_path[0];

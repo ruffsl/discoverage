@@ -21,6 +21,7 @@
 #define DISCOVERAGE_HANDLER_H
 
 #include <QtCore/QPoint>
+#include <QtCore/QObject>
 #include "cell.h"
 #include "gridmap.h"
 #include "toolhandler.h"
@@ -28,9 +29,14 @@
 class QMouseEvent;
 class QPainter;
 class Scene;
+class QDockWidget;
 
-class DisCoverageHandler : public ToolHandler
+namespace Ui { class DisCoverageWidget; }
+
+class DisCoverageHandler : public QObject, public ToolHandler
 {
+    Q_OBJECT
+
     public:
         DisCoverageHandler(Scene* scene);
         virtual ~DisCoverageHandler();
@@ -39,14 +45,25 @@ class DisCoverageHandler : public ToolHandler
         virtual void draw(QPainter& p);
         virtual void mouseMoveEvent(QMouseEvent* event);
         virtual void mousePressEvent(QMouseEvent* event);
+        virtual void toolHandlerActive(bool activated);
+        
+    private Q_SLOTS:
+        void showVectorField(bool);
 
     private:
         void updateDisCoverage();
         float disCoverage(const QPointF& pos, float delta, const QPointF& q, const Path& path);
 
+        QDockWidget* dockWidget();
+
     private:
         QList<Path> m_allPaths;
         double m_delta;
+
+        QDockWidget* m_dock;
+        Ui::DisCoverageWidget* m_ui;
+        
+        QVector<QVector<QLineF> > m_vectorField;
 };
 
 #endif // DISCOVERAGE_HANDLER_H
