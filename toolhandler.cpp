@@ -156,17 +156,14 @@ void RobotHandler::draw(QPainter& p)
     GridMap &m = scene()->map();
     p.scale(m.scaleFactor(), m.scaleFactor());
 
+    QPainter::RenderHints rh = p.renderHints();
+    p.setRenderHints(QPainter::Antialiasing, true);
     foreach (const Path& path, m_allPaths) {
 
         for (int i = 0; i < path.m_path.size() - 1; ++i) {
             const QPoint& a = path.m_path[i];
             const QPoint& b = path.m_path[i+1];
             p.drawLine(m.cell(a.x(), a.y()).rect().center(), m.cell(b.x(), b.y()).rect().center());
-/*            if (i == path.m_path.size() - 2) {
-                p.scale(1/m.scaleFactor(), 1/m.scaleFactor());
-                p.drawText(m.cell(b.x(), b.y()).rect().center()*m.scaleFactor(), QString("%1").arg(path.m_length, 0, 'g', 2));
-                p.scale(m.scaleFactor(), m.scaleFactor());
-            }*/
         }
     }
 
@@ -176,6 +173,8 @@ void RobotHandler::draw(QPainter& p)
         p.setPen(QPen(Qt::red, 0.2));
         p.drawLine(pt, pt + QPointF(cos(m_delta), sin(m_delta)));
     }
+    
+    p.setRenderHints(rh, true);
 }
 
 void RobotHandler::mouseMoveEvent(QMouseEvent* event)

@@ -30,20 +30,58 @@
 
 void Path::beautify(GridMap& gridMap)
 {
+// Complexity: O(n)
+//     int start = 0;
+// 
+//     while (start < m_path.size() - 2) {
+//         int end = start + 1;
+//         while (end + 1 < m_path.size() && 
+//             gridMap.pathVisible(m_path[start], m_path[end + 1]))
+//         {
+//             ++end;
+//         }
+// 
+//         if (start + 1 < end) {
+//             m_path.erase(m_path.begin() + start + 1, m_path.begin() + end);
+//         }
+//         ++start;
+//     }
+
+
+    // Complexity: O(log(n))
     int start = 0;
-
     while (start < m_path.size() - 2) {
-        int end = start + 1;
-        while (end + 1 < m_path.size() && 
-            gridMap.pathVisible(m_path[start], m_path[end + 1]))
-        {
-            ++end;
+        const int end = m_path.size() - 1;
+        int diff = (end - start);
+        int mid = end;
+
+        while (mid != start + 1) {
+            bool wasVisible = false;
+            if (gridMap.pathVisible(m_path[start], m_path[mid])) {
+                if (mid == end) {
+                    break;
+                }
+                if (diff == 1) wasVisible = true;
+                diff = qMax(diff / 2, 1);
+                mid += diff;
+            }
+
+            if (!gridMap.pathVisible(m_path[start], m_path[mid])) {
+                if (wasVisible && diff == 1) { mid -= 1; break; }
+                if (end - start == 1) {
+                    break;
+                }
+                diff = qMax(diff / 2, 1);
+                mid -= diff;
+            }
         }
 
-        if (start + 1 < end) {
-            m_path.erase(m_path.begin() + start + 1, m_path.begin() + end);
+        if (mid - start > 1) {
+            m_path.erase(m_path.begin() + start + 1, m_path.begin() + mid);
+            mid -= (mid - start) - 1;
         }
-        ++start;
+        start = mid;
+        mid = m_path.size() - 1;
     }
 }
 
