@@ -134,22 +134,26 @@ void Scene::selectTool(int toolIndex)
             m_toolHandler->toolHandlerActive(false);
             m_toolHandler = &m_robotHandler;
             m_toolHandler->toolHandlerActive(true);
+            mainWindow()->statusBar()->showMessage("Click to place the robot.");
             break;
         case 2:
             m_toolHandler->toolHandlerActive(false);
             m_toolHandler = &m_obstacleHandler;
             m_toolHandler->toolHandlerActive(true);
+            mainWindow()->statusBar()->showMessage("Use the CTRL modifier to remove obstacles.");
             break;
         case 3:
             m_toolHandler->toolHandlerActive(false);
             m_toolHandler = &m_explorationHandler;
             m_toolHandler->toolHandlerActive(true);
+            mainWindow()->statusBar()->showMessage("Use the CTRL modifier to mark area as unexplored.");
             break;
         case 5:
             // TODO FIXME implement DisCoverage handler
 //            m_toolHandler->toolHandlerActive(false);
 //            m_toolHandler = &m_explorationHandler;
 //            m_toolHandler->toolHandlerActive(true);
+            mainWindow()->statusBar()->clearMessage();
             break;
         default:
             qDebug() << "Scene::selectTool() called with invalid index";
