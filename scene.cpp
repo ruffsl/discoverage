@@ -35,6 +35,7 @@ Scene::Scene(MainWindow* mainWindow, QWidget* parent)
     , m_robotHandler(this)
     , m_obstacleHandler(this)
     , m_explorationHandler(this)
+    , m_discoverageHandler(this)
 {
     setMouseTracking(true);
     QPixmap cursorPixmap(1, 1);
@@ -150,13 +151,13 @@ void Scene::selectTool(int toolIndex)
             break;
         case 5:
             // TODO FIXME implement DisCoverage handler
-//            m_toolHandler->toolHandlerActive(false);
-//            m_toolHandler = &m_explorationHandler;
-//            m_toolHandler->toolHandlerActive(true);
+            m_toolHandler->toolHandlerActive(false);
+            m_toolHandler = &m_discoverageHandler;
+            m_toolHandler->toolHandlerActive(true);
             mainWindow()->statusBar()->clearMessage();
             break;
         default:
-            qDebug() << "Scene::selectTool() called with invalid index";
+            qWarning() << "Scene::selectTool() called with invalid index";
     }
 
     update();

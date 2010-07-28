@@ -26,6 +26,7 @@
 #include "cell.h"
 #include "gridmap.h"
 #include "toolhandler.h"
+#include "discoveragehandler.h"
 
 class QPaintEvent;
 class QMouseEvent;
@@ -78,6 +79,7 @@ class Scene : public QFrame
         RobotHandler m_robotHandler;
         ObstacleHandler m_obstacleHandler;
         ExplorationHandler m_explorationHandler;
+        DisCoverageHandler m_discoverageHandler;
 };
 
 #endif // SCENE_H

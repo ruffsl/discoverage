@@ -9,6 +9,7 @@ set(discoverage_SRCS
   cell.cpp
   gridmap.cpp
   toolhandler.cpp
+  discoveragehandler.cpp
 )
 
 # another list, this time it includes all header files that should be treated with moc
