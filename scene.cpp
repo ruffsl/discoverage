@@ -126,24 +126,30 @@ void Scene::zoomOut()
 void Scene::selectTool(int toolIndex)
 {
     switch (toolIndex) {
-        case 0:
-            m_toolHandler = &m_robotHandler;
-            break;
         case 1:
-            m_toolHandler = &m_obstacleHandler;
-            m_obstacleHandler.setDesiredState(Cell::Obstacle);
+        case 4:
+            qWarning() << "Scene::selectTool() called with separator index" << toolIndex;
+            break;
+        case 0:
+            m_toolHandler->toolHandlerActive(false);
+            m_toolHandler = &m_robotHandler;
+            m_toolHandler->toolHandlerActive(true);
             break;
         case 2:
+            m_toolHandler->toolHandlerActive(false);
             m_toolHandler = &m_obstacleHandler;
-            m_obstacleHandler.setDesiredState(Cell::Free);
+            m_toolHandler->toolHandlerActive(true);
             break;
         case 3:
+            m_toolHandler->toolHandlerActive(false);
             m_toolHandler = &m_explorationHandler;
-            m_explorationHandler.setDesiredState(Cell::Explored);
+            m_toolHandler->toolHandlerActive(true);
             break;
-        case 4:
-            m_toolHandler = &m_explorationHandler;
-            m_explorationHandler.setDesiredState(Cell::Unknown);
+        case 5:
+            // TODO FIXME implement DisCoverage handler
+//            m_toolHandler->toolHandlerActive(false);
+//            m_toolHandler = &m_explorationHandler;
+//            m_toolHandler->toolHandlerActive(true);
             break;
         default:
             qDebug() << "Scene::selectTool() called with invalid index";

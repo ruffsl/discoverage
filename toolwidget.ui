@@ -15,33 +15,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QComboBox" name="cmbTool">
-     <item>
-      <property name="text">
-       <string>Place Robot</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Add Obstacles</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Remove Obstacles</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Mark as Explored</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>Mark as Unexplored</string>
-      </property>
-     </item>
-    </widget>
+    <widget class="QComboBox" name="cmbTool"/>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">

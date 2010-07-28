@@ -54,6 +54,7 @@ class ToolHandler
         virtual void draw(QPainter& p);
         virtual void mouseMoveEvent(QMouseEvent* event);
         virtual void mousePressEvent(QMouseEvent* event) = 0;
+        virtual void toolHandlerActive(bool activated);
 
     private:
         void setCurrentCell(const QPoint& cell);
@@ -91,8 +92,6 @@ class ObstacleHandler : public ToolHandler
         ObstacleHandler(Scene* scene);
         virtual ~ObstacleHandler();
 
-        void setDesiredState(Cell::State desiredState);
-
     public:
         virtual void draw(QPainter& p);
         virtual void mouseMoveEvent(QMouseEvent* event);
@@ -110,8 +109,6 @@ class ExplorationHandler : public ToolHandler
     public:
         ExplorationHandler(Scene* scene);
         virtual ~ExplorationHandler();
-
-        void setDesiredState(Cell::State desiredState);
 
     public:
         virtual void draw(QPainter& p);

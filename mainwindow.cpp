@@ -36,6 +36,12 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     QWidget* toolsWidget = new QWidget();
     Ui::ToolWidget tools;
     tools.setupUi(toolsWidget);
+    tools.cmbTool->addItem("Place Robot");          // 0
+    tools.cmbTool->insertSeparator(1);              // 1
+    tools.cmbTool->addItem("Modify Obstacles");     // 2
+    tools.cmbTool->addItem("Modify Explored Area"); // 3
+    tools.cmbTool->insertSeparator(4);              // 4
+    tools.cmbTool->addItem("DisCoverage");          // 5
     toolBar->insertWidget(actionDummy, toolsWidget);
     toolBar->removeAction(actionDummy);
 

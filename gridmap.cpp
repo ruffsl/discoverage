@@ -296,6 +296,60 @@ bool GridMap::isValidField(int xIndex, int yIndex) const
            yIndex < m_map[0].size();
 }
 
+static bool inCircle(qreal x, qreal y, qreal radius, qreal px, qreal py)
+{
+    qreal dx = x - px;
+    qreal dy = y - py;
+
+    return (dx*dx + dy*dy) < radius*radius;
+}
+
+void GridMap::explore(const QPointF& mapPos, double radius, Cell::State destState)
+{
+    const qreal x = mapPos.x();
+    const qreal y = mapPos.y();
+
+    const int cellRadius = ceil(radius / resolution());
+
+    int cellX = mapPos.x() / resolution();
+    int cellY = mapPos.y() / resolution();
+
+    int xStart = qMax(0, cellX - cellRadius);
+    int xEnd = qMin(size().width() - 1, cellX + cellRadius);
+
+    int yStart = qMax(0, cellY - cellRadius - 1);
+    int yEnd = qMin(size().height() - 1, cellY + cellRadius);
+
+    for (int a = xStart; a <= xEnd; ++a) {
+        for (int b = yStart; b <= yEnd; ++b) {
+            Cell& c = m_map[a][b];
+            if (!(c.state() & destState) && pathVisible(QPoint(cellX, cellY), QPoint(a, b))) {
+                const QRectF& r = c.rect();
+                const qreal x1 = r.left();
+                const qreal x2 = r.right();
+                const qreal y1 = r.top();
+                const qreal y2 = r.bottom();
+
+                int count = 0;
+                if (inCircle(x, y, radius, x1, y1)) ++count;
+                if (inCircle(x, y, radius, x1, y2)) ++count;
+                if (inCircle(x, y, radius, x2, y1)) ++count;
+                if (inCircle(x, y, radius, x2, y2)) ++count;
+
+                if (count == 4) {
+                    setState(c, destState);
+                    updateCell(a, b);
+                } else if (count > 0) {
+                    setState(c, Cell::Frontier);
+                    updateCell(a, b);
+                }
+            }
+        }
+    }
+}
+
+
+
 class PathField
 {
 public:

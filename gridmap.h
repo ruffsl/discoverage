@@ -47,6 +47,13 @@ class GridMap
         GridMap();
         GridMap(double width, double height, double resolution);
         ~GridMap();
+        
+    //
+    // load from / save to given config object
+    //
+    public:
+        void load(QSettings& config);
+        void save(QSettings& config);
 
     //
     // drawing
@@ -61,30 +68,52 @@ class GridMap
     // map properties
     //
     public:
-        // returns desired widget size in pixel
-        QSize displaySize() const;
+        QSize displaySize() const;      // returns desired widget size in pixel, equals pixmap-cache size
+        qreal scaleFactor() const;      // zoom factor for visualization
+        void incScaleFactor();          // increase zoom factor
+        void decScaleFactor();          // decrease zoom factor
 
-        qreal scaleFactor() const;
-        qreal resolution() const;
+        qreal resolution() const;       // grid resolution. 0.2 means 0.2m x 0.2m
+        QSize size() const;             // amount of cells in the grid map in
+        
+        inline int mapToCell(qreal screenPos) const {
+            return screenPos / (scaleFactor() * resolution());
+        }
+        
+        QPoint mapToCell(const QPointF& screenPos) const {
+            return (screenPos / (scaleFactor() * resolution())).toPoint();
+        }
 
-        void incScaleFactor();
-        void decScaleFactor();
+        qreal mapToMap(qreal screenPos) const {
+            return screenPos / scaleFactor();
+        }
+        
+        QPointF mapToMap(const QPointF& screenPos) const {
+            return screenPos / scaleFactor();
+        }
 
-        QSize size() const;
+        qreal mapToScreen(qreal mapPos) const {
+            return mapPos * scaleFactor();
+        }
+        
+        QPointF mapToScreen(const QPointF& mapPos) const {
+            return mapPos * scaleFactor();
+        }
 
-        Cell& cell(int xIndex, int yIndex);
+    //
+    // cell accessors
+    //
+    public:
+        Cell& cell(int xIndex, int yIndex);                     // cell accessor
+        bool isValidField(int xIndex, int yIndex) const;        // index check for 
+        void setState(Cell& cell, Cell::State newState);        // modify cell state
+        const QSet<Cell*>& frontiers() const;                   // cached list of all frontiers
 
-        bool isValidField(int xIndex, int yIndex) const;
-
-        void setState(Cell& cell, Cell::State newState);
-
-        const QSet<Cell*>& frontiers() const;
-
-        /**
-         * load and save grid map from config object
-         */
-        void load(QSettings& config);
-        void save(QSettings& config);
+    //
+    // Exploration
+    //
+    public:
+        void explore(const QPointF& pos, double radius, Cell::State destState);
 
     //
     // path finding

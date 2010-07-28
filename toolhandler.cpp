@@ -79,17 +79,17 @@ qreal ToolHandler::operationRadius() const
 
 qreal ToolHandler::mapToMap(qreal screenPos) const
 {
-    return screenPos / scene()->map().scaleFactor();
+    return scene()->map().mapToMap(screenPos);
 }
 
 int ToolHandler::mapToCell(qreal screenPos) const
 {
-    return screenPos / (scene()->map().scaleFactor() * scene()->map().resolution());
+    return scene()->map().mapToCell(screenPos);
 }
 
 qreal ToolHandler::mapToScreen(qreal mapPos) const
 {
-    return mapPos * scene()->map().scaleFactor();
+    return scene()->map().mapToScreen(mapPos);
 }
 
 void ToolHandler::draw(QPainter& p)
@@ -100,6 +100,10 @@ void ToolHandler::mouseMoveEvent(QMouseEvent* event)
 {
     setCurrentCell(cellForMousePosition(event->pos()));
     s_mousePosition = event->pos();
+}
+
+void ToolHandler::toolHandlerActive(bool activated)
+{
 }
 
 void ToolHandler::drawOperationRadius(QPainter& p)
@@ -293,7 +297,6 @@ static bool inCircle(qreal x, qreal y, qreal radius, qreal px, qreal py)
 //BEGIN ObstacleHandler
 ObstacleHandler::ObstacleHandler(Scene* scene)
     : ToolHandler(scene)
-    , m_desiredState(Cell::Obstacle)
 {
 }
 
@@ -322,20 +325,11 @@ void ObstacleHandler::mousePressEvent(QMouseEvent* event)
     mouseMoveEvent(event);
 }
 
-void ObstacleHandler::setDesiredState(Cell::State desiredState)
-{
-    m_desiredState = desiredState;
-}
-
 void ObstacleHandler::updateObstacles()
 {
-    Cell::State destState = m_desiredState;
+    Cell::State destState = Cell::Obstacle;
     if (QApplication::keyboardModifiers() & Qt::ControlModifier) {
-        if (m_desiredState & Cell::Obstacle) {
-            destState = Cell::Free;
-        } else {
-            destState = Cell::Obstacle;
-        }
+        destState = Cell::Free;
     }
 
     int cx = mapToCell(mousePosition().x());
@@ -383,17 +377,11 @@ void ObstacleHandler::updateObstacles()
 //BEGIN ExplorationHandler
 ExplorationHandler::ExplorationHandler(Scene* scene)
     : ToolHandler(scene)
-    , m_desiredState(Cell::Explored)
 {
 }
 
 ExplorationHandler::~ExplorationHandler()
 {
-}
-
-void ExplorationHandler::setDesiredState(Cell::State desiredState)
-{
-    m_desiredState = desiredState;
 }
 
 void ExplorationHandler::draw(QPainter& p)
@@ -420,56 +408,13 @@ void ExplorationHandler::mousePressEvent(QMouseEvent* event)
 
 void ExplorationHandler::updateExploredState()
 {
-    Cell::State destState = m_desiredState;
+    Cell::State destState = Cell::Explored;
     if (QApplication::keyboardModifiers() & Qt::ControlModifier) {
-        if (m_desiredState & Cell::Unknown) {
-            destState = Cell::Explored;
-        } else {
-            destState = Cell::Unknown;
-        }
+        destState = Cell::Unknown;
     }
 
-    int cx = mapToCell(mousePosition().x());
-    int cy = mapToCell(mousePosition().y());
-
-    qreal x = mapToMap(mousePosition().x());
-    qreal y = mapToMap(mousePosition().y());
-
-    GridMap& m = scene()->map();
-
-    int cr = operationRadius() / m.resolution();
-
-    int xStart = qMax(0, cx - cr - 1);
-    int xEnd = qMin(m.size().width() - 1, cx + cr + 1);
-
-    int yStart = qMax(0, cy - cr - 1);
-    int yEnd = qMin(m.size().height() - 1, cy + cr + 1);
-    for (int a = xStart; a <= xEnd; ++a) {
-        for (int b = yStart; b <= yEnd; ++b) {
-            Cell& c = m.cell(a, b);
-            if (!(c.state() & destState)) {
-                const QRectF& r = c.rect();
-                const qreal x1 = r.left();
-                const qreal x2 = r.right();
-                const qreal y1 = r.top();
-                const qreal y2 = r.bottom();
-
-                int count = 0;
-                if (inCircle(x, y, operationRadius(), x1, y1)) ++count;
-                if (inCircle(x, y, operationRadius(), x1, y2)) ++count;
-                if (inCircle(x, y, operationRadius(), x2, y1)) ++count;
-                if (inCircle(x, y, operationRadius(), x2, y2)) ++count;
-
-                if (count == 4) {
-                    m.setState(c, destState);
-                    m.updateCell(a, b);
-                } else if (count > 0) {
-                    m.setState(c, Cell::Frontier);
-                    m.updateCell(a, b);
-                }
-            }
-        }
-    }
+    QPointF pos = scene()->map().mapToMap(mousePosition());
+    scene()->map().explore(pos, operationRadius(), destState);
 }
 //END ExplorationHandler
 

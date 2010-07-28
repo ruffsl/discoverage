@@ -117,6 +117,8 @@
    <addaction name="separator"/>
    <addaction name="actionDummy"/>
    <addaction name="separator"/>
+   <addaction name="actionStep"/>
+   <addaction name="separator"/>
    <addaction name="actionZoomOut"/>
    <addaction name="actionZoomIn"/>
    <addaction name="separator"/>
