@@ -59,6 +59,7 @@ QDockWidget* DisCoverageHandler::dockWidget()
         m_ui->setupUi(w);
         m_plotter = new OrientationPlotter(w);
         w->layout()->addWidget(m_plotter);
+        qobject_cast<QBoxLayout*>(w->layout())->addStretch();
         m_dock->setWidget(w);
         scene()->mainWindow()->addDockWidget(Qt::RightDockWidgetArea, m_dock);
         
@@ -236,6 +237,7 @@ void DisCoverageHandler::updateDisCoverage(const QPointF& robotPosition)
     }
     
     m_delta = deltaPoints[i].x();
+    m_plotter->setCurrentOrientation(deltaPoints[i]);
 #else
     m_delta = deltaMax;
 #endif
@@ -311,6 +313,12 @@ void OrientationPlotter::setData(const QVector<QPointF>& data)
     update();
 }
 
+void OrientationPlotter::setCurrentOrientation(const QPointF& currentOrientation)
+{
+    m_currentOrientation = currentOrientation;
+    update();
+}
+
 void OrientationPlotter::paintEvent(QPaintEvent* event)
 {
     qreal maxY = 0.0;
@@ -328,8 +336,13 @@ void OrientationPlotter::paintEvent(QPaintEvent* event)
         return;
     }
 
+    const qreal scaleX = (width() / 2.0) / 3.5;
+    const qreal scaleY = (height() - 5.0) / maxY;
+
     p.translate(width() / 2.0, height() - 2);
-    p.scale(-(width() / 2.0) / 3.5, - height() / maxY);
+    p.scale(-scaleX, -scaleY);
+
+    p.setRenderHints(QPainter::Antialiasing, true);
 
     p.drawLine(QPointF(-3.4, 0), QPointF(3.4, 0));
     p.drawLine(QPointF(0.0, 0.0), QPointF(0, maxY));
@@ -337,6 +350,10 @@ void OrientationPlotter::paintEvent(QPaintEvent* event)
     for (int i = 0; i < m_data.size() - 1; ++i) {
         p.drawLine(m_data[i], m_data[i+1]);
     }
+    
+    p.setPen(Qt::red);
+    p.setBrush(QBrush(QColor(255, 0, 0, 128)));
+    p.drawEllipse(m_currentOrientation, 3.0 / scaleX, 3.0 / scaleY);
 }
 
 // kate: replace-tabs on; indent-width 4;

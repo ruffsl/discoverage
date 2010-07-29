@@ -81,11 +81,13 @@ class OrientationPlotter : public QFrame
         virtual ~OrientationPlotter();
         
         void setData(const QVector<QPointF>& data);
+        void setCurrentOrientation(const QPointF& currentOrientation);
 
     protected:
         virtual void paintEvent(QPaintEvent* event);
 
         QVector<QPointF> m_data;
+        QPointF m_currentOrientation;
 };
 
 #endif // DISCOVERAGE_HANDLER_H
