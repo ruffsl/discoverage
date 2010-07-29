@@ -197,7 +197,7 @@ void DisCoverageHandler::updateDisCoverage(const QPointF& robotPosition)
             s += disCoverage(robotPosition, delta, q->rect().center(), allPaths[i]);
             ++i;
         }
-        
+
         deltaPoints.append(QPointF(delta, s));
 
         if (s > sMax) {
@@ -206,10 +206,39 @@ void DisCoverageHandler::updateDisCoverage(const QPointF& robotPosition)
         }
         delta += 0.1f;
     }
-    
+
     m_plotter->setData(deltaPoints);
 
+#if 1
+    int i;
+    for (i = 0; i < deltaPoints.size(); ++i) {
+        if (deltaPoints[i].x() == m_delta)
+            break;
+    }
+
+    // first time m_delta == 0.0, so no index found
+    if (deltaPoints.size() == i) {
+        m_delta = deltaMax;
+        return;
+    }
+
+    const int n = deltaPoints.size();
+    int c = 0; // avoid infinite loop
+    while (deltaPoints[i].y() <= deltaPoints[(i + 1) % n].y() && c < n) {
+        i = (i + 1) % n;
+        ++c;
+    }
+
+    c = 0;
+    while (deltaPoints[i].y() <= deltaPoints[(i - 1 + n) % n].y() && c < n) {
+        i = (i - 1 + n) % n;
+        ++c;
+    }
+    
+    m_delta = deltaPoints[i].x();
+#else
     m_delta = deltaMax;
+#endif
 }
 
 float DisCoverageHandler::disCoverage(const QPointF& pos, float delta, const QPointF& q, const Path& path)
@@ -300,9 +329,10 @@ void OrientationPlotter::paintEvent(QPaintEvent* event)
     }
 
     p.translate(width() / 2.0, height() - 2);
-    p.scale((width() / 2.0) / 3.5, - height() / maxY);
+    p.scale(-(width() / 2.0) / 3.5, - height() / maxY);
 
     p.drawLine(QPointF(-3.4, 0), QPointF(3.4, 0));
+    p.drawLine(QPointF(0.0, 0.0), QPointF(0, maxY));
 
     for (int i = 0; i < m_data.size() - 1; ++i) {
         p.drawLine(m_data[i], m_data[i+1]);
