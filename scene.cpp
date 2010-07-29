@@ -204,4 +204,9 @@ GridMap& Scene::map()
     return m_map;
 }
 
+void Scene::tick()
+{
+    m_toolHandler->tick();
+}
+
 // kate: replace-tabs on; indent-width 4;

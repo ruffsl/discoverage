@@ -35,6 +35,7 @@ DisCoverageHandler::DisCoverageHandler(Scene* scene)
     , ToolHandler(scene)
     , m_dock(0)
     , m_ui(0)
+    , m_plotter(0)
 {
 }
 
@@ -52,9 +53,12 @@ QDockWidget* DisCoverageHandler::dockWidget()
 {
     if (!m_dock) {
         m_dock = new QDockWidget("DisCoverage", scene()->mainWindow());
+        m_dock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
         m_ui = new Ui::DisCoverageWidget();
         QWidget* w = new QWidget();
         m_ui->setupUi(w);
+        m_plotter = new OrientationPlotter(w);
+        w->layout()->addWidget(m_plotter);
         m_dock->setWidget(w);
         scene()->mainWindow()->addDockWidget(Qt::RightDockWidgetArea, m_dock);
         
@@ -142,13 +146,9 @@ void DisCoverageHandler::draw(QPainter& p)
 //         }
 //     }
 
-    if (m_allPaths.size()) {
-        const QPointF& pathPt = m_allPaths.first().m_path[0];
-        const QPointF pt = m.cell(pathPt.x(), pathPt.y()).rect().center();
-        p.setPen(QPen(Qt::red, 0.2));
-        p.drawLine(pt, pt + QPointF(cos(m_delta), sin(m_delta)));
-    }
-    
+    p.setPen(QPen(Qt::red, 0.2));
+    p.drawLine(m_robotPosition, m_robotPosition + QPointF(cos(m_delta), sin(m_delta)));
+
     p.setRenderHints(rh, true);
 }
 
@@ -157,7 +157,8 @@ void DisCoverageHandler::mouseMoveEvent(QMouseEvent* event)
     ToolHandler::mouseMoveEvent(event);
 
     if (event->buttons() & Qt::LeftButton) {
-        updateDisCoverage();
+        m_robotPosition = scene()->map().mapScreenToMap(event->posF());
+        updateDisCoverage(m_robotPosition);
     }
 }
 
@@ -166,38 +167,48 @@ void DisCoverageHandler::mousePressEvent(QMouseEvent* event)
     mouseMoveEvent(event);
 }
 
-void DisCoverageHandler::updateDisCoverage()
+void DisCoverageHandler::tick()
+{
+    updateDisCoverage(m_robotPosition);
+    m_robotPosition += QPointF(cos(m_delta), sin(m_delta)) * scene()->map().resolution();
+    scene()->map().explore(m_robotPosition, 2.0, Cell::Explored);
+    scene()->update();
+}
+
+void DisCoverageHandler::updateDisCoverage(const QPointF& robotPosition)
 {
     const QSet<Cell*>& frontiers = scene()->map().frontiers();
-    m_allPaths.clear();
-    GridMap&m = scene()->map();
-    QPoint pt = currentCell();
-    m_allPaths = m.frontierPaths(pt);
-    for (int i = 0; i < m_allPaths.size(); ++i) {
-        m_allPaths[i].beautify(m);
+    GridMap& m = scene()->map();
+    QPoint pt = m.mapMapToCell(robotPosition);
+    QList<Path> allPaths = m.frontierPaths(pt);
+    for (int i = 0; i < allPaths.size(); ++i) {
+        allPaths[i].beautify(m);
     }
 
+    QVector<QPointF> deltaPoints;
+
     float delta = -M_PI;
-    QPointF pi = m.cell(pt.x(), pt.y()).rect().center();
     float sMax = 0.0f;
     float deltaMax = 0.0f;
     while (delta < M_PI) {
         float s = 0;
         int i = 0;
         foreach (Cell* q, frontiers) {
-            s += disCoverage(pi, delta, q->rect().center(), m_allPaths[i]);
+            s += disCoverage(robotPosition, delta, q->rect().center(), allPaths[i]);
             ++i;
         }
+        
+        deltaPoints.append(QPointF(delta, s));
 
         if (s > sMax) {
             sMax = s;
             deltaMax = delta;
         }
-//         qDebug() << s;
         delta += 0.1f;
     }
+    
+    m_plotter->setData(deltaPoints);
 
-    qDebug() << deltaMax << sMax;
     m_delta = deltaMax;
 }
 
@@ -210,18 +221,19 @@ float DisCoverageHandler::disCoverage(const QPointF& pos, float delta, const QPo
     const float theta = 0.5;
     const float sigma = 2.0;
 
-    const QPoint& p1 = path.m_path[0];
-    const QPoint& p2 = path.m_path[1];
+    const QPointF cellCenter = scene()->map().cell(path.m_path[1]).rect().center();
 
-    const float dx = p2.x() - p1.x();
-    const float dy = p2.y() - p1.y();
+    // pos is continuous robot position
+    // cellCenter is center of 2nd path cell
+    const float dx = cellCenter.x() - pos.x();
+    const float dy = cellCenter.y() - pos.y();
 
     float alpha = - delta + atan2(dy, dx);
 
     if (alpha > M_PI) alpha -= 2 * M_PI;
     else if (alpha < -M_PI) alpha += 2 * M_PI;
 
-    float len = path.m_length*0.2;
+    float len = path.m_length * scene()->map().resolution();
 
     return exp(- alpha*alpha/(2.0*theta*theta)
                - len*len/(2.0*sigma*sigma));
@@ -248,5 +260,53 @@ float DisCoverageHandler::disCoverage(const QPointF& pos, float delta, const QPo
 }
 #endif
 //END DisCoverageHandler
+
+
+
+
+
+OrientationPlotter::OrientationPlotter(QWidget* parent)
+    : QFrame(parent)
+{
+    setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    setFixedHeight(100);
+}
+
+OrientationPlotter::~OrientationPlotter()
+{
+}
+
+void OrientationPlotter::setData(const QVector<QPointF>& data)
+{
+    m_data = data;
+    update();
+}
+
+void OrientationPlotter::paintEvent(QPaintEvent* event)
+{
+    qreal maxY = 0.0;
+    foreach (const QPointF& p, m_data) {
+        if (maxY < p.y()) {
+            maxY = p.y();
+        }
+    }
+
+    QPainter p(this);
+    p.fillRect(rect(), Qt::white);
+    QFrame::paintEvent(event);
+
+    if (maxY == 0.0) {
+        return;
+    }
+
+    p.translate(width() / 2.0, height() - 2);
+    p.scale((width() / 2.0) / 3.5, - height() / maxY);
+
+    p.drawLine(QPointF(-3.4, 0), QPointF(3.4, 0));
+
+    for (int i = 0; i < m_data.size() - 1; ++i) {
+        p.drawLine(m_data[i], m_data[i+1]);
+    }
+}
 
 // kate: replace-tabs on; indent-width 4;

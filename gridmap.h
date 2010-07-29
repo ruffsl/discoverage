@@ -75,28 +75,37 @@ class GridMap
 
         qreal resolution() const;       // grid resolution. 0.2 means 0.2m x 0.2m
         QSize size() const;             // amount of cells in the grid map in
-        
-        inline int mapToCell(qreal screenPos) const {
+
+        inline int mapScreenToCell(qreal screenPos) const {
             return screenPos / (scaleFactor() * resolution());
         }
         
-        QPoint mapToCell(const QPointF& screenPos) const {
+        QPoint mapScreenToCell(const QPointF& screenPos) const {
             return (screenPos / (scaleFactor() * resolution())).toPoint();
         }
 
-        qreal mapToMap(qreal screenPos) const {
+        qreal mapScreenToMap(qreal screenPos) const {
             return screenPos / scaleFactor();
         }
         
-        QPointF mapToMap(const QPointF& screenPos) const {
+        QPointF mapScreenToMap(const QPointF& screenPos) const {
             return screenPos / scaleFactor();
+        }
+        
+        int mapMapToCell(qreal mapPos) const {
+            return mapPos / resolution();
+        }
+        
+        QPoint mapMapToCell(const QPointF& mapPos) const {
+            return (mapPos / resolution()).toPoint();
         }
 
-        qreal mapToScreen(qreal mapPos) const {
+
+        qreal mapMapToScreen(qreal mapPos) const {
             return mapPos * scaleFactor();
         }
-        
-        QPointF mapToScreen(const QPointF& mapPos) const {
+
+        QPointF mapMapToScreen(const QPointF& mapPos) const {
             return mapPos * scaleFactor();
         }
 
@@ -105,6 +114,7 @@ class GridMap
     //
     public:
         Cell& cell(int xIndex, int yIndex);                     // cell accessor
+        Cell& cell(const QPointF & index);                      // cell accessor
         bool isValidField(int xIndex, int yIndex) const;        // index check for 
         void setState(Cell& cell, Cell::State newState);        // modify cell state
         const QSet<Cell*>& frontiers() const;                   // cached list of all frontiers

@@ -58,6 +58,8 @@ class Scene : public QFrame
 
         void selectTool(int toolIndex);
         void setOperationRadius(double radius);
+        
+        void tick();
 
     public:
         virtual QSize sizeHint() const;

@@ -79,17 +79,17 @@ qreal ToolHandler::operationRadius() const
 
 qreal ToolHandler::mapToMap(qreal screenPos) const
 {
-    return scene()->map().mapToMap(screenPos);
+    return scene()->map().mapScreenToMap(screenPos);
 }
 
 int ToolHandler::mapToCell(qreal screenPos) const
 {
-    return scene()->map().mapToCell(screenPos);
+    return scene()->map().mapScreenToCell(screenPos);
 }
 
 qreal ToolHandler::mapToScreen(qreal mapPos) const
 {
-    return scene()->map().mapToScreen(mapPos);
+    return scene()->map().mapMapToScreen(mapPos);
 }
 
 void ToolHandler::draw(QPainter& p)
@@ -103,6 +103,10 @@ void ToolHandler::mouseMoveEvent(QMouseEvent* event)
 }
 
 void ToolHandler::toolHandlerActive(bool activated)
+{
+}
+
+void ToolHandler::tick()
 {
 }
 
@@ -126,7 +130,7 @@ void ToolHandler::highlightCurrentCell(QPainter& p)
         r.setWidth(r.width() * scene()->map().scaleFactor());
         r.setHeight(r.height() * scene()->map().scaleFactor());
         r.moveTo(r.left() * scene()->map().scaleFactor(), r.top() * scene()->map().scaleFactor());
-        const qreal w = r.width() / 3.0;
+        const qreal w = r.width() / 5.0;
         r.adjust(-w, -w, w, w); // draw rect a little bigger
 
         p.setOpacity(0.5);
@@ -413,7 +417,7 @@ void ExplorationHandler::updateExploredState()
         destState = Cell::Unknown;
     }
 
-    QPointF pos = scene()->map().mapToMap(mousePosition());
+    QPointF pos = scene()->map().mapScreenToMap(mousePosition());
     scene()->map().explore(pos, operationRadius(), destState);
 }
 //END ExplorationHandler

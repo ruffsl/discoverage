@@ -22,6 +22,7 @@
 
 #include <QtCore/QPoint>
 #include <QtCore/QObject>
+#include <QtGui/QFrame>
 #include "cell.h"
 #include "gridmap.h"
 #include "toolhandler.h"
@@ -30,6 +31,7 @@ class QMouseEvent;
 class QPainter;
 class Scene;
 class QDockWidget;
+class OrientationPlotter;
 
 namespace Ui { class DisCoverageWidget; }
 
@@ -46,24 +48,44 @@ class DisCoverageHandler : public QObject, public ToolHandler
         virtual void mouseMoveEvent(QMouseEvent* event);
         virtual void mousePressEvent(QMouseEvent* event);
         virtual void toolHandlerActive(bool activated);
-        
+        virtual void tick();
+
     private Q_SLOTS:
-        void showVectorField(bool);
+        void showVectorField(bool show);
 
     private:
-        void updateDisCoverage();
+        void updateDisCoverage(const QPointF& robotPosition);
         float disCoverage(const QPointF& pos, float delta, const QPointF& q, const Path& path);
 
         QDockWidget* dockWidget();
 
     private:
-        QList<Path> m_allPaths;
+//         QList<Path> m_allPaths;
         double m_delta;
 
         QDockWidget* m_dock;
         Ui::DisCoverageWidget* m_ui;
-        
+        OrientationPlotter* m_plotter;
+
         QVector<QVector<QLineF> > m_vectorField;
+        
+        QPointF m_robotPosition;
+};
+
+class OrientationPlotter : public QFrame
+{
+    Q_OBJECT
+    
+    public:
+        OrientationPlotter(QWidget* parent = 0);
+        virtual ~OrientationPlotter();
+        
+        void setData(const QVector<QPointF>& data);
+
+    protected:
+        virtual void paintEvent(QPaintEvent* event);
+
+        QVector<QPointF> m_data;
 };
 
 #endif // DISCOVERAGE_HANDLER_H

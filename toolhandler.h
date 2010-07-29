@@ -55,6 +55,7 @@ class ToolHandler
         virtual void mouseMoveEvent(QMouseEvent* event);
         virtual void mousePressEvent(QMouseEvent* event) = 0;
         virtual void toolHandlerActive(bool activated);
+        virtual void tick();
 
     private:
         void setCurrentCell(const QPoint& cell);
