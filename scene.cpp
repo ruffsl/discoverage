@@ -198,14 +198,32 @@ void Scene::paintEvent(QPaintEvent* event)
 
 void Scene::mouseMoveEvent(QMouseEvent* event)
 {
-    m_toolHandler->mouseMoveEvent(event);
+    QPoint pos = event->pos();
+    if (pos.x() < 0) pos.setX(0);
+    if (pos.y() < 0) pos.setY(0);
+    if (pos.x() >= width()) pos.setX(width() - 1);
+    if (pos.y() >= height()) pos.setY(height() - 1);
+    QMouseEvent constrainedEvent(event->type(), pos, event->button(), event->buttons(), event->modifiers());
+
+    m_toolHandler->mouseMoveEvent(&constrainedEvent);
     update();
 }
 
 void Scene::mousePressEvent(QMouseEvent* event)
 {
+    if (event->button() == Qt::LeftButton) {
+        grabMouse();
+    }
+
     m_toolHandler->mousePressEvent(event);
     update();
+}
+
+void Scene::mouseReleaseEvent(QMouseEvent* event)
+{
+    if (event->button() == Qt::LeftButton) {
+        releaseMouse();
+    }
 }
 
 GridMap& Scene::map()
