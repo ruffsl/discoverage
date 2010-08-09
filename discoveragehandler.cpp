@@ -79,7 +79,7 @@ void DisCoverageHandler::save(QSettings& config)
 {
     ToolHandler::save(config);
 
-    config.beginGroup("DisCoverage");
+    config.beginGroup("dis-coverage");
     config.setValue("vision-radius", m_visionRadius);
     config.setValue("theta", m_theta);
     config.setValue("sigma", m_sigma);
@@ -92,7 +92,7 @@ void DisCoverageHandler::load(QSettings& config)
 {
     ToolHandler::load(config);
 
-    config.beginGroup("DisCoverage");
+    config.beginGroup("dis-coverage");
     m_visionRadius = config.value("vision-radius", 2.0).toDouble();
     m_theta = config.value("theta", 0.5).toDouble();
     m_sigma = config.value("sigma", 2.0).toDouble();

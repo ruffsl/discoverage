@@ -114,7 +114,7 @@ void MainWindow::loadScene()
 
     m_scene->load(config);
 
-    config.beginGroup("ToolHandler");
+    config.beginGroup("tool-handler");
     m_toolsUi->sbRadius->setValue(ToolHandler::operationRadius());
     m_toolsUi->cmbTool->setCurrentIndex(config.value("tool", 0).toInt());
     config.endGroup();
@@ -147,7 +147,7 @@ void MainWindow::saveScene()
 
     config.setValue("general/version", 1);
 
-    config.beginGroup("ToolHandler");
+    config.beginGroup("tool-handler");
     config.setValue("tool", m_toolsUi->cmbTool->currentIndex());
     config.endGroup();
 

@@ -116,7 +116,7 @@ void ToolHandler::tick()
 
 void ToolHandler::save(QSettings& config)
 {
-    config.beginGroup("ToolHandler");
+    config.beginGroup("tool-handler");
     config.setValue("current-cell", s_currentCell);
     config.setValue("mouse-position", s_mousePosition);
     config.setValue("operation radius", s_operationRadius);
@@ -125,7 +125,7 @@ void ToolHandler::save(QSettings& config)
 
 void ToolHandler::load(QSettings& config)
 {
-    config.beginGroup("ToolHandler");
+    config.beginGroup("tool-handler");
     setCurrentCell(config.value("current-cell", QPoint(0, 0)).toPoint());
     s_mousePosition = config.value("mouse-position", QPoint(0, 0)).toPoint();
     s_operationRadius = config.value("operation radius", 2.0).toDouble();
