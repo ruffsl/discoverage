@@ -52,6 +52,7 @@ class DisCoverageHandler : public QObject, public ToolHandler
 
     private Q_SLOTS:
         void showVectorField(bool show);
+        void updateParameters();
 
     private:
         void updateDisCoverage(const QPointF& robotPosition);
@@ -62,6 +63,9 @@ class DisCoverageHandler : public QObject, public ToolHandler
     private:
 //         QList<Path> m_allPaths;
         double m_delta;
+        double m_visionRadius;
+        double m_theta;
+        double m_sigma;
 
         QDockWidget* m_dock;
         Ui::DisCoverageWidget* m_ui;

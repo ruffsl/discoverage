@@ -98,8 +98,11 @@ void ToolHandler::draw(QPainter& p)
 
 void ToolHandler::mouseMoveEvent(QMouseEvent* event)
 {
-    setCurrentCell(cellForMousePosition(event->pos()));
-    s_mousePosition = event->pos();
+    const QPoint cell = cellForMousePosition(event->pos());
+    if (scene()->map().isValidField(cell.x(), cell.y())) {
+        setCurrentCell(cell);
+        s_mousePosition = event->pos();
+    }
 }
 
 void ToolHandler::toolHandlerActive(bool activated)
@@ -201,10 +204,10 @@ void RobotHandler::mousePressEvent(QMouseEvent* event)
 
 void RobotHandler::updateDisCoverage()
 {
-    const QSet<Cell*>& frontiers = scene()->map().frontiers();
-    m_allPaths.clear();
     GridMap&m = scene()->map();
     QPoint pt = currentCell();
+    const QSet<Cell*>& frontiers = scene()->map().frontiers();
+    m_allPaths.clear();
     m_allPaths = m.frontierPaths(pt);
     for (int i = 0; i < m_allPaths.size(); ++i) {
         m_allPaths[i].beautify(m);
@@ -418,7 +421,9 @@ void ExplorationHandler::updateExploredState()
     }
 
     QPointF pos = scene()->map().mapScreenToMap(mousePosition());
-    scene()->map().explore(pos, operationRadius(), destState);
+    if (scene()->map().isValidField(pos.x(), pos.y())) {
+        scene()->map().explore(pos, operationRadius(), destState);
+    }
 }
 //END ExplorationHandler
 

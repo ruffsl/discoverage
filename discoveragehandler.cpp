@@ -64,8 +64,23 @@ QDockWidget* DisCoverageHandler::dockWidget()
         scene()->mainWindow()->addDockWidget(Qt::RightDockWidgetArea, m_dock);
         
         connect(m_ui->chkShowVectorField, SIGNAL(toggled(bool)), this, SLOT(showVectorField(bool)));
+        connect(m_ui->sbVisionRaius, SIGNAL(valueChanged(double)), this, SLOT(updateParameters()));
+        connect(m_ui->sbTheta, SIGNAL(valueChanged(double)), this, SLOT(updateParameters()));
+        connect(m_ui->sbSigma, SIGNAL(valueChanged(double)), this, SLOT(updateParameters()));
+
+        updateParameters();
     }
     return m_dock;
+}
+
+void DisCoverageHandler::updateParameters()
+{
+    m_visionRadius = m_ui->sbVisionRaius->value();
+    m_theta = m_ui->sbTheta->value();
+    m_sigma = m_ui->sbSigma->value();
+    
+    updateDisCoverage(m_robotPosition);
+    scene()->update();
 }
 
 void DisCoverageHandler::showVectorField(bool show)
@@ -130,7 +145,10 @@ void DisCoverageHandler::draw(QPainter& p)
     
     QPainter::RenderHints rh = p.renderHints();
     p.setRenderHints(QPainter::Antialiasing, true);
-    
+
+    QPen bluePen(QColor(0, 0, 255, 196), m.resolution() * 0.3);
+//     bluePen.setCapStyle(Qt::RoundCap);
+    p.setPen(bluePen);
     for (int a = 0; a < m_vectorField.size(); ++a) {
         const int s = m_vectorField[0].size();
         for (int b = 0; b < s; ++b) {
@@ -147,7 +165,13 @@ void DisCoverageHandler::draw(QPainter& p)
 //         }
 //     }
 
-    p.setPen(QPen(Qt::red, 0.2));
+
+    p.setOpacity(0.2);
+    p.setBrush(QBrush(Qt::blue));
+    p.drawEllipse(m_robotPosition, m_visionRadius, m_visionRadius);
+    p.setOpacity(1.0);
+
+    p.setPen(QPen(Qt::red, m.resolution() * 0.5));
     p.drawLine(m_robotPosition, m_robotPosition + QPointF(cos(m_delta), sin(m_delta)));
 
     p.setRenderHints(rh, true);
@@ -172,7 +196,7 @@ void DisCoverageHandler::tick()
 {
     updateDisCoverage(m_robotPosition);
     m_robotPosition += QPointF(cos(m_delta), sin(m_delta)) * scene()->map().resolution();
-    scene()->map().explore(m_robotPosition, 2.0, Cell::Explored);
+    scene()->map().explore(m_robotPosition, m_visionRadius, Cell::Explored);
     scene()->update();
 }
 
@@ -249,8 +273,8 @@ float DisCoverageHandler::disCoverage(const QPointF& pos, float delta, const QPo
         return 0.0f;
     }
 
-    const float theta = 0.5;
-    const float sigma = 2.0;
+    const double theta = m_theta;
+    const double sigma = m_sigma;
 
     const QPointF cellCenter = scene()->map().cell(path.m_path[1]).rect().center();
 

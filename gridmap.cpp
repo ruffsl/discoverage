@@ -424,7 +424,7 @@ QList<Path> GridMap::frontierPaths(const QPoint& start)
         int x = f.x, y = f.y;
 
         // Alle angrenzenden Felder bearbeiten
-        for (int i = 0; i < 8; ++i) {
+        for (int i = 0; i < 4; ++i) {
             // Nachbarzelle
             int ax = x + directionMap[i][0];
             int ay = y + directionMap[i][1];
