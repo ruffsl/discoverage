@@ -27,6 +27,7 @@
 class QMouseEvent;
 class QPainter;
 class Scene;
+class QSettings;
 
 class ToolHandler
 {
@@ -40,8 +41,8 @@ class ToolHandler
         QPoint currentCell() const;
         QPoint mousePosition() const;
 
-        void setOperationRadius(double radius);
-        qreal operationRadius() const;
+        static void setOperationRadius(double radius);
+        static qreal operationRadius();
 
         int mapToCell(qreal screenPos) const;
         qreal mapToMap(qreal screenPos) const;
@@ -56,6 +57,8 @@ class ToolHandler
         virtual void mousePressEvent(QMouseEvent* event) = 0;
         virtual void toolHandlerActive(bool activated);
         virtual void tick();
+        virtual void save(QSettings& config);
+        virtual void load(QSettings& config);
 
     private:
         void setCurrentCell(const QPoint& cell);
@@ -64,7 +67,7 @@ class ToolHandler
         Scene* m_scene;
         static QPoint s_currentCell;
         static QPoint s_mousePosition;
-        static qreal s_operationRadius;
+        static double s_operationRadius;
 };
 
 class RobotHandler : public ToolHandler
@@ -100,8 +103,6 @@ class ObstacleHandler : public ToolHandler
 
     private:
         void updateObstacles();
-
-        Cell::State m_desiredState;
 };
 
 
@@ -118,7 +119,6 @@ class ExplorationHandler : public ToolHandler
 
     private:
         void updateExploredState();
-        Cell::State m_desiredState;
 };
 
 

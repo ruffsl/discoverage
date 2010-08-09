@@ -49,6 +49,8 @@ class DisCoverageHandler : public QObject, public ToolHandler
         virtual void mousePressEvent(QMouseEvent* event);
         virtual void toolHandlerActive(bool activated);
         virtual void tick();
+        virtual void load(QSettings& config);
+        virtual void save(QSettings& config);
 
     private Q_SLOTS:
         void showVectorField(bool show);

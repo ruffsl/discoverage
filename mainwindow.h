@@ -27,6 +27,10 @@ class QPoint;
 class QLabel;
 class Scene;
 
+namespace Ui {
+    class ToolWidget;
+}
+
 class MainWindow : public QMainWindow, protected Ui::MainWindow
 {
     Q_OBJECT
@@ -44,6 +48,7 @@ class MainWindow : public QMainWindow, protected Ui::MainWindow
         void exportAsPdf();
 
     private:
+        Ui::ToolWidget* m_toolsUi;
         QLabel* m_statusPosition;
         QLabel* m_statusResolution;
         Scene* m_scene;

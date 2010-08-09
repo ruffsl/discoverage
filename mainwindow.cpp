@@ -34,14 +34,14 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     setupUi(this);
 
     QWidget* toolsWidget = new QWidget();
-    Ui::ToolWidget tools;
-    tools.setupUi(toolsWidget);
-    tools.cmbTool->addItem("Place Robot");          // 0
-    tools.cmbTool->insertSeparator(1);              // 1
-    tools.cmbTool->addItem("Modify Obstacles");     // 2
-    tools.cmbTool->addItem("Modify Explored Area"); // 3
-    tools.cmbTool->insertSeparator(4);              // 4
-    tools.cmbTool->addItem("DisCoverage");          // 5
+    m_toolsUi = new Ui::ToolWidget();
+    m_toolsUi->setupUi(toolsWidget);
+    m_toolsUi->cmbTool->addItem("Place Robot");          // 0
+    m_toolsUi->cmbTool->insertSeparator(1);              // 1
+    m_toolsUi->cmbTool->addItem("Modify Obstacles");     // 2
+    m_toolsUi->cmbTool->addItem("Modify Explored Area"); // 3
+    m_toolsUi->cmbTool->insertSeparator(4);              // 4
+    m_toolsUi->cmbTool->addItem("DisCoverage");          // 5
     toolBar->insertWidget(actionDummy, toolsWidget);
     toolBar->removeAction(actionDummy);
 
@@ -64,12 +64,13 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     connect(actionSave, SIGNAL(triggered()), this, SLOT(saveScene()));
     connect(actionExport, SIGNAL(triggered()), this, SLOT(exportAsPdf()));
     connect(actionStep, SIGNAL(triggered()), m_scene, SLOT(tick()));
-    connect(tools.cmbTool, SIGNAL(currentIndexChanged(int)), m_scene, SLOT(selectTool(int)));
-    connect(tools.sbRadius, SIGNAL(valueChanged(double)), m_scene, SLOT(setOperationRadius(double)));
+    connect(m_toolsUi->cmbTool, SIGNAL(currentIndexChanged(int)), m_scene, SLOT(selectTool(int)));
+    connect(m_toolsUi->sbRadius, SIGNAL(valueChanged(double)), m_scene, SLOT(setOperationRadius(double)));
 }
 
 MainWindow::~MainWindow()
 {
+    delete m_toolsUi;
 }
 
 void MainWindow::setStatusPosition(const QPoint& pos)
@@ -112,6 +113,12 @@ void MainWindow::loadScene()
     }
 
     m_scene->load(config);
+
+    config.beginGroup("ToolHandler");
+    m_toolsUi->sbRadius->setValue(ToolHandler::operationRadius());
+    m_toolsUi->cmbTool->setCurrentIndex(config.value("tool", 0).toInt());
+    config.endGroup();
+
     m_sceneFile = fileName;
 }
 
@@ -139,6 +146,11 @@ void MainWindow::saveScene()
     }
 
     config.setValue("general/version", 1);
+
+    config.beginGroup("ToolHandler");
+    config.setValue("tool", m_toolsUi->cmbTool->currentIndex());
+    config.endGroup();
+
     m_scene->save(config);
 }
 

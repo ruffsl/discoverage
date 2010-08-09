@@ -23,6 +23,7 @@
 
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
+#include <QtCore/QSettings>
 #include <QtCore/QDebug>
 
 #include <math.h>
@@ -72,7 +73,7 @@ void ToolHandler::setOperationRadius(double radius)
     s_operationRadius = radius;
 }
 
-qreal ToolHandler::operationRadius() const
+double ToolHandler::operationRadius()
 {
     return s_operationRadius;
 }
@@ -111,6 +112,24 @@ void ToolHandler::toolHandlerActive(bool activated)
 
 void ToolHandler::tick()
 {
+}
+
+void ToolHandler::save(QSettings& config)
+{
+    config.beginGroup("ToolHandler");
+    config.setValue("current-cell", s_currentCell);
+    config.setValue("mouse-position", s_mousePosition);
+    config.setValue("operation radius", s_operationRadius);
+    config.endGroup();
+}
+
+void ToolHandler::load(QSettings& config)
+{
+    config.beginGroup("ToolHandler");
+    setCurrentCell(config.value("current-cell", QPoint(0, 0)).toPoint());
+    s_mousePosition = config.value("mouse-position", QPoint(0, 0)).toPoint();
+    s_operationRadius = config.value("operation radius", 2.0).toDouble();
+    config.endGroup();
 }
 
 void ToolHandler::drawOperationRadius(QPainter& p)

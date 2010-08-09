@@ -78,12 +78,21 @@ void Scene::load(QSettings& config)
     mainWindow()->setStatusResolution(m_map.resolution());
     m_map.updateCache();
     setFixedSize(sizeHint());
+
+    m_discoverageHandler.load(config);
+    m_explorationHandler.load(config);
+    m_obstacleHandler.load(config);
+
     update();
 }
 
 void Scene::save(QSettings& config)
 {
     m_map.save(config);
+
+    m_obstacleHandler.save(config);
+    m_explorationHandler.save(config);
+    m_discoverageHandler.save(config);
 }
 
 void Scene::wheelEvent(QWheelEvent* event)

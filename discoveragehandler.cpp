@@ -25,6 +25,7 @@
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
 #include <QtCore/QDebug>
+#include <QtCore/QSettings>
 #include <QtGui/QDockWidget>
 
 #include <math.h>
@@ -37,6 +38,7 @@ DisCoverageHandler::DisCoverageHandler(Scene* scene)
     , m_ui(0)
     , m_plotter(0)
 {
+    toolHandlerActive(false);
 }
 
 DisCoverageHandler::~DisCoverageHandler()
@@ -71,6 +73,45 @@ QDockWidget* DisCoverageHandler::dockWidget()
         updateParameters();
     }
     return m_dock;
+}
+
+void DisCoverageHandler::save(QSettings& config)
+{
+    ToolHandler::save(config);
+
+    config.beginGroup("DisCoverage");
+    config.setValue("vision-radius", m_visionRadius);
+    config.setValue("theta", m_theta);
+    config.setValue("sigma", m_sigma);
+    config.setValue("delta", m_delta);
+    config.setValue("robot-position", m_robotPosition);
+    config.endGroup();
+}
+
+void DisCoverageHandler::load(QSettings& config)
+{
+    ToolHandler::load(config);
+
+    config.beginGroup("DisCoverage");
+    m_visionRadius = config.value("vision-radius", 2.0).toDouble();
+    m_theta = config.value("theta", 0.5).toDouble();
+    m_sigma = config.value("sigma", 2.0).toDouble();
+    m_delta = config.value("delta", 0.0).toDouble();
+    m_robotPosition = config.value("robot-position", QPointF(0.0, 0.0)).toPointF();
+    config.endGroup();
+    
+
+    m_ui->sbVisionRaius->blockSignals(true);
+    m_ui->sbTheta->blockSignals(true);
+    m_ui->sbSigma->blockSignals(true);
+
+    m_ui->sbVisionRaius->setValue(m_visionRadius);
+    m_ui->sbTheta->setValue(m_theta);
+    m_ui->sbSigma->setValue(m_sigma);
+
+    m_ui->sbVisionRaius->blockSignals(false);
+    m_ui->sbTheta->blockSignals(false);
+    m_ui->sbSigma->blockSignals(false);
 }
 
 void DisCoverageHandler::updateParameters()
