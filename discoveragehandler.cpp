@@ -60,8 +60,7 @@ QDockWidget* DisCoverageHandler::dockWidget()
         QWidget* w = new QWidget();
         m_ui->setupUi(w);
         m_plotter = new OrientationPlotter(w);
-        w->layout()->addWidget(m_plotter);
-        qobject_cast<QBoxLayout*>(w->layout())->addStretch();
+        m_ui->gbOptimization->layout()->addWidget(m_plotter);
         m_dock->setWidget(w);
         scene()->mainWindow()->addDockWidget(Qt::RightDockWidgetArea, m_dock);
         
@@ -69,6 +68,7 @@ QDockWidget* DisCoverageHandler::dockWidget()
         connect(m_ui->sbVisionRaius, SIGNAL(valueChanged(double)), this, SLOT(updateParameters()));
         connect(m_ui->sbTheta, SIGNAL(valueChanged(double)), this, SLOT(updateParameters()));
         connect(m_ui->sbSigma, SIGNAL(valueChanged(double)), this, SLOT(updateParameters()));
+        connect(m_ui->chkLocalOptimum, SIGNAL(toggled(bool)), this, SLOT(updateParameters()));
 
         updateParameters();
     }
@@ -85,6 +85,7 @@ void DisCoverageHandler::save(QSettings& config)
     config.setValue("sigma", m_sigma);
     config.setValue("delta", m_delta);
     config.setValue("robot-position", m_robotPosition);
+    config.setValue("local-optimum", m_ui->chkLocalOptimum->isChecked());
     config.endGroup();
 }
 
@@ -98,6 +99,7 @@ void DisCoverageHandler::load(QSettings& config)
     m_sigma = config.value("sigma", 2.0).toDouble();
     m_delta = config.value("delta", 0.0).toDouble();
     m_robotPosition = config.value("robot-position", QPointF(0.0, 0.0)).toPointF();
+    const bool localOptimum = config.value("local-optimum", true).toBool();
     config.endGroup();
     
 
@@ -108,6 +110,7 @@ void DisCoverageHandler::load(QSettings& config)
     m_ui->sbVisionRaius->setValue(m_visionRadius);
     m_ui->sbTheta->setValue(m_theta);
     m_ui->sbSigma->setValue(m_sigma);
+    m_ui->chkLocalOptimum->setChecked(localOptimum);
 
     m_ui->sbVisionRaius->blockSignals(false);
     m_ui->sbTheta->blockSignals(false);
@@ -119,7 +122,7 @@ void DisCoverageHandler::updateParameters()
     m_visionRadius = m_ui->sbVisionRaius->value();
     m_theta = m_ui->sbTheta->value();
     m_sigma = m_ui->sbSigma->value();
-    
+
     updateDisCoverage(m_robotPosition);
     scene()->update();
 }
@@ -275,37 +278,40 @@ void DisCoverageHandler::updateDisCoverage(const QPointF& robotPosition)
 
     m_plotter->setData(deltaPoints);
 
-#if 1
-    int i;
-    for (i = 0; i < deltaPoints.size(); ++i) {
-        if (deltaPoints[i].x() == m_delta)
-            break;
-    }
+    // follow local optimum
+    if (m_ui->chkLocalOptimum->isChecked()) {
+        int i;
+        for (i = 0; i < deltaPoints.size(); ++i) {
+            if (deltaPoints[i].x() == m_delta)
+                break;
+        }
 
-    // first time m_delta == 0.0, so no index found
-    if (deltaPoints.size() == i) {
+        // first time m_delta == 0.0, so no index found
+        if (deltaPoints.size() == i) {
+            m_delta = deltaMax;
+            return;
+        }
+
+        const int n = deltaPoints.size();
+        int c = 0; // avoid infinite loop
+        while (deltaPoints[i].y() <= deltaPoints[(i + 1) % n].y() && c < n) {
+            i = (i + 1) % n;
+            ++c;
+        }
+
+        c = 0;
+        while (deltaPoints[i].y() <= deltaPoints[(i - 1 + n) % n].y() && c < n) {
+            i = (i - 1 + n) % n;
+            ++c;
+        }
+        
+        m_delta = deltaPoints[i].x();
+        m_plotter->setCurrentOrientation(deltaPoints[i]);
+    } else {
+        // always global optimum
         m_delta = deltaMax;
-        return;
+        m_plotter->setCurrentOrientation(QPointF(m_delta, sMax));
     }
-
-    const int n = deltaPoints.size();
-    int c = 0; // avoid infinite loop
-    while (deltaPoints[i].y() <= deltaPoints[(i + 1) % n].y() && c < n) {
-        i = (i + 1) % n;
-        ++c;
-    }
-
-    c = 0;
-    while (deltaPoints[i].y() <= deltaPoints[(i - 1 + n) % n].y() && c < n) {
-        i = (i - 1 + n) % n;
-        ++c;
-    }
-    
-    m_delta = deltaPoints[i].x();
-    m_plotter->setCurrentOrientation(deltaPoints[i]);
-#else
-    m_delta = deltaMax;
-#endif
 }
 
 float DisCoverageHandler::disCoverage(const QPointF& pos, float delta, const QPointF& q, const Path& path)

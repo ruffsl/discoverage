@@ -84,7 +84,7 @@
          <double>0.010000000000000</double>
         </property>
         <property name="maximum">
-         <double>1.000000000000000</double>
+         <double>10.000000000000000</double>
         </property>
         <property name="singleStep">
          <double>0.010000000000000</double>
@@ -122,6 +122,38 @@
       </item>
      </layout>
     </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="gbOptimization">
+     <property name="title">
+      <string>Optimization</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QCheckBox" name="chkLocalOptimum">
+        <property name="text">
+         <string>Follow local optimum</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
    </item>
   </layout>
  </widget>

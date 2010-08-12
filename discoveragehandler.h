@@ -63,7 +63,6 @@ class DisCoverageHandler : public QObject, public ToolHandler
         QDockWidget* dockWidget();
 
     private:
-//         QList<Path> m_allPaths;
         double m_delta;
         double m_visionRadius;
         double m_theta;
