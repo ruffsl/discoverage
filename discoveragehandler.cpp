@@ -106,6 +106,7 @@ void DisCoverageHandler::load(QSettings& config)
     m_ui->sbVisionRaius->blockSignals(true);
     m_ui->sbTheta->blockSignals(true);
     m_ui->sbSigma->blockSignals(true);
+    m_ui->chkLocalOptimum->blockSignals(true);
 
     m_ui->sbVisionRaius->setValue(m_visionRadius);
     m_ui->sbTheta->setValue(m_theta);
@@ -115,6 +116,7 @@ void DisCoverageHandler::load(QSettings& config)
     m_ui->sbVisionRaius->blockSignals(false);
     m_ui->sbTheta->blockSignals(false);
     m_ui->sbSigma->blockSignals(false);
+    m_ui->chkLocalOptimum->blockSignals(false);
 }
 
 void DisCoverageHandler::updateParameters()
