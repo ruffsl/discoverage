@@ -241,7 +241,7 @@ void DisCoverageHandler::mousePressEvent(QMouseEvent* event)
 void DisCoverageHandler::tick()
 {
     updateDisCoverage(m_robotPosition);
-    m_robotPosition += QPointF(cos(m_delta), sin(m_delta)) * scene()->map().resolution();
+    m_robotPosition += QPointF(cos(m_delta), sin(m_delta)) * scene()->map().resolution() / 4.0;
     scene()->map().explore(m_robotPosition, m_visionRadius, Cell::Explored);
     scene()->update();
 }

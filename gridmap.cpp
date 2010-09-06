@@ -353,6 +353,48 @@ void GridMap::explore(const QPointF& mapPos, double radius, Cell::State destStat
             }
         }
     }
+
+    const int minCellX = 0;
+    const int minCellY = 0;
+    const int maxCellX = m_map.size();
+    const int maxCellY = maxCellX > 0 ? m_map[0].size() : 0;
+
+    for (int a = xStart; a <= xEnd; ++a) {
+        for (int b = yStart; b <= yEnd; ++b) {
+            Cell& c = m_map[a][b];
+            if (c.state() & (Cell::Frontier | destState | Cell::Obstacle)) continue;
+
+            const QRectF& r = c.rect();
+            const qreal x1 = r.left();
+            const qreal x2 = r.right();
+            const qreal y1 = r.top();
+            const qreal y2 = r.bottom();
+
+            int count = 0;
+            if (inCircle(x, y, radius, x1, y1)) ++count;
+            if (inCircle(x, y, radius, x1, y2)) ++count;
+            if (inCircle(x, y, radius, x2, y1)) ++count;
+            if (inCircle(x, y, radius, x2, y2)) ++count;
+
+            if (count > 0) {
+                bool freeNeighbor = false;
+                if ((a > minCellX && b > minCellY && m_map[a-1][b-1].state() & destState && !(m_map[a-1][b-1].state() & Cell::Obstacle)) ||
+                    (                b > minCellY && m_map[a  ][b-1].state() & destState && !(m_map[a  ][b-1].state() & Cell::Obstacle)) ||
+                    (a < maxCellX && b > minCellY && m_map[a+1][b-1].state() & destState && !(m_map[a+1][b-1].state() & Cell::Obstacle)) ||
+                    (a > minCellX &&                 m_map[a-1][b  ].state() & destState && !(m_map[a-1][b  ].state() & Cell::Obstacle)) ||
+                    (a < maxCellX &&                 m_map[a+1][b  ].state() & destState && !(m_map[a+1][b  ].state() & Cell::Obstacle)) ||
+                    (a > minCellX && b < maxCellY && m_map[a-1][b+1].state() & destState && !(m_map[a-1][b+1].state() & Cell::Obstacle)) ||
+                    (                b < maxCellY && m_map[a  ][b+1].state() & destState && !(m_map[a  ][b+1].state() & Cell::Obstacle)) ||
+                    (a < maxCellX && b < maxCellY && m_map[a+1][b+1].state() & destState && !(m_map[a+1][b+1].state() & Cell::Obstacle))
+                   ) freeNeighbor = true;
+
+                if (freeNeighbor) {
+                    setState(c, Cell::Frontier);
+                    updateCell(a, b);
+                } 
+            }
+        }
+    }
 }
 
 
@@ -414,6 +456,8 @@ QList<Path> GridMap::frontierPaths(const QPoint& start)
     pCell->setPathState(Cell::PathOpen);
     queue.insert(PathField(start, pCell));
 
+    int frontierCount = 0;
+
     while (!queue.empty())
     {
         // Knoten mit den niedrigsten Kosten aus der Liste holen
@@ -422,6 +466,13 @@ QList<Path> GridMap::frontierPaths(const QPoint& start)
 
         f.cell->setPathState(Cell::PathClose);  // Jetzt geschlossen
         int x = f.x, y = f.y;
+
+        // speed up: if amount of frontier cells is already reached, terminate
+        if (f.cell->state() & Cell::Frontier) {
+            ++frontierCount;
+            if (frontierCount == m_frontierCache.size())
+                break;
+        }
 
         // Alle angrenzenden Felder bearbeiten
         for (int i = 0; i < 4; ++i) {
@@ -707,7 +758,7 @@ bool GridMap::pathVisible(const QPoint& from, const QPoint& to)
                 y += ystep;
                 error -= ddx;
             }
-            if (!m_map[x][y].isPassable())
+            if (m_map[x][y].isObstacle())
                 return false;
 //             result.append( QPoint( x, y ) );
         }
@@ -721,7 +772,7 @@ bool GridMap::pathVisible(const QPoint& from, const QPoint& to)
                 x += xstep;
                 error -= ddy;
             }
-            if (!m_map[x][y].isPassable())
+            if (m_map[x][y].isObstacle())
                 return false;
 //             result.append( QPoint( x, y ) );
         }
