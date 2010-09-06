@@ -342,27 +342,6 @@ double DisCoverageHandler::disCoverage(const QPointF& pos, double delta, const Q
     return exp(- alpha*alpha/(2.0*theta*theta)
                - len*len/(2.0*sigma*sigma));
 }
-
-#if 0
-float DisCoverageHandler::disCoverage(const QPointF& pos, float delta, const QPointF& q, const Path& path)
-{
-    const float theta = 0.5;
-    const float sigma = 2.0;
-
-    const float dx = q.x() - pos.x();
-    const float dy = q.y() - pos.y();
-
-    float alpha = - delta + atan2(dy, dx);
-
-    if (alpha > M_PI) alpha -= 2 * M_PI;
-    else if (alpha < -M_PI) alpha += 2 * M_PI;
-
-    float len = path.m_length*0.2;
-
-    return exp(- alpha*alpha/(2.0*theta*theta)
-               - len*len/(2.0*sigma*sigma));
-}
-#endif
 //END DisCoverageHandler
 
 
