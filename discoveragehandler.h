@@ -58,7 +58,7 @@ class DisCoverageHandler : public QObject, public ToolHandler
 
     private:
         void updateDisCoverage(const QPointF& robotPosition);
-        float disCoverage(const QPointF& pos, float delta, const QPointF& q, const Path& path);
+        double disCoverage(const QPointF& pos, double delta, const QPointF& q, const Path& path);
 
         QDockWidget* dockWidget();
 

@@ -155,11 +155,11 @@ void DisCoverageHandler::showVectorField(bool show)
                     allPaths[i].beautify(m);
                 }
 
-                float delta = -M_PI;
-                float sMax = 0.0f;
-                float deltaMax = 0.0f;
+                double delta = -M_PI;
+                double sMax = 0.0;
+                double deltaMax = 0.0;
                 while (delta < M_PI) {
-                    float s = 0;
+                    double s = 0;
                     int i = 0;
                     foreach (Cell* q, frontiers) {
                         s += disCoverage(center, delta, q->rect().center(), allPaths[i]);
@@ -170,7 +170,7 @@ void DisCoverageHandler::showVectorField(bool show)
                         sMax = s;
                         deltaMax = delta;
                     }
-                    delta += 0.1f;
+                    delta += 0.1;
                 }
                 m_vectorField[a][b].setP1(center);
                 m_vectorField[a][b].setP2(QPointF(center.x() + resolution, center.y()));
@@ -258,11 +258,11 @@ void DisCoverageHandler::updateDisCoverage(const QPointF& robotPosition)
 
     QVector<QPointF> deltaPoints;
 
-    float delta = -M_PI;
-    float sMax = 0.0f;
-    float deltaMax = 0.0f;
+    double delta = -M_PI;
+    double sMax = 0.0;
+    double deltaMax = 0.0;
     while (delta < M_PI) {
-        float s = 0;
+        double s = 0;
         int i = 0;
         foreach (Cell* q, frontiers) {
             s += disCoverage(robotPosition, delta, q->rect().center(), allPaths[i]);
@@ -275,7 +275,7 @@ void DisCoverageHandler::updateDisCoverage(const QPointF& robotPosition)
             sMax = s;
             deltaMax = delta;
         }
-        delta += 0.1f;
+        delta += 0.1;
     }
 
     m_plotter->setData(deltaPoints);
@@ -316,7 +316,7 @@ void DisCoverageHandler::updateDisCoverage(const QPointF& robotPosition)
     }
 }
 
-float DisCoverageHandler::disCoverage(const QPointF& pos, float delta, const QPointF& q, const Path& path)
+double DisCoverageHandler::disCoverage(const QPointF& pos, double delta, const QPointF& q, const Path& path)
 {
     if (path.m_path.size() < 2) {
         return 0.0f;
@@ -329,15 +329,15 @@ float DisCoverageHandler::disCoverage(const QPointF& pos, float delta, const QPo
 
     // pos is continuous robot position
     // cellCenter is center of 2nd path cell
-    const float dx = cellCenter.x() - pos.x();
-    const float dy = cellCenter.y() - pos.y();
+    const double dx = cellCenter.x() - pos.x();
+    const double dy = cellCenter.y() - pos.y();
 
     float alpha = - delta + atan2(dy, dx);
 
     if (alpha > M_PI) alpha -= 2 * M_PI;
     else if (alpha < -M_PI) alpha += 2 * M_PI;
 
-    float len = path.m_length * scene()->map().resolution();
+    double len = path.m_length * scene()->map().resolution();
 
     return exp(- alpha*alpha/(2.0*theta*theta)
                - len*len/(2.0*sigma*sigma));
