@@ -75,11 +75,14 @@ void MinDistHandler::draw(QPainter& p)
     QPainter::RenderHints rh = p.renderHints();
     p.setRenderHints(QPainter::Antialiasing, true);
 
-    p.setPen(Qt::blue);
+    QPen bluePen(QColor(0, 0, 255, 196), m.resolution() * 0.3);
+    p.setPen(bluePen);
     p.setOpacity(0.2);
     p.setBrush(QBrush(Qt::blue));
     p.drawEllipse(m_robotPosition, operationRadius(), operationRadius());
     p.setOpacity(1.0);
+
+    if (m_trajectory.size()) p.drawPolyline(&m_trajectory[0], m_trajectory.size());
 
     p.setPen(QPen(Qt::red, m.resolution() * 0.5));
     p.drawLine(m_robotPosition, m_robotPosition + QPointF(cos(m_orientation), sin(m_orientation)) * scene()->map().resolution());
@@ -104,14 +107,21 @@ void MinDistHandler::mousePressEvent(QMouseEvent* event)
 
 void MinDistHandler::reset()
 {
-    // FIXME implement me
+    m_trajectory.clear();
 }
 
 void MinDistHandler::tick()
 {
+    if (m_trajectory.size() == 0) {
+        m_trajectory.append(m_robotPosition);
+    }
+
     updateMinDist(m_robotPosition);
     m_robotPosition += QPointF(cos(m_orientation), sin(m_orientation)) * scene()->map().resolution();
     scene()->map().explore(m_robotPosition, operationRadius(), Cell::Explored);
+
+    m_trajectory.append(m_robotPosition);
+
     scene()->update();
 }
 

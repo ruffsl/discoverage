@@ -55,6 +55,7 @@ class MinDistHandler : public QObject, public ToolHandler
     private:
         double m_orientation;
         QPointF m_robotPosition;
+        QVector<QPointF> m_trajectory;
 };
 
 #endif // MINDIST_HANDLER_H

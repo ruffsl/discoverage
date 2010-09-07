@@ -210,6 +210,8 @@ void DisCoverageHandler::draw(QPainter& p)
     p.drawEllipse(m_robotPosition, m_visionRadius, m_visionRadius);
     p.setOpacity(1.0);
 
+    if (m_trajectory.size()) p.drawPolyline(&m_trajectory[0], m_trajectory.size());
+
     p.setPen(QPen(Qt::red, m.resolution() * 0.5));
     p.drawLine(m_robotPosition, m_robotPosition + QPointF(cos(m_delta), sin(m_delta)) * scene()->map().resolution());
 
@@ -233,14 +235,21 @@ void DisCoverageHandler::mousePressEvent(QMouseEvent* event)
 
 void DisCoverageHandler::reset()
 {
-    // FIXME implement me
+    m_trajectory.clear();
 }
 
 void DisCoverageHandler::tick()
 {
+    if (m_trajectory.size() == 0) {
+        m_trajectory.append(m_robotPosition);
+    }
+
     updateDisCoverage(m_robotPosition);
     m_robotPosition += QPointF(cos(m_delta), sin(m_delta)) * scene()->map().resolution();
     scene()->map().explore(m_robotPosition, m_visionRadius, Cell::Explored);
+
+    m_trajectory.append(m_robotPosition);
+    
     scene()->update();
 }
 

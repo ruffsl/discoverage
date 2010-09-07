@@ -74,8 +74,9 @@ class DisCoverageHandler : public QObject, public ToolHandler
         OrientationPlotter* m_plotter;
 
         QVector<QVector<QLineF> > m_vectorField;
-        
+
         QPointF m_robotPosition;
+        QVector<QPointF> m_trajectory;
 };
 
 class OrientationPlotter : public QFrame
