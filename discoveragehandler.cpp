@@ -196,7 +196,6 @@ void DisCoverageHandler::draw(QPainter& p)
     p.setRenderHints(QPainter::Antialiasing, true);
 
     QPen bluePen(QColor(0, 0, 255, 196), m.resolution() * 0.3);
-//     bluePen.setCapStyle(Qt::RoundCap);
     p.setPen(bluePen);
     for (int a = 0; a < m_vectorField.size(); ++a) {
         const int s = m_vectorField[0].size();
@@ -205,15 +204,6 @@ void DisCoverageHandler::draw(QPainter& p)
         }
     }
 
-//     foreach (const Path& path, m_allPaths) {
-// 
-//         for (int i = 0; i < path.m_path.size() - 1; ++i) {
-//             const QPoint& a = path.m_path[i];
-//             const QPoint& b = path.m_path[i+1];
-//             p.drawLine(m.cell(a.x(), a.y()).rect().center(), m.cell(b.x(), b.y()).rect().center());
-//         }
-//     }
-
 
     p.setOpacity(0.2);
     p.setBrush(QBrush(Qt::blue));
@@ -221,7 +211,7 @@ void DisCoverageHandler::draw(QPainter& p)
     p.setOpacity(1.0);
 
     p.setPen(QPen(Qt::red, m.resolution() * 0.5));
-    p.drawLine(m_robotPosition, m_robotPosition + QPointF(cos(m_delta), sin(m_delta)));
+    p.drawLine(m_robotPosition, m_robotPosition + QPointF(cos(m_delta), sin(m_delta)) * scene()->map().resolution());
 
     p.setRenderHints(rh, true);
 }

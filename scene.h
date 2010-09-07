@@ -27,6 +27,7 @@
 #include "gridmap.h"
 #include "toolhandler.h"
 #include "discoveragehandler.h"
+#include "mindisthandler.h"
 
 class QPaintEvent;
 class QMouseEvent;
@@ -83,6 +84,7 @@ class Scene : public QFrame
         ObstacleHandler m_obstacleHandler;
         ExplorationHandler m_explorationHandler;
         DisCoverageHandler m_discoverageHandler;
+        MinDistHandler m_minDistHandler;
 };
 
 #endif // SCENE_H

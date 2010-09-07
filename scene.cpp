@@ -36,6 +36,7 @@ Scene::Scene(MainWindow* mainWindow, QWidget* parent)
     , m_obstacleHandler(this)
     , m_explorationHandler(this)
     , m_discoverageHandler(this)
+    , m_minDistHandler(this)
 {
     setMouseTracking(true);
     QPixmap cursorPixmap(1, 1);
@@ -79,6 +80,7 @@ void Scene::load(QSettings& config)
     m_map.updateCache();
     setFixedSize(sizeHint());
 
+    m_minDistHandler.load(config);
     m_discoverageHandler.load(config);
     m_explorationHandler.load(config);
     m_obstacleHandler.load(config);
@@ -93,6 +95,7 @@ void Scene::save(QSettings& config)
     m_obstacleHandler.save(config);
     m_explorationHandler.save(config);
     m_discoverageHandler.save(config);
+    m_minDistHandler.save(config);
 }
 
 void Scene::wheelEvent(QWheelEvent* event)
@@ -162,6 +165,13 @@ void Scene::selectTool(int toolIndex)
             // TODO FIXME implement DisCoverage handler
             m_toolHandler->toolHandlerActive(false);
             m_toolHandler = &m_discoverageHandler;
+            m_toolHandler->toolHandlerActive(true);
+            mainWindow()->statusBar()->clearMessage();
+            break;
+        case 6:
+            // TODO FIXME implement DisCoverage handler
+            m_toolHandler->toolHandlerActive(false);
+            m_toolHandler = &m_minDistHandler;
             m_toolHandler->toolHandlerActive(true);
             mainWindow()->statusBar()->clearMessage();
             break;

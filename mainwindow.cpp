@@ -42,6 +42,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     m_toolsUi->cmbTool->addItem("Modify Explored Area"); // 3
     m_toolsUi->cmbTool->insertSeparator(4);              // 4
     m_toolsUi->cmbTool->addItem("DisCoverage");          // 5
+    m_toolsUi->cmbTool->addItem("MinDist");              // 6
     toolBar->insertWidget(actionDummy, toolsWidget);
     toolBar->removeAction(actionDummy);
 
