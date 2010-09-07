@@ -241,6 +241,11 @@ GridMap& Scene::map()
     return m_map;
 }
 
+void Scene::reset()
+{
+    m_toolHandler->reset();
+}
+
 void Scene::tick()
 {
     m_toolHandler->tick();

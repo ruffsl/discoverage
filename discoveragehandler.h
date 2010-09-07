@@ -48,6 +48,7 @@ class DisCoverageHandler : public QObject, public ToolHandler
         virtual void mouseMoveEvent(QMouseEvent* event);
         virtual void mousePressEvent(QMouseEvent* event);
         virtual void toolHandlerActive(bool activated);
+        virtual void reset();
         virtual void tick();
         virtual void load(QSettings& config);
         virtual void save(QSettings& config);

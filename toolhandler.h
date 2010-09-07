@@ -56,6 +56,7 @@ class ToolHandler
         virtual void mouseMoveEvent(QMouseEvent* event);
         virtual void mousePressEvent(QMouseEvent* event) = 0;
         virtual void toolHandlerActive(bool activated);
+        virtual void reset();
         virtual void tick();
         virtual void save(QSettings& config);
         virtual void load(QSettings& config);

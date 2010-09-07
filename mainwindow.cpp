@@ -64,6 +64,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     connect(actionOpen, SIGNAL(triggered()), this, SLOT(loadScene()));
     connect(actionSave, SIGNAL(triggered()), this, SLOT(saveScene()));
     connect(actionExport, SIGNAL(triggered()), this, SLOT(exportAsPdf()));
+    connect(actionReset, SIGNAL(triggered()), m_scene, SLOT(reset()));
     connect(actionStep, SIGNAL(triggered()), m_scene, SLOT(tick()));
     connect(m_toolsUi->cmbTool, SIGNAL(currentIndexChanged(int)), m_scene, SLOT(selectTool(int)));
     connect(m_toolsUi->sbRadius, SIGNAL(valueChanged(double)), m_scene, SLOT(setOperationRadius(double)));

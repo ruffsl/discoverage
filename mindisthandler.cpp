@@ -102,6 +102,11 @@ void MinDistHandler::mousePressEvent(QMouseEvent* event)
     mouseMoveEvent(event);
 }
 
+void MinDistHandler::reset()
+{
+    // FIXME implement me
+}
+
 void MinDistHandler::tick()
 {
     updateMinDist(m_robotPosition);
@@ -112,7 +117,6 @@ void MinDistHandler::tick()
 
 void MinDistHandler::updateMinDist(const QPointF& robotPosition)
 {
-    const QSet<Cell*>& frontiers = scene()->map().frontiers();
     GridMap& m = scene()->map();
     QPoint pt = m.mapMapToCell(robotPosition);
     QList<Path> allPaths = m.frontierPaths(pt);

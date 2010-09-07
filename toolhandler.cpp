@@ -110,6 +110,10 @@ void ToolHandler::toolHandlerActive(bool activated)
 {
 }
 
+void ToolHandler::reset()
+{
+}
+
 void ToolHandler::tick()
 {
 }

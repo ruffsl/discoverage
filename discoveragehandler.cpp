@@ -231,6 +231,11 @@ void DisCoverageHandler::mousePressEvent(QMouseEvent* event)
     mouseMoveEvent(event);
 }
 
+void DisCoverageHandler::reset()
+{
+    // FIXME implement me
+}
+
 void DisCoverageHandler::tick()
 {
     updateDisCoverage(m_robotPosition);
