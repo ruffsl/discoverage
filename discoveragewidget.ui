@@ -110,7 +110,7 @@
       <item row="2" column="1">
        <widget class="QDoubleSpinBox" name="sbSigma">
         <property name="maximum">
-         <double>10.000000000000000</double>
+         <double>1000.000000000000000</double>
         </property>
         <property name="singleStep">
          <double>0.050000000000000</double>
@@ -139,6 +139,16 @@
         </property>
        </widget>
       </item>
+      <item>
+       <widget class="QCheckBox" name="chkAutoDist">
+        <property name="toolTip">
+         <string>Sets distance component to MinDist</string>
+        </property>
+        <property name="text">
+         <string>Auto adapt distance component</string>
+        </property>
+       </widget>
+      </item>
      </layout>
     </widget>
    </item>
@@ -158,5 +168,38 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>chkAutoDist</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>sbSigma</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>105</x>
+     <y>227</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>129</x>
+     <y>140</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chkAutoDist</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>lblSigma</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>67</x>
+     <y>223</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>67</x>
+     <y>143</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

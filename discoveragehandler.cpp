@@ -86,6 +86,7 @@ void DisCoverageHandler::save(QSettings& config)
     config.setValue("delta", m_delta);
     config.setValue("robot-position", m_robotPosition);
     config.setValue("local-optimum", m_ui->chkLocalOptimum->isChecked());
+    config.setValue("auto-dist", m_ui->chkAutoDist->isChecked());
     config.endGroup();
 }
 
@@ -100,6 +101,7 @@ void DisCoverageHandler::load(QSettings& config)
     m_delta = config.value("delta", 0.0).toDouble();
     m_robotPosition = config.value("robot-position", QPointF(0.0, 0.0)).toPointF();
     const bool localOptimum = config.value("local-optimum", true).toBool();
+    const bool autoDist = config.value("auto-dist", false).toBool();
     config.endGroup();
     
 
@@ -112,6 +114,7 @@ void DisCoverageHandler::load(QSettings& config)
     m_ui->sbTheta->setValue(m_theta);
     m_ui->sbSigma->setValue(m_sigma);
     m_ui->chkLocalOptimum->setChecked(localOptimum);
+    m_ui->chkAutoDist->setChecked(autoDist);
 
     m_ui->sbVisionRaius->blockSignals(false);
     m_ui->sbTheta->blockSignals(false);
@@ -252,8 +255,19 @@ void DisCoverageHandler::updateDisCoverage(const QPointF& robotPosition)
     GridMap& m = scene()->map();
     QPoint pt = m.mapMapToCell(robotPosition);
     QList<Path> allPaths = m.frontierPaths(pt);
+    double shortestPath = 1000000000.0;
     for (int i = 0; i < allPaths.size(); ++i) {
         allPaths[i].beautify(m);
+        if (allPaths[i].m_length < shortestPath) {
+            shortestPath = allPaths[i].m_length;
+        }
+    }
+
+    if (m_ui->chkAutoDist->isChecked()) {
+        m_sigma = shortestPath;
+        m_ui->sbSigma->blockSignals(true);
+        m_ui->sbSigma->setValue(shortestPath);
+        m_ui->sbSigma->blockSignals(false);
     }
 
     QVector<QPointF> deltaPoints;
@@ -337,7 +351,7 @@ double DisCoverageHandler::disCoverage(const QPointF& pos, double delta, const Q
     if (alpha > M_PI) alpha -= 2 * M_PI;
     else if (alpha < -M_PI) alpha += 2 * M_PI;
 
-    double len = path.m_length * scene()->map().resolution();
+    double len = path.m_length;
 
     return exp(- alpha*alpha/(2.0*theta*theta)
                - len*len/(2.0*sigma*sigma));

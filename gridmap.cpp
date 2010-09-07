@@ -547,6 +547,7 @@ QList<Path> GridMap::frontierPaths(const QPoint& start)
             path.m_cost += pCell->cellCost();
             path.m_length += nParent < 4 ? 1.0f : 1.41421356f;
         }
+        path.m_length *= resolution();
         m_frontierPaths.append(path);
     }
 
