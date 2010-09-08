@@ -88,7 +88,7 @@ class Cell
                 0,  //  3: 0 0 0 | 1 1 ---
                 0,  //  4: 0 0 1 | 0 0 ---
                 1000,  //  5: 0 0 1 | 0 1 unknown | obstacle
-                1,  //  6: 0 0 1 | 1 0 unknown | free
+                100,  //  6: 0 0 1 | 1 0 unknown | free
                 0,  //  7: 0 0 1 | 1 1 ---
                 0,  //  8: 0 1 0 | 0 0 ---
                 1,  //  9: 0 1 0 | 0 1 frontier | obstacle

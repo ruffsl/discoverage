@@ -31,6 +31,9 @@
        <property name="suffix">
         <string>m</string>
        </property>
+       <property name="decimals">
+        <number>3</number>
+       </property>
        <property name="value">
         <double>0.200000000000000</double>
        </property>
