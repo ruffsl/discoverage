@@ -17,17 +17,40 @@
    Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#include "mainwindow.h"
+#ifndef STATISTICS_H
+#define STATISTICS_H
 
-#include <QtGui/QApplication>
+#include <QtGui/QFrame>
 
-int main(int argc, char* argv[])
+class QPaintEvent;
+class MainWindow;
+
+class Statistics : public QFrame
 {
-  QApplication app(argc, argv);
+    Q_OBJECT
 
-  MainWindow* mw = new MainWindow();
-  mw->resize(1000, 750);
-  mw->show();
+    public:
+        Statistics(MainWindow* mainWindow, QWidget* parent = 0);
+        virtual ~Statistics();
 
-  return app.exec();
-}
+        MainWindow* mainWindow() const;
+
+    public slots:
+        void reset();
+        void tick();
+
+    public:
+        virtual QSize sizeHint() const;
+
+    protected:
+        virtual void paintEvent(QPaintEvent* event);
+
+    private:
+        MainWindow* m_mainWindow;
+        
+        QVector<double> m_progress;
+};
+
+#endif // STATISTICS_H
+
+// kate: replace-tabs on; indent-width 4;

@@ -40,6 +40,8 @@ class MainWindow : public QMainWindow, protected Ui::MainWindow
 
         void setStatusPosition(const QPoint& pos);
         void setStatusResolution(qreal resolution);
+        
+        Scene* scene() const;
 
     public slots:
         void newScene();

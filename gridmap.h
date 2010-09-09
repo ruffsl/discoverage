@@ -124,6 +124,8 @@ class GridMap
     //
     public:
         void explore(const QPointF& pos, double radius, Cell::State destState);
+        
+        double explorationProgress() const;
 
     //
     // path finding

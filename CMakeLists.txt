@@ -11,6 +11,7 @@ set(discoverage_SRCS
   toolhandler.cpp
   discoveragehandler.cpp
   mindisthandler.cpp
+  statistics.cpp
 )
 
 # another list, this time it includes all header files that should be treated with moc
@@ -19,6 +20,7 @@ set( discoverage_MOC_HDRS
   scene.h
   discoveragehandler.h
   mindisthandler.h
+  statistics.h
 )
 
 # some .ui files

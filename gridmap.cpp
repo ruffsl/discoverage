@@ -440,6 +440,12 @@ void GridMap::explore(const QPointF& mapPos, double radius, Cell::State destStat
     }
 }
 
+double GridMap::explorationProgress() const
+{
+    if (m_freeCellCount == 0) return 0;
+    return static_cast<double>(m_exploredCellCount) / m_freeCellCount;
+}
+
 
 
 class PathField

@@ -20,6 +20,7 @@
 #include "mainwindow.h"
 #include "scene.h"
 #include "ui_toolwidget.h"
+#include "statistics.h"
 
 #include <QDebug>
 #include <QtGui/QLabel>
@@ -46,6 +47,9 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     toolBar->insertWidget(actionDummy, toolsWidget);
     toolBar->removeAction(actionDummy);
 
+    Statistics* statistics = new Statistics(this);
+    dwStatistics->setWidget(statistics);
+
     m_statusResolution = new QLabel(statusBar());
     statusBar()->addPermanentWidget(m_statusResolution);
     setStatusResolution(0.2);
@@ -68,6 +72,8 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     connect(actionStep, SIGNAL(triggered()), m_scene, SLOT(tick()));
     connect(m_toolsUi->cmbTool, SIGNAL(currentIndexChanged(int)), m_scene, SLOT(selectTool(int)));
     connect(m_toolsUi->sbRadius, SIGNAL(valueChanged(double)), m_scene, SLOT(setOperationRadius(double)));
+    connect(actionStep, SIGNAL(triggered()), statistics, SLOT(tick()));
+    connect(actionReset, SIGNAL(triggered()), statistics, SLOT(reset()));
 }
 
 MainWindow::~MainWindow()
@@ -166,6 +172,11 @@ void MainWindow::exportAsPdf()
 //     printer.setFullPage(true);
 
     m_scene->draw(&printer);
+}
+
+Scene* MainWindow::scene() const
+{
+    return m_scene;
 }
 
 // kate: replace-tabs on; indent-width 4;
