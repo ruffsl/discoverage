@@ -57,7 +57,7 @@ void Path::beautify(GridMap& gridMap)
 
         while (mid != start + 1) {
             bool wasVisible = false;
-            if (gridMap.pathVisible(m_path[start], m_path[mid])) {
+            if (gridMap.aaPathVisible(m_path[start], m_path[mid])) {
                 if (mid == end) {
                     break;
                 }
@@ -66,7 +66,7 @@ void Path::beautify(GridMap& gridMap)
                 mid += diff;
             }
 
-            if (!gridMap.pathVisible(m_path[start], m_path[mid])) {
+            if (!gridMap.aaPathVisible(m_path[start], m_path[mid])) {
                 if (wasVisible && diff == 1) { mid -= 1; break; }
                 if (end - start == 1) {
                     break;
@@ -121,6 +121,8 @@ GridMap::GridMap(double width, double height, double resolution)
     }
 
     m_frontierCache.clear();
+    m_exploredCellCount = 0;
+    m_freeCellCount = xCellCount * yCellCount;
 }
 
 GridMap::~GridMap()
@@ -142,6 +144,8 @@ void GridMap::load(QSettings& config)
     QDataStream ds(&ba, QIODevice::ReadOnly);
 
     m_frontierCache.clear();
+    m_exploredCellCount = 0;
+    m_freeCellCount = width * height;
 
     for (int a = 0; a < width; ++a) {
         QVector<Cell>& row = m_map[a];
@@ -149,8 +153,16 @@ void GridMap::load(QSettings& config)
             Cell& cell = row[b];
             cell.load(ds);
             cell.setIndex(QPoint(a, b));
-            if (cell.state() & Cell::Frontier)
+            if (cell.state() & Cell::Frontier) {
                 m_frontierCache.insert(&cell);
+            }
+            if (cell.state() & Cell::Free) {
+                if (cell.state() & Cell::Explored) {
+                    ++m_exploredCellCount;
+                }
+            } else {
+                --m_freeCellCount;
+            }
         }
     }
 }
@@ -282,16 +294,47 @@ const QSet<Cell*>& GridMap::frontiers() const
     return m_frontierCache;
 }
 
-void GridMap::setState(Cell& cell, Cell::State newState)
+void GridMap::setState(Cell& cell, Cell::State state)
 {
-    const bool wasFrontier = cell.state() & Cell::Frontier;
-    cell.setState(newState);
-    const bool isFrontier = cell.state() & Cell::Frontier;
+    const Cell::State oldState = cell.state();
+    cell.setState(state);
+    const Cell::State newState = cell.state();
+
+    const bool wasFrontier = oldState & Cell::Frontier;
+    const bool isFrontier  = newState & Cell::Frontier;
+    const bool wasFree = oldState & Cell::Free;
+    const bool isFree  = newState & Cell::Free;
+    const bool wasExplored = oldState & Cell::Explored;
+    const bool isExplored  = newState & Cell::Explored;
+    const bool wasObstacle = oldState & Cell::Obstacle;
+    const bool isObstacle  = newState & Cell::Obstacle;
 
     if (wasFrontier && !isFrontier) {
         m_frontierCache.remove(&cell);
     } else if (!wasFrontier && isFrontier) {
         m_frontierCache.insert(&cell);
+    }
+
+    if (wasFree && !isFree) {
+        --m_freeCellCount;
+    } else if (!wasFree && isFree) {
+        ++m_freeCellCount;
+    }
+    
+    if (wasFree && isFree) {
+        if (wasExplored && !isExplored) {
+            --m_exploredCellCount;
+        } else if (!wasExplored && isExplored) {
+            ++m_exploredCellCount;
+        }
+    } else if (!wasFree && isFree) {
+        if (isExplored) {
+            ++m_exploredCellCount;
+        }
+    } else if (wasFree && !isFree) {
+        if (wasExplored) {
+            --m_exploredCellCount;
+        }
     }
 }
 
@@ -356,8 +399,8 @@ void GridMap::explore(const QPointF& mapPos, double radius, Cell::State destStat
 
     const int minCellX = 0;
     const int minCellY = 0;
-    const int maxCellX = m_map.size();
-    const int maxCellY = maxCellX > 0 ? m_map[0].size() : 0;
+    const int maxCellX = m_map.size() - 1;
+    const int maxCellY = maxCellX > 0 ? m_map[0].size() - 1 : 0;
 
     for (int a = xStart; a <= xEnd; ++a) {
         for (int b = yStart; b <= yEnd; ++b) {
@@ -458,7 +501,7 @@ QList<Path> GridMap::frontierPaths(const QPoint& start)
 
     int frontierCount = 0;
 
-    while (!queue.empty())
+    while ((!queue.empty()) && frontierCount != m_frontierCache.size())
     {
         // Knoten mit den niedrigsten Kosten aus der Liste holen
         PathField f = *queue.begin();
@@ -470,8 +513,6 @@ QList<Path> GridMap::frontierPaths(const QPoint& start)
         // speed up: if amount of frontier cells is already reached, terminate
         if (f.cell->state() & Cell::Frontier) {
             ++frontierCount;
-            if (frontierCount == m_frontierCache.size())
-                break;
         }
 
         // Alle angrenzenden Felder bearbeiten
@@ -778,6 +819,142 @@ bool GridMap::pathVisible(const QPoint& from, const QPoint& to)
 //             result.append( QPoint( x, y ) );
         }
     }
+    return true;
+}
+
+
+static inline int ipart(double x)
+{
+    return static_cast<int>(x);
+}
+
+static inline double fpart(double x)
+{
+    return x - static_cast<int>(x);
+}
+
+static inline double rfpart(double x)
+{
+    return 1.0 - fpart(x);
+}
+
+bool GridMap::aaPathVisible(const QPoint& from, const QPoint& to)
+{
+    // taken from http://www.codeproject.com/kb/gdi/antialias.aspx
+    short X0 = from.x();;
+    short Y0 = from.y();
+    short X1 = to.x();
+    short Y1 = to.y();
+    
+    short NumLevels = 256;
+    unsigned short IntensityBits = 8;
+
+    unsigned short IntensityShift, ErrorAdj, ErrorAcc;
+    unsigned short ErrorAccTemp, Weighting, WeightingComplementMask;
+    short DeltaX, DeltaY, Temp, XDir;
+
+    /* Make sure the line runs top to bottom */
+    if (Y0 > Y1) {
+        Temp = Y0; Y0 = Y1; Y1 = Temp;
+        Temp = X0; X0 = X1; X1 = Temp;
+    }
+    /* Draw the initial pixel, which is always exactly intersected by
+    the line and so needs no weighting */
+    if (m_map[X0][Y0].isObstacle()) return false; // DrawPixel(X0, Y0, BaseColor);
+
+    if ((DeltaX = X1 - X0) >= 0) {
+        XDir = 1;
+    } else {
+        XDir = -1;
+        DeltaX = -DeltaX; /* make DeltaX positive */
+    }
+    /* Special-case horizontal, vertical, and diagonal lines, which
+    require no weighting because they go right through the center of
+    every pixel */
+    if ((DeltaY = Y1 - Y0) == 0) {
+        /* Horizontal line */
+        while (DeltaX-- != 0) {
+            X0 += XDir;
+            if (m_map[X0][Y0].isObstacle()) return false; // DrawPixel(X0, Y0, BaseColor);
+        }
+        return true;
+    }
+    if (DeltaX == 0) {
+        /* Vertical line */
+        do {
+            Y0++;
+            if (m_map[X0][Y0].isObstacle()) return false; // DrawPixel(X0, Y0, BaseColor);
+        } while (--DeltaY != 0);
+        return true;
+    }
+    if (DeltaX == DeltaY) {
+        /* Diagonal line */
+        do {
+            X0 += XDir;
+            Y0++;
+            if (m_map[X0][Y0].isObstacle()) return false; // DrawPixel(X0, Y0, BaseColor);
+        } while (--DeltaY != 0);
+        return true;
+    }
+    /* Line is not horizontal, diagonal, or vertical */
+    ErrorAcc = 0;  /* initialize the line error accumulator to 0 */
+    /* # of bits by which to shift ErrorAcc to get intensity level */
+    IntensityShift = 16 - IntensityBits;
+    /* Mask used to flip all bits in an intensity weighting, producing the
+    result (1 - intensity weighting) */
+    WeightingComplementMask = NumLevels - 1;
+    /* Is this an X-major or Y-major line? */
+    if (DeltaY > DeltaX) {
+        /* Y-major line; calculate 16-bit fixed-point fractional part of a
+        pixel that X advances each time Y advances 1 pixel, truncating the
+        result so that we won't overrun the endpoint along the X axis */
+        ErrorAdj = ((unsigned long) DeltaX << 16) / (unsigned long) DeltaY;
+        /* Draw all pixels other than the first and last */
+        while (--DeltaY) {
+            ErrorAccTemp = ErrorAcc;   /* remember currrent accumulated error */
+            ErrorAcc += ErrorAdj;      /* calculate error for next pixel */
+            if (ErrorAcc <= ErrorAccTemp) {
+                /* The error accumulator turned over, so advance the X coord */
+                X0 += XDir;
+            }
+            Y0++; /* Y-major, so always advance Y */
+            /* The IntensityBits most significant bits of ErrorAcc give us the
+            intensity weighting for this pixel, and the complement of the
+            weighting for the paired pixel */
+            Weighting = ErrorAcc >> IntensityShift;
+            if (m_map[X0][Y0].isObstacle()) return false; // DrawPixel(X0, Y0, BaseColor + Weighting);
+            if (m_map[X0 + XDir][Y0].isObstacle()) return false; // DrawPixel(X0 + XDir, Y0, BaseColor + (Weighting ^ WeightingComplementMask));
+        }
+        /* Draw the final pixel, which is 
+        always exactly intersected by the line
+        and so needs no weighting */
+        if (m_map[X1][Y1].isObstacle()) return false; // DrawPixel(X1, Y1, BaseColor);
+        return true;
+    }
+    /* It's an X-major line; calculate 16-bit fixed-point fractional part of a
+    pixel that Y advances each time X advances 1 pixel, truncating the
+    result to avoid overrunning the endpoint along the X axis */
+    ErrorAdj = ((unsigned long) DeltaY << 16) / (unsigned long) DeltaX;
+    /* Draw all pixels other than the first and last */
+    while (--DeltaX) {
+        ErrorAccTemp = ErrorAcc;   /* remember currrent accumulated error */
+        ErrorAcc += ErrorAdj;      /* calculate error for next pixel */
+        if (ErrorAcc <= ErrorAccTemp) {
+            /* The error accumulator turned over, so advance the Y coord */
+            Y0++;
+        }
+        X0 += XDir; /* X-major, so always advance X */
+        /* The IntensityBits most significant bits of ErrorAcc give us the
+        intensity weighting for this pixel, and the complement of the
+        weighting for the paired pixel */
+        Weighting = ErrorAcc >> IntensityShift;
+        if (m_map[X0][Y0].isObstacle()) return false; // DrawPixel(X0, Y0, BaseColor + Weighting);
+        if (m_map[X0][Y0 + 1].isObstacle()) return false; // DrawPixel(X0, Y0 + 1, BaseColor + (Weighting ^ WeightingComplementMask));
+    }
+    /* Draw the final pixel, which is always exactly intersected by the line
+    and so needs no weighting */
+    if (m_map[X1][Y1].isObstacle()) return false; // DrawPixel(X1, Y1, BaseColor);
+    
     return true;
 }
 

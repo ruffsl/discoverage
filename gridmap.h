@@ -130,6 +130,8 @@ class GridMap
     //
     public:
         bool pathVisible(const QPoint& from, const QPoint& to);
+        bool aaPathVisible(const QPoint& from, const QPoint& to);
+        bool DrawWuLine (const QPoint& from, const QPoint& to);
         QList<Path> frontierPaths(const QPoint& start);
         Path aStar(const QPoint& from, const QPoint& to);
         float heuristic(const QPoint& start, const QPoint& end);
@@ -143,6 +145,8 @@ class GridMap
 
         // track a list of frontiers for fast lookup/iteration
         QSet<Cell*> m_frontierCache;
+        int m_freeCellCount;
+        int m_exploredCellCount;
 };
 
 #endif // GRIDMAP_H

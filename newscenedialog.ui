@@ -32,7 +32,7 @@
         <string>m</string>
        </property>
        <property name="decimals">
-        <number>3</number>
+        <number>4</number>
        </property>
        <property name="value">
         <double>0.200000000000000</double>
