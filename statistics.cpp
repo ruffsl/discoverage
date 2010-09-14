@@ -27,6 +27,8 @@
 #include <QtCore/QSettings>
 #include <QtGui/QMouseEvent>
 #include <QtGui/QPainter>
+#include <QtGui/QContextMenuEvent>
+#include <QtGui/QClipboard>
 
 Statistics::Statistics(MainWindow* mainWindow, QWidget* parent)
     : QFrame(parent)
@@ -89,6 +91,22 @@ void Statistics::tick()
 
     m_progress.append(m.explorationProgress() * 100);
     update();
+}
+
+void Statistics::contextMenuEvent(QContextMenuEvent* event)
+{
+    QMenu m;
+    QAction* a = m.addAction("Export to Clipboard");
+    if (a == m.exec(event->globalPos())) {
+        QString data = "\\draw ";
+        for (int i = 0; i < m_progress.size(); ++i) {
+            data += QString("(%1, %2)").arg(i).arg(m_progress[i]);
+            if (i+1 < m_progress.size()) {
+                data += " -- ";
+            }
+        }
+        QApplication::clipboard()->setText(data);
+    }
 }
 
 // kate: replace-tabs on; indent-width 4;

@@ -24,6 +24,7 @@
 
 class QPaintEvent;
 class MainWindow;
+class QContextMenuEvent;
 
 class Statistics : public QFrame
 {
@@ -44,6 +45,8 @@ class Statistics : public QFrame
 
     protected:
         virtual void paintEvent(QPaintEvent* event);
+        virtual void contextMenuEvent(QContextMenuEvent* event);
+
 
     private:
         MainWindow* m_mainWindow;
