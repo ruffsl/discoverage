@@ -140,6 +140,28 @@ void MinDistHandler::updateMinDist(const QPointF& robotPosition)
         }
     }
 
+    // prefer the current orientation
+    for (int i = 0; i < allPaths.size(); ++i) {
+        if (i == shortestPathIndex) continue;
+
+        if (allPaths[i].m_length - 1.4142*m.resolution() < shortestPath) {
+
+            const QPointF cellCenter = scene()->map().cell(allPaths[i].m_path[1]).rect().center();
+
+            // pos is continuous robot position
+            // cellCenter is center of 2nd path cell
+            const double dx = cellCenter.x() - robotPosition.x();
+            const double dy = cellCenter.y() - robotPosition.y();
+
+            double newOrientation = atan2(dy, dx);
+            double oDiff = (M_PI/4.0 - qMin(fabs(m_orientation - newOrientation), M_PI/4.0)) / (M_PI/4.0);
+            if (allPaths[i].m_length - oDiff * 1.4142 * m.resolution() < shortestPath) {
+                shortestPath = allPaths[i].m_length;
+                shortestPathIndex = i;
+            }
+        }
+    }
+
     if (shortestPathIndex < 0 || allPaths[shortestPathIndex].m_path.size() < 2) {
         return;
     }

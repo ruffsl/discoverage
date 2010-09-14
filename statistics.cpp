@@ -54,6 +54,12 @@ void Statistics::paintEvent(QPaintEvent* event)
     QPainter p(this);
     p.setRenderHints(QPainter::Antialiasing, true);
     p.fillRect(rect(), Qt::white);
+
+    // draw exploration progress
+    p.drawText(QPoint(20, 20), QString("Progress :%1%").arg(mainWindow()->scene()->map().explorationProgress() * 100));
+    p.drawText(QPoint(20, 40), QString("Iteration: %1").arg(m_progress.size()));
+
+    // prepare for progress line
     p.scale(1.0, -1.0);
     p.translate(10, -height() + 10);
     p.scale(2.0, (height() - 20) / 100.0);
@@ -62,9 +68,10 @@ void Statistics::paintEvent(QPaintEvent* event)
     p.drawLine(0, 0, 100, 0);
     
     for (int i = 1; i < m_progress.size(); ++i) {
-        p.drawLine(i - 1, m_progress[i-1], i, m_progress[i]);
+        p.drawLine(QPointF((i - 1)/4.0, m_progress[i-1]),
+                   QPointF( i     /4.0, m_progress[i]));
     }
-    
+
     p.end();
 
     QFrame::paintEvent(event);
