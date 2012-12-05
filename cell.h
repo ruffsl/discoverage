@@ -64,6 +64,11 @@ class Cell
         inline State state() const {
             return m_state;
         }
+        
+        inline float density() const
+        { return m_density; }
+
+        void setDensity(float density);
 
         QDataStream& load(QDataStream& ds);
 
@@ -135,6 +140,7 @@ class Cell
     public:
         float m_costF;
         float m_costG;
+        float m_density;
 };
 
 inline Cell::State operator|(Cell::State state, int value)

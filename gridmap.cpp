@@ -47,7 +47,7 @@ void Path::beautify(GridMap& gridMap)
 //         ++start;
 //     }
 
-
+// return;
     // Complexity: O(log(n))
     int start = 0;
     while (start < m_path.size() - 2) {
@@ -442,6 +442,7 @@ void GridMap::explore(const QPointF& mapPos, double radius, Cell::State destStat
 
 double GridMap::explorationProgress() const
 {
+    qDebug() << m_freeCellCount;
     if (m_freeCellCount == 0) return 0;
     return static_cast<double>(m_exploredCellCount) / m_freeCellCount;
 }
@@ -522,7 +523,7 @@ QList<Path> GridMap::frontierPaths(const QPoint& start)
         }
 
         // Alle angrenzenden Felder bearbeiten
-        for (int i = 0; i < 4; ++i) {
+        for (int i = 0; i < 8; ++i) {
             // Nachbarzelle
             int ax = x + directionMap[i][0];
             int ay = y + directionMap[i][1];

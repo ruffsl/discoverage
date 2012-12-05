@@ -23,6 +23,17 @@
 #include <QtGui/QBrush>
 #include <QtCore/QDataStream>
 
+//BEGIN helpers
+static QColor densityToColor(float density)
+{
+    const float sat = density == 0 ? 0.0 : 1.0;
+    const float val = 1.0;
+    const float hue = density;
+
+    return QColor::fromHsvF(hue, sat, val);
+}
+//END
+
 Cell::Cell()
     : m_pathState(PathNone)
     , m_pathParent(-1)
@@ -30,6 +41,7 @@ Cell::Cell()
     , m_state(static_cast<State>(Free | Unknown))
     , m_costF(0.0)
     , m_costG(0.0)
+    , m_density(0.0)
 {
 }
 
@@ -40,6 +52,7 @@ Cell::Cell(const QRectF& rect)
     , m_state(static_cast<State>(Free | Unknown))
     , m_costF(0.0)
     , m_costG(0.0)
+    , m_density(0.2)
 {
 }
 
@@ -75,12 +88,14 @@ void Cell::draw(QPainter& p)
 
     if (m_state & Unknown) {
         p.setPen(Qt::gray);
-        p.drawLine(m_rect.topLeft(), m_rect.bottomRight());
-        p.drawLine(m_rect.bottomLeft(), m_rect.topRight());
+        p.drawRect(m_rect);
     } else if (m_state & Frontier) {
         p.fillRect(m_rect, sBrushFrontier);
+        p.setPen(Qt::gray);
+        p.drawRect(m_rect);
     } else { // m_state & Explored
-        p.fillRect(m_rect, sBrushExplored);
+//         densityToColor
+        p.fillRect(m_rect, densityToColor(m_density));
     }
 }
 
@@ -105,6 +120,11 @@ void Cell::setState(State newState)
             m_state = (m_state & 0x3) | newState;
         }
     }
+}
+
+void Cell::setDensity(float density)
+{
+    m_density = density;
 }
 
 QDataStream& Cell::load(QDataStream& ds)
