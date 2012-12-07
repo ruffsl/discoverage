@@ -29,10 +29,6 @@
 #include <math.h>
 #include <set>
 
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-
 static int directionMap[16][2] = {
     // x   y
     {  0, -1},           // oben
@@ -1033,46 +1029,6 @@ bool GridMap::aaPathVisible(const QPoint& from, const QPoint& to)
 
 void GridMap::computeDist()
 {
-#if 0
-    const int rows = m_map.size();
-    const int cols = m_map[0].size();
-    
-    cv::Mat input(m_map.size(), m_map[0].size(), CV_8SC1);
-
-    for (int a = 0; a < rows; ++a) {
-        QVector<Cell>& row = m_map[a];
-        for (int b = 0; b < cols; ++b) {
-            Cell* cell = &m_map[a][b];
-            if (cell->state() & Cell::Free && cell->state() & Cell::Explored)
-            {
-                input.at<uchar>(a, b) = 255;
-            } else if (cell->state() & Cell::Frontier) {
-                input.at<uchar>(a, b) = 0;
-            } else {
-                input.at<uchar>(a, b) = -1;
-            }
-        }
-    }
-
-    cv::Mat dist;//(rows, cols;
-    cv::distanceTransform(input, dist, CV_DIST_L2, CV_DIST_MASK_PRECISE);
-
-//     cv::normalize(dist, dist, 0.0, 1.0, cv::NORM_MINMAX);
-//     cv::imshow("non-normalized", dist);
-
-    for (int a = 0; a < rows; ++a) {
-        for (int b = 0; b < cols; ++b) {
-            if (input.at<uchar>(a, b) != 0) {
-                if (dist.at<float>(a, b) > 0)
-                    qDebug() << dist.at<float>(a, b);
-                m_map[a][b].setFrontierDist(m_resolution * dist.at<float>(a, b));
-            }
-        }
-    }
-
-    return;
-#endif
-    
     QList<Cell*> queue;
 
     // queue all free explored cells next to the frontier
