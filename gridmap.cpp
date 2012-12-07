@@ -1003,36 +1003,10 @@ void GridMap::computeDistanceTransform()
 {
     QList<Cell*> queue;
 
-    // queue all free explored cells next to the frontier
+    // queue all frontier cells
     foreach (Cell* frontierCell, frontiers()) {
-
         frontierCell->setFrontierDist(0);
-
-        for (int i = 0; i < 8; ++i) {
-            // 8-neighborhood
-            const int x = frontierCell->index().x() + directionMap[i][0];
-            const int y = frontierCell->index().y() + directionMap[i][1];
-
-            // check validity
-            if (!isValidField(x, y))
-                continue;
-
-            Cell* cell = &m_map[x][y];
-
-            // if free, set costs accordingly and queue
-            if (cell->state() & Cell::Free && 
-                cell->state() & Cell::Explored)
-            {
-                cell->setPathState(Cell::PathClose);
-                const float dist = m_resolution * (i < 4 ? 1.0 : 1.4142136);
-                if (!queue.contains(cell)) {
-                    cell->setFrontierDist(dist);
-                    queue.append(cell);
-                } else if (cell->frontierDist() > dist) {
-                    cell->setFrontierDist(dist);
-                }
-            }
-        }
+        queue.append(frontierCell);
     }
 
     QList<Cell*> dirtyCells;
@@ -1066,13 +1040,12 @@ void GridMap::computeDistanceTransform()
             if (cell->pathState() == Cell::PathClose && cell->frontierDist() < dist)
                 continue;
 
-            // Cell ist bereits in der Queue, nur ersetzen wenn Kosten besser
-            if (cell->pathState() == Cell::PathOpen)
-            {
+            // cell already in queue, only replace, if shorter path
+            if (cell->pathState() == Cell::PathOpen) {
                 if (cell->frontierDist() <= dist)
                     continue;
 
-                // Alten Eintrag aus der Queue entfernen
+                // remove all entry
                 queue.removeAll(cell);
             }
 
@@ -1081,10 +1054,10 @@ void GridMap::computeDistanceTransform()
             // flag open and queue
             cell->setPathState(Cell::PathOpen);
             queue.append(cell);
-            
         }
     }
 
+    // cleanup again
     foreach (Cell* cell, dirtyCells) {
         cell->setPathState(Cell::PathNone);
     }
