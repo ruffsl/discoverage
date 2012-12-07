@@ -30,23 +30,32 @@
 #include <set>
 
 static int directionMap[16][2] = {
-    // x   y
-    {  0, -1},           // oben
-    {  1,  0},           // rechts
-    {  0,  1},           // unten
-    { -1,  0},           // links
-    {  1, -1},           // rechts-oben
-    {  1,  1},           // rechts-unten
-    { -1,  1},           // links-unten
-    { -1, -1},           // links-oben
-    {  2, -1},           // rechts-oben
-    {  2,  1},           // rechts-unten
-    { -2,  1},           // links-unten
-    { -2, -1},           // links-oben
-    {  1, -2},           // rechts-oben
-    {  1,  2},           // rechts-unten
-    { -1,  2},           // links-unten
-    { -1, -2}            // links-oben
+    //
+    //    x x
+    //   x-o-x
+    //    o o
+    //   x-o-x
+    //    x x
+    //
+    // 4 times o
+    {  0, -1},  // top
+    {  1,  0},  // right
+    {  0,  1},  // bottom
+    { -1,  0},  // left
+    // 4 times -
+    {  1, -1},  // top right
+    {  1,  1},  // bottom right
+    { -1,  1},  // bottom left
+    { -1, -1},  // top left
+    // 8 times x (horse jump from chess)
+    {  2, -1},  // top right right
+    {  2,  1},  // bottom right right
+    { -2,  1},  // bottom left left
+    { -2, -1},  // top left left
+    {  1, -2},  // top top right
+    {  1,  2},  // bottom bottom right
+    { -1,  2},  // bottom bottom left
+    { -1, -2}   // top top bottom left
 };
 
 void Path::beautify(GridMap& gridMap)
@@ -268,7 +277,7 @@ void GridMap::updateCellWeights()
 {
     Q_ASSERT(m_map.size() > 0);
     
-    computeDist();
+    computeDistanceTransform();
     
     for (int a = 0; a < m_map.size(); ++a) {
         for (int b = 0; b < m_map[a].size(); ++b) {
@@ -278,43 +287,6 @@ void GridMap::updateCellWeights()
             {
                 float dist = c.frontierDist();
                 c.setDensity(exp(-0.5/(3*3)*dist*dist));
-            }
-        }
-    }
-//  
-
-    return;
-
-    QVector<QBitArray> visitedMap(m_map.size(), QBitArray(m_map[0].size()));
-
-    for (int a = 0; a < m_map.size(); ++a) {
-        for (int b = 0; b < m_map[a].size(); ++b) {
-            Cell& c = m_map[a][b];
-            if (  !(c.state() & Cell::Explored)
-                || (c.state() & Cell::Obstacle)
-                || visitedMap[a][b]
-            ) {
-                continue;
-            }
-
-            QList<Path> allFrontierPaths = frontierPaths(QPoint(a, b));
-            
-            float pathLength = 1000000;
-            int index = -1;
-            for (int i = 0; i < allFrontierPaths.size(); ++i) {
-                if (allFrontierPaths[i].m_length < pathLength) {
-                    index = i;
-                    pathLength = allFrontierPaths[i].m_length;
-                }
-            }
-            
-            if (index != -1) {
-//                 qDebug() << 1.0/(sqrt(2 * M_PI) * (2*1)) * exp(-0.5/(1) * pathLength*pathLength);
-//                 while (pathLength > 10) pathLength -= 10;
-//                 c.setDensity(pathLength / 10.0);
-//                 qDebug() << 1.0/(sqrt(2 * M_PI) * (1)) * exp(-0.5/(1) * pathLength*pathLength);
-//                 c.setDensity(1.0/(sqrt(2 * M_PI) * (1)) * exp(-0.5/(1) * pathLength*pathLength));
-                c.setDensity(exp(-0.5/(3*3)*pathLength*pathLength));
             }
         }
     }
@@ -1027,7 +999,7 @@ bool GridMap::aaPathVisible(const QPoint& from, const QPoint& to)
     return true;
 }
 
-void GridMap::computeDist()
+void GridMap::computeDistanceTransform()
 {
     QList<Cell*> queue;
 
@@ -1081,16 +1053,14 @@ void GridMap::computeDist()
                 continue;
 
             Cell* cell = &m_map[x][y];
-//             if (cell->pathState() == Cell::PathClose)
-//                 continue;
 
             // obstacle or not explored
             if (!(cell->state() & Cell::Free && 
                   cell->state() & Cell::Explored))
                 continue;
 
-            const float dist = baseCell->frontierDist() + m_resolution * (i < 4 ? 1.0 : 
-                                                                (i < 8 ? 1.4142136 : 2.236068));
+            const float dist = baseCell->frontierDist()
+                     + m_resolution * (i < 4 ? 1.0 : (i < 8 ? 1.4142136 : 2.236068));
 
             // Ignorieren wenn Knoten geschlossen ist und bessere Kosten hat
             if (cell->pathState() == Cell::PathClose && cell->frontierDist() < dist)

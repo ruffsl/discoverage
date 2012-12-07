@@ -123,7 +123,7 @@ class GridMap
     // Exploration & Density
     //
     public:
-        void computeDist();
+        void computeDistanceTransform();
         void updateCellWeights();
         void explore(const QPointF& pos, double radius, Cell::State destState);
         
