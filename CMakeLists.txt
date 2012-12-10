@@ -8,6 +8,7 @@ set(discoverage_SRCS
   scene.cpp
   cell.cpp
   gridmap.cpp
+  bullo.cpp
   toolhandler.cpp
   discoveragehandler.cpp
   mindisthandler.cpp
@@ -19,6 +20,7 @@ set( discoverage_MOC_HDRS
   mainwindow.h
   scene.h
   discoveragehandler.h
+  bullo.h
   mindisthandler.h
   statistics.h
 )
