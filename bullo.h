@@ -53,7 +53,7 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
         virtual void save(QSettings& config);
 
     private Q_SLOTS:
-        void showVectorField(bool show);
+//         void showVectorField(bool show);
         void updateParameters();
 
     private:

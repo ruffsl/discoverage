@@ -17,10 +17,10 @@
    Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#include "discoveragehandler.h"
+#include "bullo.h"
 #include "scene.h"
 #include "mainwindow.h"
-#include "ui_discoveragewidget.h"
+// #include "ui_discoveragewidget.h"
 
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
@@ -42,7 +42,7 @@ DisCoverageBulloHandler::DisCoverageBulloHandler(Scene* scene)
 
 DisCoverageBulloHandler::~DisCoverageBulloHandler()
 {
-    delete m_ui;
+//     delete m_ui;
 }
 
 void DisCoverageBulloHandler::toolHandlerActive(bool activated)
@@ -63,8 +63,8 @@ QDockWidget* DisCoverageBulloHandler::dockWidget()
 //         m_dock->setWidget(w);
 //         scene()->mainWindow()->addDockWidget(Qt::RightDockWidgetArea, m_dock);
 
-        connect(m_ui->chkShowVectorField, SIGNAL(toggled(bool)), this, SLOT(showVectorField(bool)));
-        connect(m_ui->sbVisionRaius, SIGNAL(valueChanged(double)), this, SLOT(updateParameters()));
+//         connect(m_ui->chkShowVectorField, SIGNAL(toggled(bool)), this, SLOT(showVectorField(bool)));
+//         connect(m_ui->sbVisionRaius, SIGNAL(valueChanged(double)), this, SLOT(updateParameters()));
 
         updateParameters();
     }
@@ -91,18 +91,17 @@ void DisCoverageBulloHandler::load(QSettings& config)
     config.endGroup();
     
 
-    m_ui->sbVisionRaius->blockSignals(true);
-
-    m_ui->sbVisionRaius->setValue(m_visionRadius);
-
-    m_ui->sbVisionRaius->blockSignals(false);
+//     m_ui->sbVisionRaius->blockSignals(true);
+// 
+//     m_ui->sbVisionRaius->setValue(m_visionRadius);
+// 
+//     m_ui->sbVisionRaius->blockSignals(false);
 }
 
 void DisCoverageBulloHandler::updateParameters()
 {
-    m_visionRadius = m_ui->sbVisionRaius->value();
+//     m_visionRadius = m_ui->sbVisionRaius->value();
 
-    updateDisCoverage(m_robotPosition);
     scene()->update();
 }
 
@@ -188,7 +187,6 @@ void DisCoverageBulloHandler::mouseMoveEvent(QMouseEvent* event)
 
     if (event->buttons() & Qt::LeftButton) {
         m_robotPosition = scene()->map().mapScreenToMap(event->posF());
-        updateDisCoverage(m_robotPosition);
     }
 }
 
@@ -208,8 +206,7 @@ void DisCoverageBulloHandler::tick()
         m_trajectory.append(m_robotPosition);
     }
 
-    updateDisCoverage(m_robotPosition);
-    m_robotPosition += QPointF(cos(m_delta), sin(m_delta)) * scene()->map().resolution();
+//     m_robotPosition += QPointF(cos(m_delta), sin(m_delta)) * scene()->map().resolution();
     scene()->map().explore(m_robotPosition, m_visionRadius, Cell::Explored);
 
     m_trajectory.append(m_robotPosition);
