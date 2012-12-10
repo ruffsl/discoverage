@@ -251,11 +251,13 @@ void DisCoverageBulloHandler::tick()
 
     m_robotPosition += gradient();
     scene()->map().explore(m_robotPosition, m_visionRadius, Cell::Explored);
-    m_gradient = gradient();
 
     m_trajectory.append(m_robotPosition);
 
     scene()->map().updateCache();
+
+    m_gradient = gradient();
+
     scene()->update();
 }
 
