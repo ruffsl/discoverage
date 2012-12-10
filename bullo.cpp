@@ -36,6 +36,9 @@ DisCoverageBulloHandler::DisCoverageBulloHandler(Scene* scene)
     , ToolHandler(scene)
     , m_dock(0)
     , m_ui(0)
+    , m_robotPosition(0, 0)
+    , m_visionRadius(2.0)
+    , m_gradient(0, 0)
 {
     toolHandlerActive(false);
 }
@@ -178,6 +181,9 @@ void DisCoverageBulloHandler::draw(QPainter& p)
 
     if (m_trajectory.size()) p.drawPolyline(&m_trajectory[0], m_trajectory.size());
 
+    p.setPen(QPen(Qt::red));
+    p.drawLine(m_robotPosition, m_robotPosition + m_gradient);
+
     p.setRenderHints(rh, true);
 }
 
@@ -200,17 +206,56 @@ void DisCoverageBulloHandler::reset()
     m_trajectory.clear();
 }
 
+qreal DisCoverageBulloHandler::performance(const QPointF& p, const QPointF& q)
+{
+    const qreal dx = p.x() - q.x();
+    const qreal dy = p.y() - q.y();
+    const qreal squareDist = (dx * dx + dy * dy);
+    return -squareDist;
+}
+
+qreal DisCoverageBulloHandler::fitness(const QPointF& robotPos, const QVector<Cell*>& cells)
+{
+    qreal sum = 0;
+    foreach (Cell* cell, cells) {
+        sum += performance(robotPos, cell->center()) * cell->density();
+    }
+//     qDebug() << sum;
+    return sum;
+}
+
+QPointF DisCoverageBulloHandler::gradient()
+{
+    QVector<Cell*> visibleCells = scene()->map().visibleCells(m_robotPosition, m_visionRadius);
+
+    const qreal dx = 0.005;
+    const qreal dy = 0.005;
+    const qreal p = fitness(m_robotPosition, visibleCells);
+    const qreal x = fitness(m_robotPosition + QPointF(dx, 0.0), visibleCells);
+    const qreal y = fitness(m_robotPosition + QPointF(0.0, dy), visibleCells);
+
+    QPointF grad ((x - p) / dx, (y - p) / dy);
+    if (!grad.isNull()) {
+        // normalize vector (1 sqrt)
+        grad /= sqrt(grad.x() * grad.x() + grad.y() * grad.y());
+        grad *= scene()->map().resolution() * 2;
+    }
+    return grad;
+}
+
 void DisCoverageBulloHandler::tick()
 {
     if (m_trajectory.size() == 0) {
         m_trajectory.append(m_robotPosition);
     }
 
-//     m_robotPosition += QPointF(cos(m_delta), sin(m_delta)) * scene()->map().resolution();
+    m_robotPosition += gradient();
     scene()->map().explore(m_robotPosition, m_visionRadius, Cell::Explored);
+    m_gradient = gradient();
 
     m_trajectory.append(m_robotPosition);
-    
+
+    scene()->map().updateCache();
     scene()->update();
 }
 

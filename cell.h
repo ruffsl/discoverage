@@ -52,6 +52,7 @@ class Cell
         void draw(QPainter& p);
 
         const QRectF& rect() const;
+        const QPointF center() const;
 
         inline bool isObstacle() const {
             return m_state & Obstacle;

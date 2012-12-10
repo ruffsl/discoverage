@@ -403,7 +403,7 @@ bool GridMap::isValidField(int xIndex, int yIndex) const
            yIndex < m_map[0].size();
 }
 
-static bool inCircle(qreal x, qreal y, qreal radius, qreal px, qreal py)
+inline static bool inCircle(qreal x, qreal y, qreal radius, qreal px, qreal py)
 {
     qreal dx = x - px;
     qreal dy = y - py;
@@ -411,15 +411,15 @@ static bool inCircle(qreal x, qreal y, qreal radius, qreal px, qreal py)
     return (dx*dx + dy*dy) < radius*radius;
 }
 
-void GridMap::explore(const QPointF& mapPos, double radius, Cell::State destState)
+void GridMap::explore(const QPointF& robotPos, double radius, Cell::State destState)
 {
-    const qreal x = mapPos.x();
-    const qreal y = mapPos.y();
+    const qreal x = robotPos.x();
+    const qreal y = robotPos.y();
 
     const int cellRadius = ceil(radius / resolution());
 
-    int cellX = mapPos.x() / resolution();
-    int cellY = mapPos.y() / resolution();
+    int cellX = robotPos.x() / resolution();
+    int cellY = robotPos.y() / resolution();
 
     int xStart = qMax(0, cellX - cellRadius);
     int xEnd = qMin(size().width() - 1, cellX + cellRadius);
@@ -497,9 +497,54 @@ void GridMap::explore(const QPointF& mapPos, double radius, Cell::State destStat
     }
 }
 
+QVector<Cell*> GridMap::visibleCells(const QPointF& robotPos, double radius, Cell::State cellState)
+{
+    const qreal x = robotPos.x();
+    const qreal y = robotPos.y();
+
+    const int cellRadius = ceil(radius / resolution());
+
+    int cellX = x / resolution();
+    int cellY = y / resolution();
+
+    int xStart = qMax(0, cellX - cellRadius);
+    int xEnd = qMin(size().width() - 1, cellX + cellRadius);
+
+    int yStart = qMax(0, cellY - cellRadius - 1);
+    int yEnd = qMin(size().height() - 1, cellY + cellRadius);
+    
+//     qDebug() << cellX << cellY << xStart << xEnd << yStart << yEnd;
+
+    QVector<Cell*> cellVector;
+
+    for (int a = xStart; a <= xEnd; ++a) {
+        for (int b = yStart; b <= yEnd; ++b) {
+            Cell& c = m_map[a][b];
+            if ((c.state() & cellState) && pathVisible(QPoint(cellX, cellY), QPoint(a, b))) {
+                const QRectF& r = c.rect();
+                const qreal x1 = r.left();
+                const qreal x2 = r.right();
+                const qreal y1 = r.top();
+                const qreal y2 = r.bottom();
+
+                int count = 0;
+                if (inCircle(x, y, radius, x1, y1)) ++count;
+                if (inCircle(x, y, radius, x1, y2)) ++count;
+                if (inCircle(x, y, radius, x2, y1)) ++count;
+                if (inCircle(x, y, radius, x2, y2)) ++count;
+
+                if (count > 0) {
+                    cellVector.append(&c);
+                }
+            }
+        }
+    }
+    return cellVector;
+}
+
 double GridMap::explorationProgress() const
 {
-    qDebug() << m_freeCellCount;
+//     qDebug() << m_freeCellCount;
     if (m_freeCellCount == 0) return 0;
     return static_cast<double>(m_exploredCellCount) / m_freeCellCount;
 }

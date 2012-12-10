@@ -37,6 +37,7 @@ Scene::Scene(MainWindow* mainWindow, QWidget* parent)
     , m_explorationHandler(this)
     , m_discoverageHandler(this)
     , m_minDistHandler(this)
+    , m_bulloHandler(this)
 {
     setMouseTracking(true);
     QPixmap cursorPixmap(1, 1);
@@ -84,6 +85,7 @@ void Scene::load(QSettings& config)
     m_discoverageHandler.load(config);
     m_explorationHandler.load(config);
     m_obstacleHandler.load(config);
+    m_bulloHandler.load(config);
 
     update();
 }
@@ -96,6 +98,7 @@ void Scene::save(QSettings& config)
     m_explorationHandler.save(config);
     m_discoverageHandler.save(config);
     m_minDistHandler.save(config);
+    m_bulloHandler.save(config);
 }
 
 void Scene::wheelEvent(QWheelEvent* event)
@@ -175,6 +178,14 @@ void Scene::selectTool(int toolIndex)
             m_toolHandler->toolHandlerActive(true);
             mainWindow()->statusBar()->clearMessage();
             break;
+        case 7:
+            // TODO FIXME implement DisCoverage handler
+            m_toolHandler->toolHandlerActive(false);
+            m_toolHandler = &m_bulloHandler;
+            m_toolHandler->toolHandlerActive(true);
+            mainWindow()->statusBar()->clearMessage();
+            break;
+
         default:
             qWarning() << "Scene::selectTool() called with invalid index";
     }

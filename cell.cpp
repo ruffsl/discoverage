@@ -31,7 +31,6 @@ static QColor densityToColor(float density)
     const float val = 1.0;
     float tmp = sqrt(-logf(density)) / 10;
     const float hue = tmp;
-    qDebug() << hue;
 
     return QColor::fromHsvF(hue, sat, val);
 }
@@ -64,6 +63,11 @@ Cell::Cell(const QRectF& rect)
 void Cell::setRect(const QRectF& rect)
 {
     m_rect = rect;
+}
+
+const QPointF Cell::center() const
+{
+    return m_rect.center();
 }
 
 void Cell::setIndex(const QPoint& index)

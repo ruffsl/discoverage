@@ -57,6 +57,10 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
         void updateParameters();
 
     private:
+        QPointF gradient();
+        qreal performance(const QPointF& p, const QPointF& q);
+        qreal fitness(const QPointF& robotPos, const QVector<Cell*>& cells);
+
         void updateDisCoverage(const QPointF& robotPosition);
         double disCoverage(const QPointF& pos, double delta, const QPointF& q, const Path& path);
 
@@ -71,6 +75,7 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
         QVector<QVector<QLineF> > m_vectorField;
 
         QPointF m_robotPosition;
+        QPointF m_gradient;
         QVector<QPointF> m_trajectory;
 };
 

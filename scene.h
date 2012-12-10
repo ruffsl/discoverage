@@ -28,6 +28,7 @@
 #include "toolhandler.h"
 #include "discoveragehandler.h"
 #include "mindisthandler.h"
+#include "bullo.h"
 
 class QPaintEvent;
 class QMouseEvent;
@@ -86,6 +87,7 @@ class Scene : public QFrame
         ExplorationHandler m_explorationHandler;
         DisCoverageHandler m_discoverageHandler;
         MinDistHandler m_minDistHandler;
+        DisCoverageBulloHandler m_bulloHandler;
 };
 
 #endif // SCENE_H

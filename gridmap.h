@@ -125,9 +125,11 @@ class GridMap
     public:
         void computeDistanceTransform();
         void updateCellWeights();
-        void explore(const QPointF& pos, double radius, Cell::State destState);
+        void explore(const QPointF& robotPos, double radius, Cell::State destState);
         
         double explorationProgress() const;
+        QVector<Cell*> visibleCells(const QPointF& robotPos, double radius,
+                                    Cell::State cellState = Cell::Free | Cell::Explored);
 
     //
     // path finding
