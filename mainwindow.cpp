@@ -68,6 +68,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     connect(actionNew, SIGNAL(triggered()), this, SLOT(newScene()));
     connect(actionOpen, SIGNAL(triggered()), this, SLOT(loadScene()));
     connect(actionSave, SIGNAL(triggered()), this, SLOT(saveScene()));
+    connect(actionVectorField, SIGNAL(triggered()), m_scene, SLOT(configChanged()));
     connect(actionExport, SIGNAL(triggered()), this, SLOT(exportAsPdf()));
     connect(actionReset, SIGNAL(triggered()), m_scene, SLOT(reset()));
     connect(actionStep, SIGNAL(triggered()), m_scene, SLOT(tick()));

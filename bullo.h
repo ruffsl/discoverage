@@ -67,14 +67,13 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
         QDockWidget* dockWidget();
 
     private:
-        double m_visionRadius;
-
         QDockWidget* m_dock;
         Ui::DisCoverageBulloWidget* m_ui;
  
         QVector<QVector<QLineF> > m_vectorField;
 
         QPointF m_robotPosition;
+        double m_visionRadius;
         QPointF m_gradient;
         QVector<QPointF> m_trajectory;
 };

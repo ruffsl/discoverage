@@ -117,20 +117,8 @@ void Path::beautify(GridMap& gridMap)
 
 
 GridMap::GridMap()
-    : m_scaleFactor(4.0)
-    , m_resolution(0.2)
+    : GridMap(20, 10, 2.0)
 {
-    m_map = QVector<QVector<Cell> >(100, QVector<Cell>(100));
-
-    for (int a = 0; a < m_map.size(); ++a) {
-        QVector<Cell>& row = m_map[a];
-        for (int b = 0; b < row.size(); ++b) {
-            row[b].setRect(QRectF(a * m_resolution, b * m_resolution, m_resolution, m_resolution));
-            row[b].setIndex(QPoint(a, b));
-        }
-    }
-
-    m_frontierCache.clear();
 }
 
 GridMap::GridMap(double width, double height, double resolution)

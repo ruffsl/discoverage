@@ -28,6 +28,8 @@
 #include <QtGui/QPainter>
 #include <QtGui/QWheelEvent>
 
+Scene* Scene::s_self = 0;
+
 Scene::Scene(MainWindow* mainWindow, QWidget* parent)
     : QFrame(parent)
     , m_map(30.0, 22.5, 0.2)
@@ -39,6 +41,8 @@ Scene::Scene(MainWindow* mainWindow, QWidget* parent)
     , m_minDistHandler(this)
     , m_bulloHandler(this)
 {
+    s_self = this;
+
     setMouseTracking(true);
     QPixmap cursorPixmap(1, 1);
     cursorPixmap.fill();
@@ -53,6 +57,7 @@ Scene::Scene(MainWindow* mainWindow, QWidget* parent)
 
 Scene::~Scene()
 {
+    s_self = 0;
 }
 
 void Scene::newScene()
@@ -137,6 +142,11 @@ void Scene::zoomOut()
     m_map.decScaleFactor();
     setFixedSize(sizeHint());
     update();
+}
+
+void Scene::configChanged()
+{
+    m_map.updateCache();
 }
 
 void Scene::selectTool(int toolIndex)

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>681</width>
+    <width>758</width>
     <height>694</height>
    </rect>
   </property>
@@ -38,8 +38,8 @@
       <widget class="QWidget" name="scrollAreaWidgetContents">
        <property name="geometry">
         <rect>
-         <x>0</x>
-         <y>38</y>
+         <x>39</x>
+         <y>86</y>
          <width>681</width>
          <height>383</height>
         </rect>
@@ -54,8 +54,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>681</width>
-     <height>23</height>
+     <width>758</width>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -101,8 +101,8 @@
    </property>
    <property name="iconSize">
     <size>
-     <width>48</width>
-     <height>48</height>
+     <width>32</width>
+     <height>32</height>
     </size>
    </property>
    <attribute name="toolBarArea">
@@ -122,6 +122,8 @@
    <addaction name="separator"/>
    <addaction name="actionZoomOut"/>
    <addaction name="actionZoomIn"/>
+   <addaction name="separator"/>
+   <addaction name="actionVectorField"/>
    <addaction name="separator"/>
    <addaction name="actionExport"/>
    <addaction name="separator"/>
@@ -291,6 +293,21 @@
   <action name="actionDummy">
    <property name="text">
     <string>dummy</string>
+   </property>
+  </action>
+  <action name="actionVectorField">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="app.qrc">
+     <normaloff>:/icons/icons/vector-field.png</normaloff>:/icons/icons/vector-field.png</iconset>
+   </property>
+   <property name="text">
+    <string>Vector Field</string>
+   </property>
+   <property name="toolTip">
+    <string>Show vector field</string>
    </property>
   </action>
  </widget>

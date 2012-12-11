@@ -41,9 +41,13 @@ class Scene : public QFrame
 {
     Q_OBJECT
 
+    static Scene* s_self;
+
     public:
         Scene(MainWindow* mainWindow, QWidget* parent = 0);
         virtual ~Scene();
+
+        static Scene* self();
 
         GridMap& map();
         MainWindow* mainWindow() const;
@@ -57,6 +61,8 @@ class Scene : public QFrame
         void newScene();
         void zoomIn();
         void zoomOut();
+
+        void configChanged();
 
         void selectTool(int toolIndex);
         void setOperationRadius(double radius);
