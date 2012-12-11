@@ -49,7 +49,7 @@ class Config : public QObject
     //
     // config setters and getters
     //
-    public:
+    public slots:
         bool showVectorField() const;
         void setShowVectorField(bool show);
 

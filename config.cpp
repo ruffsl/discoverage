@@ -23,6 +23,15 @@
 
 Config* Config::s_self = 0;
 
+Config* Config::self()
+{
+    if (!s_self) {
+        new Config();
+    }
+
+    return s_self;
+}
+
 Config::Config()
     : QObject()
     , m_refCount(0)
