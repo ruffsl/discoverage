@@ -18,6 +18,7 @@
 */
 
 #include "mainwindow.h"
+#include "config.h"
 
 #include <QtGui/QApplication>
 
@@ -25,9 +26,16 @@ int main(int argc, char* argv[])
 {
   QApplication app(argc, argv);
 
+  Config::self();
+  
   MainWindow* mw = new MainWindow();
   mw->resize(1000, 750);
   mw->show();
 
-  return app.exec();
+  int exitCode = app.exec();
+
+  delete mw;
+  delete Config::self();
+
+  return exitCode;
 }
