@@ -144,11 +144,6 @@ void Scene::zoomOut()
     update();
 }
 
-void Scene::configChanged()
-{
-    m_map.updateCache();
-}
-
 void Scene::selectTool(int toolIndex)
 {
     switch (toolIndex) {

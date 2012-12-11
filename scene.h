@@ -65,8 +65,6 @@ class Scene : public QFrame
         void zoomIn();
         void zoomOut();
 
-        void configChanged();
-
         void selectTool(int toolIndex);
         void setOperationRadius(double radius);
 
