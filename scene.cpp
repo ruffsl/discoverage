@@ -134,14 +134,12 @@ void Scene::zoomIn()
 {
     m_map.incScaleFactor();
     setFixedSize(sizeHint());
-    update();
 }
 
 void Scene::zoomOut()
 {
     m_map.decScaleFactor();
     setFixedSize(sizeHint());
-    update();
 }
 
 void Scene::selectTool(int toolIndex)
