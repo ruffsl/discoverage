@@ -299,7 +299,7 @@ void GridMap::updateCache()
     // precalculate all weights in the cells
     updateCellWeights();
 
-    if (true) { // show vector field
+    if (Config::self()->showVectorField()) {
         m_scene->toolHandler()->updateVectorField();
     }
 
@@ -309,7 +309,7 @@ void GridMap::updateCache()
     for (int a = 0; a < m_map.size(); ++a) {
         QVector<Cell>& row = m_map[a];
         for (int b = 0; b < row.size(); ++b) {
-            row[b].draw(p, true, true);
+            row[b].draw(p, true, Config::self()->showVectorField());
         }
     }
 }
