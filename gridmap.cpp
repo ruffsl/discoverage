@@ -19,6 +19,7 @@
 
 #include "gridmap.h"
 #include "scene.h"
+#include "config.h"
 
 #include <QPainter>
 #include <QPoint>
@@ -119,7 +120,6 @@ void Path::beautify(GridMap& gridMap)
 
 GridMap::GridMap(Scene* scene, double width, double height, double resolution)
     : m_scene(scene)
-    , m_scaleFactor(4.0)
     , m_resolution(resolution)
 {
     const int xCellCount = ceil(width / m_resolution);
@@ -148,7 +148,6 @@ void GridMap::load(QSettings& config)
 {
     config.beginGroup("scene");
     m_resolution = config.value("resolution",  0.2).toDouble();
-    m_scaleFactor =  config.value("scale-factor", 4.0).toDouble();
     const int width = config.value("map-width", 0).toInt();
     const int height = config.value("map-height", 0).toInt();
     QByteArray ba = config.value("map", QByteArray()).toByteArray();
@@ -199,7 +198,6 @@ void GridMap::save(QSettings& config)
 
     config.beginGroup("scene");
     config.setValue("resolution", m_resolution);
-    config.setValue("scale-factor", m_scaleFactor);
     config.setValue("map-width", s.width());
     config.setValue("map-height", s.height());
     config.setValue("map", ba);
@@ -236,19 +234,19 @@ Cell& GridMap::cell(const QPointF & index)
 
 qreal GridMap::scaleFactor() const
 {
-    return m_scaleFactor / m_resolution;
+    return Config::self()->zoom() / m_resolution;
 }
 
 void GridMap::incScaleFactor()
 {
-    m_scaleFactor += 1.0;
-    updateCache();
+    if (Config::self()->zoomIn()) {
+        updateCache();
+    }
 }
 
 void GridMap::decScaleFactor()
 {
-    if (m_scaleFactor > 1.0) {
-        m_scaleFactor -= 1.0;
+    if (Config::self()->zoomOut()) {
         updateCache();
     }
 }
@@ -320,7 +318,7 @@ void GridMap::draw(QPainter& p)
 {
     p.drawPixmap(0, 0, m_pixmapCache);
     
-//     p.scale(m_scaleFactor / m_resolution, m_scaleFactor / m_resolution);
+//     p.scale(scaleFactor(), scaleFactor());
 //     foreach (Cell* c, m_frontierCache) {
 //         p.fillRect(c->rect(), Qt::blue);
 //     }

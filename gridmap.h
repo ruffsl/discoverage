@@ -150,7 +150,6 @@ class GridMap
         QVector<QVector<Cell> > m_map;
         QPixmap m_pixmapCache;
 
-        qreal m_scaleFactor;
         qreal m_resolution;
 
         // track a list of frontiers for fast lookup/iteration

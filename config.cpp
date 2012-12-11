@@ -36,6 +36,7 @@ Config::Config()
     : QObject()
     , m_refCount(0)
     , m_showVectorField(false)
+    , m_zoomFactor(1.0)
 {
     s_self = this;
 }
@@ -66,6 +67,7 @@ void Config::load(QSettings& config)
     config.beginGroup("config");
 
     setShowVectorField(config.value("show-vector-field",  false).toBool());
+    m_zoomFactor = config.value("map-zoom-factor",  4.0).toDouble();
 
     config.endGroup();
     end();
@@ -76,6 +78,7 @@ void Config::save(QSettings& config)
     config.beginGroup("config");
 
     config.setValue("show-vector-field", showVectorField());
+    config.setValue("map-zoom-factor", zoom());
 
     config.endGroup();
 }
@@ -93,6 +96,32 @@ void Config::setShowVectorField(bool show)
     begin();
     m_showVectorField = show;
     end();
+}
+
+bool Config::zoomIn()
+{
+    begin();
+    m_zoomFactor += 1.0;
+    end();
+
+    return true;
+}
+
+bool Config::zoomOut()
+{
+    if (m_zoomFactor <= 1.0)
+        return false;
+
+    begin();
+    m_zoomFactor -= 1.0;
+    end();
+
+    return true;
+}
+
+double Config::zoom()
+{
+    return m_zoomFactor;
 }
 
 // kate: replace-tabs on; indent-width 4;

@@ -53,10 +53,15 @@ class Config : public QObject
         bool showVectorField() const;
         void setShowVectorField(bool show);
 
+        bool zoomIn();
+        bool zoomOut();
+        double zoom();
+
     private:
         int m_refCount;
 
         bool m_showVectorField;
+        double m_zoomFactor;
 };
 
 #endif // DISCOVERAGE_CONFIG_H
