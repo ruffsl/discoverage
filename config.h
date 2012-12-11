@@ -31,7 +31,7 @@ class Config : public QObject
     static Config* s_self;
 
     public:
-        Config(MainWindow* mainWindow, QWidget* parent = 0);
+        Config();
         virtual ~Config();
 
         static Config* self();

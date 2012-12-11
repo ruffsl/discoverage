@@ -38,7 +38,7 @@ Config::~Config()
 
 void Config::begin()
 {
-    +m_refCount;
+    ++m_refCount;
 }
 
 void Config::end()
