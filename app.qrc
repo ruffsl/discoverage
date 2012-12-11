@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="icons">
+    <file>icons/stats.png</file>
     <file>icons/vector-field.png</file>
     <file>icons/document-new.png</file>
     <file>icons/document-save.png</file>

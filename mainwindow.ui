@@ -124,6 +124,7 @@
    <addaction name="actionZoomIn"/>
    <addaction name="separator"/>
    <addaction name="actionVectorField"/>
+   <addaction name="actionStatistics"/>
    <addaction name="separator"/>
    <addaction name="actionExport"/>
    <addaction name="separator"/>
@@ -308,6 +309,21 @@
    </property>
    <property name="toolTip">
     <string>Show vector field</string>
+   </property>
+  </action>
+  <action name="actionStatistics">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="app.qrc">
+     <normaloff>:/icons/icons/stats.png</normaloff>:/icons/icons/stats.png</iconset>
+   </property>
+   <property name="text">
+    <string>Statistics</string>
+   </property>
+   <property name="toolTip">
+    <string>Show statistics</string>
    </property>
   </action>
  </widget>

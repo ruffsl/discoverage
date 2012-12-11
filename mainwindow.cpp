@@ -51,6 +51,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 
     Statistics* statistics = new Statistics(this);
     dwStatistics->setWidget(statistics);
+    dwStatistics->setVisible(false);
 
     m_statusResolution = new QLabel(statusBar());
     statusBar()->addPermanentWidget(m_statusResolution);
@@ -70,6 +71,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     connect(actionOpen, SIGNAL(triggered()), this, SLOT(loadScene()));
     connect(actionSave, SIGNAL(triggered()), this, SLOT(saveScene()));
     connect(actionVectorField, SIGNAL(triggered(bool)), Config::self(), SLOT(setShowVectorField(bool)));
+    connect(actionStatistics, SIGNAL(triggered(bool)), dwStatistics, SLOT(setVisible(bool)));
     connect(actionExport, SIGNAL(triggered()), this, SLOT(exportAsPdf()));
     connect(actionReset, SIGNAL(triggered()), m_scene, SLOT(reset()));
     connect(actionStep, SIGNAL(triggered()), m_scene, SLOT(tick()));

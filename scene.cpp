@@ -182,7 +182,6 @@ void Scene::selectTool(int toolIndex)
             mainWindow()->statusBar()->clearMessage();
             break;
         case 7:
-            // TODO FIXME implement DisCoverage handler
             m_toolHandler->toolHandlerActive(false);
             m_toolHandler = &m_bulloHandler;
             m_toolHandler->toolHandlerActive(true);
