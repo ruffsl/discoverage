@@ -58,6 +58,11 @@ class ToolHandler
         virtual void toolHandlerActive(bool activated);
         virtual void reset();
         virtual void tick();
+
+        // called if a vector field is requested in all cells
+        virtual void updateVectorField();
+
+        // serialization
         virtual void save(QSettings& config);
         virtual void load(QSettings& config);
 

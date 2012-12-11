@@ -18,6 +18,7 @@
 */
 
 #include "gridmap.h"
+#include "scene.h"
 
 #include <QPainter>
 #include <QPoint>
@@ -116,17 +117,13 @@ void Path::beautify(GridMap& gridMap)
 }
 
 
-GridMap::GridMap()
-    : GridMap(20, 10, 2.0)
-{
-}
-
-GridMap::GridMap(double width, double height, double resolution)
-    : m_scaleFactor(4.0)
+GridMap::GridMap(Scene* scene, double width, double height, double resolution)
+    : m_scene(scene)
+    , m_scaleFactor(4.0)
     , m_resolution(resolution)
 {
-    const int xCellCount = ceil(width / resolution);
-    const int yCellCount = ceil(height / resolution);
+    const int xCellCount = ceil(width / m_resolution);
+    const int yCellCount = ceil(height / m_resolution);
 
     m_map = QVector<QVector<Cell> >(xCellCount, QVector<Cell>(yCellCount));
 
@@ -304,13 +301,17 @@ void GridMap::updateCache()
     // precalculate all weights in the cells
     updateCellWeights();
 
+    if (true) { // show vector field
+        m_scene->toolHandler()->updateVectorField();
+    }
+
     // finally draw to pixmap cache
     QPainter p(&m_pixmapCache);
     p.scale(scaleFactor(), scaleFactor());
     for (int a = 0; a < m_map.size(); ++a) {
         QVector<Cell>& row = m_map[a];
         for (int b = 0; b < row.size(); ++b) {
-            row[b].draw(p);
+            row[b].draw(p, true, true);
         }
     }
 }
@@ -318,6 +319,11 @@ void GridMap::updateCache()
 void GridMap::draw(QPainter& p)
 {
     p.drawPixmap(0, 0, m_pixmapCache);
+    
+//     p.scale(m_scaleFactor / m_resolution, m_scaleFactor / m_resolution);
+//     foreach (Cell* c, m_frontierCache) {
+//         p.fillRect(c->rect(), Qt::blue);
+//     }
 //     qDebug() << m_frontierCache.size();
 }
 
@@ -331,7 +337,7 @@ void GridMap::updateCell(Cell& cell)
     QPainter p(&m_pixmapCache);
     p.scale(scaleFactor(), scaleFactor());
     p.setPen(Qt::lightGray);
-    cell.draw(p);
+    cell.draw(p, true, true);
 }
 
 const QSet<Cell*>& GridMap::frontiers() const
@@ -483,6 +489,8 @@ void GridMap::explore(const QPointF& robotPos, double radius, Cell::State destSt
             }
         }
     }
+
+    m_scene->update();
 }
 
 QVector<Cell*> GridMap::visibleCells(const QPointF& robotPos, double radius, Cell::State cellState)

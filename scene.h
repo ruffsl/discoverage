@@ -57,6 +57,9 @@ class Scene : public QFrame
 
         void draw(QPaintDevice* paintDevice);
 
+        ToolHandler* toolHandler()
+        { return m_toolHandler; }
+
     public slots:
         void newScene();
         void zoomIn();

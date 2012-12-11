@@ -32,7 +32,7 @@ Scene* Scene::s_self = 0;
 
 Scene::Scene(MainWindow* mainWindow, QWidget* parent)
     : QFrame(parent)
-    , m_map(30.0, 22.5, 0.2)
+    , m_map(this, 30, 22.5, 0.2)
     , m_mainWindow(mainWindow)
     , m_robotHandler(this)
     , m_obstacleHandler(this)
@@ -70,7 +70,7 @@ void Scene::newScene()
         const double width = ui.sbWidth->value();
         const double height = ui.sbHeight->value();
 
-        m_map = GridMap(width, height, res);
+        m_map = GridMap(this, width, height, res);
         mainWindow()->setStatusResolution(res);
         m_map.updateCache();
         setFixedSize(sizeHint());
@@ -271,6 +271,8 @@ void Scene::reset()
 void Scene::tick()
 {
     m_toolHandler->tick();
+
+//     if (
 }
 
 // kate: replace-tabs on; indent-width 4;

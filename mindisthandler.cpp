@@ -125,6 +125,37 @@ void MinDistHandler::tick()
     scene()->update();
 }
 
+void MinDistHandler::updateVectorField()
+{
+    qDebug() << "update vector field";
+    const int dx = scene()->map().size().width();
+    const int dy = scene()->map().size().height();
+
+    for (int a = 0; a < dx; ++a) {
+        for (int b = 0; b < dy; ++b) {
+            Cell& c = scene()->map().cell(a, b);
+            if (c.state() == (Cell::Explored | Cell::Free)) {
+                QList<Path> paths = scene()->map().frontierPaths(c.index());
+                int shortestPathIndex = -1;
+                qreal shortestPathLength = 1000000;
+                for (int i = 0; i < paths.size(); ++i) {
+                    if (paths[i].m_length < shortestPathLength) {
+                        paths[i].beautify(scene()->map());
+                        shortestPathLength = paths[i].m_length;
+                        shortestPathIndex = i;
+                    }
+                }
+                QPointF gradient(0, 0);
+                if (shortestPathIndex != -1 && paths[shortestPathIndex].m_path.size()) {
+                    gradient = paths[shortestPathIndex].m_path[1] - paths[shortestPathIndex].m_path[0];
+                    gradient /= sqrt(gradient.x()*gradient.x() + gradient.y()*gradient.y());
+                }
+                c.setGradient(gradient);
+            }
+        }
+    }
+}
+
 void MinDistHandler::updateMinDist(const QPointF& robotPosition)
 {
     GridMap& m = scene()->map();

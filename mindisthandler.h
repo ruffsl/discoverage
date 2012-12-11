@@ -46,6 +46,11 @@ class MinDistHandler : public QObject, public ToolHandler
         virtual void toolHandlerActive(bool activated);
         virtual void reset();
         virtual void tick();
+
+        // compute vector field
+        void updateVectorField();
+
+        // serialization
         virtual void load(QSettings& config);
         virtual void save(QSettings& config);
 

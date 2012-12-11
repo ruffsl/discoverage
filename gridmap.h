@@ -29,6 +29,7 @@
 
 class QSettings;
 class GridMap;
+class Scene;
 
 class Path
 {
@@ -44,8 +45,7 @@ class Path
 class GridMap
 {
     public:
-        GridMap();
-        GridMap(double width, double height, double resolution);
+        GridMap(Scene* scene, double width, double height, double resolution);
         ~GridMap();
         
     //
@@ -143,6 +143,10 @@ class GridMap
         float heuristic(const QPoint& start, const QPoint& end);
 
     private:
+        GridMap(); // disable default constructor
+
+        Scene* m_scene;
+
         QVector<QVector<Cell> > m_map;
         QPixmap m_pixmapCache;
 

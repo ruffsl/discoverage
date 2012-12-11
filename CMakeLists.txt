@@ -13,20 +13,22 @@ set(discoverage_SRCS
   discoveragehandler.cpp
   mindisthandler.cpp
   statistics.cpp
+  config.cpp
 )
 
 # another list, this time it includes all header files that should be treated with moc
-set( discoverage_MOC_HDRS
+set(discoverage_MOC_HDRS
   mainwindow.h
   scene.h
   discoveragehandler.h
   bullo.h
   mindisthandler.h
   statistics.h
+  config.h
 )
 
 # some .ui files
-set( discoverage_UIS
+set(discoverage_UIS
   mainwindow.ui
   toolwidget.ui
   newscenedialog.ui
@@ -34,7 +36,7 @@ set( discoverage_UIS
 )
 
 # and finally an resource file
-set( discoverage_RCS
+set(discoverage_RCS
   app.qrc
 )
 

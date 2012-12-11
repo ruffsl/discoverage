@@ -118,6 +118,10 @@ void ToolHandler::tick()
 {
 }
 
+void ToolHandler::updateVectorField()
+{
+}
+
 void ToolHandler::save(QSettings& config)
 {
     config.beginGroup("tool-handler");

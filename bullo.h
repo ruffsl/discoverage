@@ -49,6 +49,11 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
         virtual void toolHandlerActive(bool activated);
         virtual void reset();
         virtual void tick();
+
+        // update vector field for all explored cells
+        void updateVectorField();
+
+        // serialization
         virtual void load(QSettings& config);
         virtual void save(QSettings& config);
 
@@ -57,7 +62,7 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
         void updateParameters();
 
     private:
-        QPointF gradient();
+        QPointF gradient(const QPointF& robotPos);
         qreal performance(const QPointF& p, const QPointF& q);
         qreal fitness(const QPointF& robotPos, const QVector<Cell*>& cells);
 

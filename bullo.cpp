@@ -37,7 +37,6 @@ DisCoverageBulloHandler::DisCoverageBulloHandler(Scene* scene)
     , m_dock(0)
     , m_ui(0)
     , m_robotPosition(0, 0)
-    , m_visionRadius(2.0)
     , m_gradient(0, 0)
 {
     toolHandlerActive(false);
@@ -79,7 +78,6 @@ void DisCoverageBulloHandler::save(QSettings& config)
     ToolHandler::save(config);
 
     config.beginGroup("dis-coverage");
-    config.setValue("vision-radius", m_visionRadius);
     config.setValue("robot-position", m_robotPosition);
     config.endGroup();
 }
@@ -89,10 +87,8 @@ void DisCoverageBulloHandler::load(QSettings& config)
     ToolHandler::load(config);
 
     config.beginGroup("dis-coverage");
-    m_visionRadius = config.value("vision-radius", 2.0).toDouble();
     m_robotPosition = config.value("robot-position", QPointF(0.0, 0.0)).toPointF();
     config.endGroup();
-    
 
 //     m_ui->sbVisionRaius->blockSignals(true);
 // 
@@ -167,7 +163,7 @@ void DisCoverageBulloHandler::draw(QPainter& p)
 
     GridMap &m = scene()->map();
     p.scale(m.scaleFactor(), m.scaleFactor());
-    
+
     QPainter::RenderHints rh = p.renderHints();
     p.setRenderHints(QPainter::Antialiasing, true);
 
@@ -176,7 +172,7 @@ void DisCoverageBulloHandler::draw(QPainter& p)
 
     p.setOpacity(0.2);
     p.setBrush(QBrush(Qt::blue));
-    p.drawEllipse(m_robotPosition, m_visionRadius, m_visionRadius);
+    p.drawEllipse(m_robotPosition, operationRadius(), operationRadius());
     p.setOpacity(1.0);
 
     if (m_trajectory.size()) p.drawPolyline(&m_trajectory[0], m_trajectory.size());
@@ -224,21 +220,21 @@ qreal DisCoverageBulloHandler::fitness(const QPointF& robotPos, const QVector<Ce
     return sum;
 }
 
-QPointF DisCoverageBulloHandler::gradient()
+QPointF DisCoverageBulloHandler::gradient(const QPointF& robotPos)
 {
-    QVector<Cell*> visibleCells = scene()->map().visibleCells(m_robotPosition, m_visionRadius);
+    QVector<Cell*> visibleCells = scene()->map().visibleCells(robotPos, operationRadius());
 
-    const qreal dx = 0.005;
-    const qreal dy = 0.005;
-    const qreal p = fitness(m_robotPosition, visibleCells);
-    const qreal x = fitness(m_robotPosition + QPointF(dx, 0.0), visibleCells);
-    const qreal y = fitness(m_robotPosition + QPointF(0.0, dy), visibleCells);
+    const qreal dx = 0.004;
+    const qreal dy = 0.004;
+    const qreal x1 = fitness(robotPos - QPointF(dx, 0.0), visibleCells);
+    const qreal x2 = fitness(robotPos + QPointF(dx, 0.0), visibleCells);
+    const qreal y1 = fitness(robotPos - QPointF(0.0, dy), visibleCells);
+    const qreal y2 = fitness(robotPos + QPointF(0.0, dy), visibleCells);
 
-    QPointF grad ((x - p) / dx, (y - p) / dy);
+    QPointF grad ((x2 - x1) / (2*dx), (y2 - y1) / (2*dy));
     if (!grad.isNull()) {
         // normalize vector (1 sqrt)
         grad /= sqrt(grad.x() * grad.x() + grad.y() * grad.y());
-        grad *= scene()->map().resolution() * 2;
     }
     return grad;
 }
@@ -249,16 +245,30 @@ void DisCoverageBulloHandler::tick()
         m_trajectory.append(m_robotPosition);
     }
 
-    m_robotPosition += gradient();
-    scene()->map().explore(m_robotPosition, m_visionRadius, Cell::Explored);
+    m_robotPosition += gradient(m_robotPosition) * scene()->map().resolution();
+    scene()->map().explore(m_robotPosition, operationRadius(), Cell::Explored);
 
     m_trajectory.append(m_robotPosition);
 
-    scene()->map().updateCache();
+//     scene()->map().updateCache();
+//     m_gradient = gradient(m_robotPosition);
+}
 
-    m_gradient = gradient();
+void DisCoverageBulloHandler::updateVectorField()
+{
+    qDebug() << "update vector field";
+    const int dx = scene()->map().size().width();
+    const int dy = scene()->map().size().height();
 
-    scene()->update();
+    for (int a = 0; a < dx; ++a) {
+        for (int b = 0; b < dy; ++b) {
+            Cell& c = scene()->map().cell(a, b);
+            if (c.state() == (Cell::Explored | Cell::Free)) {
+                QPointF grad(gradient(c.center()));
+                c.setGradient(grad);
+            }
+        }
+    }
 }
 
 //END DisCoverageBulloHandler

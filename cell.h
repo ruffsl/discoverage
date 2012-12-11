@@ -49,7 +49,7 @@ class Cell
 
         void setRect(const QRectF& rect);
 
-        void draw(QPainter& p);
+        void draw(QPainter& p, bool showDensity, bool showGradient);
 
         const QRectF& rect() const;
         const QPointF center() const;
@@ -66,10 +66,19 @@ class Cell
             return m_state;
         }
         
+        // get density
         inline float density() const
         { return m_density; }
 
+        // set density
         void setDensity(float density);
+
+        // get gradient
+        inline QPointF gradient()  const
+        { return m_gradient; }
+        
+        // set gradient
+        void setGradient(const QPointF& gradient);
 
         inline float frontierDist() const
         { return m_frontierDist; }
@@ -142,6 +151,7 @@ class Cell
         QRectF m_rect;
         State m_state;
         QPoint m_index;
+        QPointF m_gradient;
 
     public:
         float m_costF;

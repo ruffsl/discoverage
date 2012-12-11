@@ -41,6 +41,7 @@ Cell::Cell()
     , m_pathParent(-1)
     , m_rect()
     , m_state(static_cast<State>(Free | Unknown))
+    , m_gradient(0, 0)
     , m_costF(0.0)
     , m_costG(0.0)
     , m_density(1.0)
@@ -53,6 +54,7 @@ Cell::Cell(const QRectF& rect)
     , m_pathParent(-1)
     , m_rect(rect)
     , m_state(static_cast<State>(Free | Unknown))
+    , m_gradient(0, 0)
     , m_costF(0.0)
     , m_costG(0.0)
     , m_density(1.0)
@@ -80,7 +82,7 @@ const QPoint& Cell::index() const
     return m_index;
 }
 
-void Cell::draw(QPainter& p)
+void Cell::draw(QPainter& p, bool showDensity, bool showGradient)
 {
     QBrush sBrushFrontier = QBrush(QColor(255, 127, 0, 255));
     QBrush sBrushExplored = QBrush(QColor(255, 255, 255, 0));
@@ -103,7 +105,35 @@ void Cell::draw(QPainter& p)
         p.setPen(Qt::gray);
         p.drawRect(m_rect);
     } else { // m_state & Explored
-        p.fillRect(m_rect, densityToColor(m_density));
+        if (showDensity) {
+            p.fillRect(m_rect, densityToColor(m_density));
+        } else {
+            p.fillRect(m_rect, Qt::white);
+        }
+
+        if (showGradient && !m_gradient.isNull()) {
+            // Draw the arrows
+            double angle = ::acos(m_gradient.x() / sqrt(m_gradient.x()*m_gradient.x() + m_gradient.y()*m_gradient.y()));
+            if (m_gradient.y() >= 0)
+                angle = 2 * M_PI - angle;
+
+            qreal arrowSize = m_rect.width() / 2.0;
+            
+            QPointF src = center() - m_gradient * m_rect.width() / 4.0;
+            QPointF dst = center() + m_gradient * m_rect.width() / 4.0;
+
+            QPointF destArrowP1 = dst + QPointF(sin(angle - M_PI / 3) * arrowSize/2,
+                                                     cos(angle - M_PI / 3) * arrowSize/2);
+            QPointF destArrowP2 = dst + QPointF(sin(angle - M_PI + M_PI / 3) * arrowSize/2,
+                                                     cos(angle - M_PI + M_PI / 3) * arrowSize/2);
+
+            QPainter::RenderHints rh = p.renderHints();
+            p.setRenderHints(QPainter::Antialiasing, true);
+            p.setPen(Qt::black);
+            p.drawLine(src, dst);
+            p.drawPolyline(QPolygonF() << destArrowP1 << dst << destArrowP2);
+            p.setRenderHints(rh, true);
+        }
     }
 }
 
@@ -133,6 +163,11 @@ void Cell::setState(State newState)
 void Cell::setDensity(float density)
 {
     m_density = density;
+}
+
+void Cell::setGradient(const QPointF& gradient)
+{
+    m_gradient = gradient;
 }
 
 void Cell::setFrontierDist(float dist)
