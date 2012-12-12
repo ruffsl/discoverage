@@ -127,12 +127,11 @@ void Cell::draw(QPainter& p, bool showDensity, bool showGradient)
             QPointF destArrowP2 = dst + QPointF(sin(angle - M_PI + M_PI / 3) * arrowSize/2,
                                                      cos(angle - M_PI + M_PI / 3) * arrowSize/2);
 
-            QPainter::RenderHints rh = p.renderHints();
             p.setRenderHints(QPainter::Antialiasing, true);
             p.setPen(Qt::black);
             p.drawLine(src, dst);
             p.drawPolyline(QPolygonF() << destArrowP1 << dst << destArrowP2);
-            p.setRenderHints(rh, true);
+            p.setRenderHints(QPainter::Antialiasing, false);
         }
     }
 }
