@@ -84,17 +84,18 @@ const QPoint& Cell::index() const
 
 void Cell::draw(QPainter& p, bool showDensity, bool showGradient)
 {
-    QBrush sBrushFrontier = QBrush(QColor(255, 127, 0, 255));
-    QBrush sBrushExplored = QBrush(QColor(255, 255, 255, 0));
+    static QBrush sBrushFrontier = QBrush(QColor(255, 127, 0, 255));
+    static QBrush sBrushExplored = QBrush(QColor(255, 255, 255, 0));
 
-    QBrush sBrushObstacle = QBrush(QColor(127, 127, 127));
-    QBrush sBrushFree = QBrush(QColor(255, 255, 255));
+    static QBrush sBrushExploredObstacle = QBrush(QColor(127, 127, 127));
+    static QBrush sBrushUnexploredObstacle = QBrush(QColor(Qt::gray));
+    static QBrush sBrushFree = QBrush(QColor(255, 255, 255));
 
     p.setPen(Qt::NoPen);
     if (m_state & Free) {
         p.fillRect(m_rect, sBrushFree);
     } else {
-        p.fillRect(m_rect, sBrushObstacle);
+        p.fillRect(m_rect, (m_state & Explored) ? sBrushExploredObstacle : sBrushUnexploredObstacle);
     }
 
     if (m_state & Unknown) {
@@ -104,7 +105,7 @@ void Cell::draw(QPainter& p, bool showDensity, bool showGradient)
         p.fillRect(m_rect, sBrushFrontier);
         p.setPen(Qt::gray);
         p.drawRect(m_rect);
-    } else { // m_state & Explored
+    } else if (!(m_state & Obstacle)) { // m_state & Explored
         if (showDensity) {
             p.fillRect(m_rect, densityToColor(m_density));
         } else {
