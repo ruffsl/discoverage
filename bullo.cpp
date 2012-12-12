@@ -250,7 +250,7 @@ void DisCoverageBulloHandler::tick()
 
     m_trajectory.append(m_robotPosition);
 
-//     scene()->map().updateCache();
+    scene()->map().updateCellWeights();
 //     m_gradient = gradient(m_robotPosition);
 }
 
