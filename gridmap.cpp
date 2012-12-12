@@ -269,7 +269,9 @@ void GridMap::updateCellWeights()
                 c.state() & Cell::Free)
             {
                 float dist = c.frontierDist();
-                c.setDensity(exp(-0.5/(3*3)*dist*dist));
+                c.setDensity(exp(-0.5/(2*2)*dist*dist));
+            } else {
+                c.setDensity(1.0);
             }
         }
     }
@@ -400,7 +402,7 @@ inline static bool inCircle(qreal x, qreal y, qreal radius, qreal px, qreal py)
     qreal dx = x - px;
     qreal dy = y - py;
 
-    return (dx*dx + dy*dy) < radius*radius;
+    return (dx*dx + dy*dy) <= radius*radius;
 }
 
 void GridMap::explore(const QPointF& robotPos, double radius, Cell::State destState)
