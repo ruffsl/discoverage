@@ -132,6 +132,10 @@ GridMap::GridMap(Scene* scene, double width, double height, double resolution)
         for (int b = 0; b < yCellCount; ++b) {
             row[b].setRect(QRectF(a * m_resolution, b * m_resolution, m_resolution, m_resolution));
             row[b].setIndex(QPoint(a, b));
+
+            if (a < 2 || a > xCellCount - 3 ||
+                b < 2 || b > yCellCount - 3)
+                row[b].setState(Cell::Unknown | Cell::Obstacle);
         }
     }
 
