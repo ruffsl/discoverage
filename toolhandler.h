@@ -55,6 +55,7 @@ class ToolHandler
         virtual void draw(QPainter& p);
         virtual void mouseMoveEvent(QMouseEvent* event);
         virtual void mousePressEvent(QMouseEvent* event) = 0;
+        virtual void mouseReleaseEvent(QMouseEvent* event);
         virtual void toolHandlerActive(bool activated);
         virtual void reset();
         virtual void tick();

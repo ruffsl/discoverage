@@ -106,6 +106,10 @@ void ToolHandler::mouseMoveEvent(QMouseEvent* event)
     }
 }
 
+void ToolHandler::mouseReleaseEvent(QMouseEvent* event)
+{
+}
+
 void ToolHandler::toolHandlerActive(bool activated)
 {
 }
