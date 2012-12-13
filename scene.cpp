@@ -219,15 +219,19 @@ void Scene::paintEvent(QPaintEvent* event)
     QFrame::paintEvent(event);
 }
 
-void Scene::mouseMoveEvent(QMouseEvent* event)
+QMouseEvent Scene::constrainEvent(QMouseEvent* event)
 {
     QPoint pos = event->pos();
     if (pos.x() < 0) pos.setX(0);
     if (pos.y() < 0) pos.setY(0);
     if (pos.x() >= width()) pos.setX(width() - 1);
     if (pos.y() >= height()) pos.setY(height() - 1);
-    QMouseEvent constrainedEvent(event->type(), pos, event->button(), event->buttons(), event->modifiers());
+    return QMouseEvent(event->type(), pos, event->button(), event->buttons(), event->modifiers());
+}
 
+void Scene::mouseMoveEvent(QMouseEvent* event)
+{
+    QMouseEvent constrainedEvent(constrainEvent(event));
     m_toolHandler->mouseMoveEvent(&constrainedEvent);
     update();
 }
@@ -238,7 +242,8 @@ void Scene::mousePressEvent(QMouseEvent* event)
         grabMouse();
     }
 
-    m_toolHandler->mousePressEvent(event);
+    QMouseEvent constrainedEvent(constrainEvent(event));
+    m_toolHandler->mousePressEvent(&constrainedEvent);
     update();
 }
 
@@ -247,6 +252,9 @@ void Scene::mouseReleaseEvent(QMouseEvent* event)
     if (event->button() == Qt::LeftButton) {
         releaseMouse();
     }
+
+    QMouseEvent constrainedEvent(constrainEvent(event));
+    m_toolHandler->mouseReleaseEvent(&constrainedEvent);
 }
 
 GridMap& Scene::map()

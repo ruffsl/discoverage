@@ -82,6 +82,7 @@ class Scene : public QFrame
         virtual void wheelEvent(QWheelEvent* event);
 
         void drawMap(QPainter& p);
+        QMouseEvent constrainEvent(QMouseEvent* event);
 
     private:
         GridMap m_map;
