@@ -36,7 +36,7 @@ Config::Config()
     : QObject()
     , m_refCount(0)
     , m_showVectorField(false)
-    , m_zoomFactor(1.0)
+    , m_zoomFactor(4.0)
 {
     s_self = this;
 }
