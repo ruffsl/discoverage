@@ -97,7 +97,7 @@ class GridMap
         }
         
         QPoint mapMapToCell(const QPointF& mapPos) const {
-            return (mapPos / resolution()).toPoint();
+            return QPoint(mapPos.x() / resolution(), mapPos.y() / resolution());
         }
 
 
