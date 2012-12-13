@@ -211,7 +211,6 @@ void DisCoverageBulloHandler::mouseMoveEvent(QMouseEvent* event)
 
     if (event->buttons() & Qt::RightButton) {
         QPointF robotPos = scene()->map().mapScreenToMap(event->posF());
-        qDebug() << robotPos;
         updatePreviewTrajectory(robotPos);
     }
 }
