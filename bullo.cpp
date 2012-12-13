@@ -350,7 +350,9 @@ void DisCoverageBulloHandler::updatePreviewTrajectory(const QPointF& robotPos)
         m_previewPath.append(nextPos);
         const QPointF& cmpPos = m_previewPath[qMax(0, m_previewPath.size() - 5)];
         length = (nextPos - cmpPos).manhattanLength();
-    } while (length >= scene()->map().resolution());
+    } while (length >= scene()->map().resolution() &&
+        !(scene()->map().cell(scene()->map().mapMapToCell(m_previewPath.last())).state() & Cell::Frontier)
+    );
 }
 
 //END DisCoverageBulloHandler
