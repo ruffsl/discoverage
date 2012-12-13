@@ -156,17 +156,20 @@ void ToolHandler::highlightCurrentCell(QPainter& p)
     if (s_currentCell.x() >= 0 && s_currentCell.x() < scene()->map().size().width() &&
         s_currentCell.y() >= 0 && s_currentCell.y() < scene()->map().size().height())
     {
-        QRectF r = scene()->map().cell(s_currentCell.x(), s_currentCell.y()).rect();
-        r.setWidth(r.width() * scene()->map().scaleFactor());
-        r.setHeight(r.height() * scene()->map().scaleFactor());
-        r.moveTo(r.left() * scene()->map().scaleFactor(), r.top() * scene()->map().scaleFactor());
-        const qreal w = r.width() / 5.0;
-        r.adjust(-w, -w, w, w); // draw rect a little bigger
+        Cell& cell = scene()->map().cell(s_currentCell.x(), s_currentCell.y());
 
-        p.setOpacity(0.5);
-        p.fillRect(r, Qt::green);
-        p.drawRect(r);
-        p.setOpacity(1.0);
+        // scale by 2
+        p.save();
+        p.scale(scene()->map().scaleFactor(), scene()->map().scaleFactor());
+        p.translate(-cell.center());
+        p.scale(2, 2);
+
+        // draw cell in double size
+        cell.draw(p, true, true);
+        p.setPen(Qt::black);
+        p.drawRect(cell.rect());
+
+        p.restore();
     }
 }
 //END ToolHandler
