@@ -46,6 +46,7 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
         virtual void draw(QPainter& p);
         virtual void mouseMoveEvent(QMouseEvent* event);
         virtual void mousePressEvent(QMouseEvent* event);
+        virtual void mouseReleaseEvent(QMouseEvent* event);
         virtual void toolHandlerActive(bool activated);
         virtual void reset();
         virtual void tick();
@@ -63,11 +64,14 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
 
     private:
         QPointF gradient(const QPointF& robotPos);
+        QPointF interpolatedGradient(const QPointF& robotPos);
         qreal performance(const QPointF& p, const QPointF& q);
         qreal fitness(const QPointF& robotPos, const QVector<Cell*>& cells);
 
         void updateDisCoverage(const QPointF& robotPosition);
         double disCoverage(const QPointF& pos, double delta, const QPointF& q, const Path& path);
+
+        void updatePreviewTrajectory(const QPointF& robotPos);
 
         QDockWidget* dockWidget();
 
@@ -81,6 +85,14 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
         double m_visionRadius;
         QPointF m_gradient;
         QVector<QPointF> m_trajectory;
+        
+        QVector<Cell*> m_visibleCells;
+        QPointF g00;
+        QPointF g01;
+        QPointF g10;
+        QPointF g11;
+
+        QVector<QPointF> m_previewPath;
 };
 
 #endif // DISCOVERAGE_BULLO_HANDLER_H

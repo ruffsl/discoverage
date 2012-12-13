@@ -173,14 +173,32 @@ void DisCoverageBulloHandler::draw(QPainter& p)
     p.setOpacity(0.2);
     p.setBrush(QBrush(Qt::blue));
     p.drawEllipse(m_robotPosition, operationRadius(), operationRadius());
+
     p.setOpacity(1.0);
+    p.setBrush(Qt::NoBrush);
+    QPen dashPen(QColor(0, 0, 0, 196), m.resolution() * 0.3, Qt::DotLine);
+    p.setPen(dashPen);
+    p.drawEllipse(m_robotPosition, 0.5, 0.5);
+
+    p.setPen(bluePen);
 
     if (m_trajectory.size()) p.drawPolyline(&m_trajectory[0], m_trajectory.size());
+    if (m_previewPath.size()) p.drawPolyline(&m_previewPath[0], m_previewPath.size());
 
     p.setPen(QPen(Qt::red));
     p.drawLine(m_robotPosition, m_robotPosition + m_gradient);
 
     p.setRenderHints(rh, true);
+    
+    foreach (Cell* c, m_visibleCells) {
+        p.drawEllipse(c->center(), 0.05, 0.05);
+    }
+    
+    p.drawEllipse(g00, 0.05, 0.05);
+    p.drawEllipse(g01, 0.05, 0.05);
+    p.drawEllipse(g10, 0.05, 0.05);
+    p.drawEllipse(g11, 0.05, 0.05);
+
 }
 
 void DisCoverageBulloHandler::mouseMoveEvent(QMouseEvent* event)
@@ -190,11 +208,25 @@ void DisCoverageBulloHandler::mouseMoveEvent(QMouseEvent* event)
     if (event->buttons() & Qt::LeftButton) {
         m_robotPosition = scene()->map().mapScreenToMap(event->posF());
     }
+
+    if (event->buttons() & Qt::RightButton) {
+        QPointF robotPos = scene()->map().mapScreenToMap(event->posF());
+        qDebug() << robotPos;
+        updatePreviewTrajectory(robotPos);
+    }
 }
 
 void DisCoverageBulloHandler::mousePressEvent(QMouseEvent* event)
 {
     mouseMoveEvent(event);
+}
+
+void DisCoverageBulloHandler::mouseReleaseEvent(QMouseEvent* event)
+{
+    ToolHandler::mouseReleaseEvent(event);
+
+    if (event->buttons() ^ Qt::RightButton)
+        m_previewPath.clear();
 }
 
 void DisCoverageBulloHandler::reset()
@@ -222,10 +254,10 @@ qreal DisCoverageBulloHandler::fitness(const QPointF& robotPos, const QVector<Ce
 
 QPointF DisCoverageBulloHandler::gradient(const QPointF& robotPos)
 {
-    QVector<Cell*> visibleCells = scene()->map().visibleCells(robotPos, operationRadius());
+    QVector<Cell*> visibleCells = scene()->map().visibleCells(robotPos, 0.5/*operationRadius()/2*/, Cell::Free);
 
-    const qreal dx = 0.004;
-    const qreal dy = 0.004;
+    const qreal dx = 0.005;
+    const qreal dy = 0.005;
     const qreal x1 = fitness(robotPos - QPointF(dx, 0.0), visibleCells);
     const qreal x2 = fitness(robotPos + QPointF(dx, 0.0), visibleCells);
     const qreal y1 = fitness(robotPos - QPointF(0.0, dy), visibleCells);
@@ -239,16 +271,50 @@ QPointF DisCoverageBulloHandler::gradient(const QPointF& robotPos)
     return grad;
 }
 
+QPointF DisCoverageBulloHandler::interpolatedGradient(const QPointF& robotPos)
+{
+    GridMap& m = scene()->map();
+    QPoint cellIndex(m.mapMapToCell(robotPos));
+
+    const double diffx = 1.0 - fabs(robotPos.x() - m.cell(cellIndex).center().x()) / scene()->map().resolution();
+    const double diffy = 1.0 - fabs(robotPos.y() - m.cell(cellIndex).center().y()) / scene()->map().resolution();
+
+    const int dx = (robotPos.x() < m.cell(cellIndex).center().x()) ? -1 : 1;
+    const int dy = (robotPos.y() < m.cell(cellIndex).center().y()) ? -1 : 1;
+
+//     if (cellIndex.x() == 0 || cellIndex.y() == 0 ||
+    
+    g00 = (m.cell(cellIndex).center());
+    g01 = (m.cell(cellIndex + QPoint(dx, 0)).center());
+    g10 = (m.cell(cellIndex + QPoint(0, dy)).center());
+    g11 = (m.cell(cellIndex + QPoint(dx, dy)).center());
+
+    QPointF grad00(gradient(g00));
+    QPointF grad01(gradient(g01));
+    QPointF grad10(gradient(g10));
+    QPointF grad11(gradient(g11));
+
+    QPointF gradX0(diffx * grad00 + (1 - diffx) * grad01);
+    QPointF gradX1(diffx * grad10 + (1 - diffx) * grad11);
+
+    QPointF grad(diffy * gradX0 + (1 - diffy) * gradX1);
+
+    return grad;
+}
+
 void DisCoverageBulloHandler::tick()
 {
     if (m_trajectory.size() == 0) {
         m_trajectory.append(m_robotPosition);
     }
 
-    m_robotPosition += gradient(m_robotPosition) * scene()->map().resolution();
+    m_robotPosition += interpolatedGradient(m_robotPosition) * scene()->map().resolution();
+//     m_robotPosition += gradient(m_robotPosition) * scene()->map().resolution();
+
     scene()->map().explore(m_robotPosition, operationRadius(), Cell::Explored);
 
     m_trajectory.append(m_robotPosition);
+    
 
     scene()->map().updateCellWeights();
 //     m_gradient = gradient(m_robotPosition);
@@ -269,6 +335,23 @@ void DisCoverageBulloHandler::updateVectorField()
             }
         }
     }
+}
+
+void DisCoverageBulloHandler::updatePreviewTrajectory(const QPointF& robotPos)
+{
+    m_previewPath.clear();
+
+    m_previewPath.append(robotPos);
+    
+    double length = 0;
+
+    do {
+        const QPointF& lastPos = m_previewPath.last();
+        const QPointF& nextPos = lastPos + interpolatedGradient(lastPos) * scene()->map().resolution();
+        m_previewPath.append(nextPos);
+        const QPointF& cmpPos = m_previewPath[qMax(0, m_previewPath.size() - 5)];
+        length = (nextPos - cmpPos).manhattanLength();
+    } while (length >= scene()->map().resolution());
 }
 
 //END DisCoverageBulloHandler
