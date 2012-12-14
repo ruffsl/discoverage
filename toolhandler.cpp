@@ -323,18 +323,6 @@ float RobotHandler::disCoverage(const QPointF& pos, float delta, const QPointF& 
 
 
 
-static bool inCircle(qreal x, qreal y, qreal radius, qreal px, qreal py)
-{
-    qreal dx = x - px;
-    qreal dy = y - py;
-
-    return (dx*dx + dy*dy) < radius*radius;
-}
-
-
-
-
-
 //BEGIN ObstacleHandler
 ObstacleHandler::ObstacleHandler(Scene* scene)
     : ToolHandler(scene)

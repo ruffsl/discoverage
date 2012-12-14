@@ -125,7 +125,6 @@ class GridMap
     public:
         void computeDistanceTransform();
         void updateCellWeights();
-        void explore(const QPointF& robotPos, double radius, Cell::State destState);
         void exploreInRadius(const QPointF& robotPos, double radius, bool markAsExplored);
 
         double explorationProgress() const;
