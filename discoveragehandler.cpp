@@ -246,10 +246,10 @@ void DisCoverageHandler::tick()
 
     updateDisCoverage(m_robotPosition);
     m_robotPosition += QPointF(cos(m_delta), sin(m_delta)) * scene()->map().resolution();
-    scene()->map().explore(m_robotPosition, m_visionRadius, Cell::Explored);
+    scene()->map().exploreInRadius(m_robotPosition, m_visionRadius, Cell::Explored);
 
     m_trajectory.append(m_robotPosition);
-    
+
     scene()->update();
 }
 

@@ -118,7 +118,7 @@ void MinDistHandler::tick()
 
     updateMinDist(m_robotPosition);
     m_robotPosition += QPointF(cos(m_orientation), sin(m_orientation)) * scene()->map().resolution();
-    scene()->map().explore(m_robotPosition, operationRadius(), Cell::Explored);
+    scene()->map().exploreInRadius(m_robotPosition, operationRadius(), true);
 
     m_trajectory.append(m_robotPosition);
 

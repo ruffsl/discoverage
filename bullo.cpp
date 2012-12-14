@@ -310,13 +310,14 @@ void DisCoverageBulloHandler::tick()
     m_robotPosition += interpolatedGradient(m_robotPosition) * scene()->map().resolution();
 //     m_robotPosition += gradient(m_robotPosition) * scene()->map().resolution();
 
-    scene()->map().explore(m_robotPosition, operationRadius(), Cell::Explored);
+    scene()->map().exploreInRadius(m_robotPosition, operationRadius(), Cell::Explored);
 
     m_trajectory.append(m_robotPosition);
-    
 
     scene()->map().updateCellWeights();
 //     m_gradient = gradient(m_robotPosition);
+    
+    m_visibleCells = scene()->map().visibleCells(m_robotPosition, 0.5/*operationRadius()/2*/, Cell::Free);
 }
 
 void DisCoverageBulloHandler::updateVectorField()
