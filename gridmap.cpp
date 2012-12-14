@@ -453,7 +453,7 @@ void GridMap::exploreCell(const QPoint& center, const QPoint& target, qreal radi
     if (count == 4) {
         setState(c, targetState);
     } else {
-        setState(c, Cell::Frontier);
+        setState(c, c.isObstacle() ? targetState : Cell::Frontier);
     }
 
     // update pixmap cache
@@ -546,9 +546,9 @@ void GridMap::exploreInRadius(const QPointF& robotPos, double radius, bool markA
                    ) freeNeighbor = true;
 
                 if (freeNeighbor) {
-                    setState(c, Cell::Frontier);
+                    setState(c, c.isObstacle() ? targetState : Cell::Frontier);
                     updateCell(a, b);
-                } 
+                }
             }
         }
     }
