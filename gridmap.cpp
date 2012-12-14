@@ -409,6 +409,150 @@ inline static bool inCircle(qreal x, qreal y, qreal radius, qreal px, qreal py)
     return (dx*dx + dy*dy) <= radius*radius;
 }
 
+void GridMap::exploreCell(const QPoint& center, const QPoint& target, qreal radius, Cell::State targetState)
+{
+    // check validity
+    if (!isValidField(target.x(), target.y()))
+        return;
+
+    Cell& c = m_map[target.x()][target.y()];
+
+    // exit, if nothing to change
+    if (c.state() & targetState)
+        return;
+
+    // count the corners lying in the circle
+    const QRectF& r = c.rect();
+    const qreal x1 = r.left();
+    const qreal x2 = r.right();
+    const qreal y1 = r.top();
+    const qreal y2 = r.bottom();
+
+    Cell& centerCell = m_map[center.x()][center.y()];
+    const qreal xCenter = centerCell.center().x();
+    const qreal yCenter = centerCell.center().y();
+
+    int count = 0;
+    if (inCircle(xCenter, yCenter, radius, x1, y1)) ++count;
+    if (inCircle(xCenter, yCenter, radius, x1, y2)) ++count;
+    if (inCircle(xCenter, yCenter, radius, x2, y1)) ++count;
+    if (inCircle(xCenter, yCenter, radius, x2, y2)) ++count;
+
+    // exit, if outside radius
+    if (count == 0)
+        return;
+
+    // make sure the path is visible
+    if (!pathVisible(center, target))
+        return;
+
+    // if inside, mark as targetState, otherwise as Frontier
+    if (count == 4) {
+        setState(c, targetState);
+    } else {
+        setState(c, Cell::Frontier);
+    }
+
+    // update pixmap cache
+    updateCell(target.x(), target.y());
+}
+
+void GridMap::exploreInRadius(const QPointF& robotPos, double radius, bool markAsExplored)
+{
+    const Cell::State targetState = markAsExplored ? Cell::Explored : Cell::Unknown;
+
+    const qreal xCenter = robotPos.x();
+    const qreal yCenter = robotPos.y();
+
+    const int cellRadius = ceil(radius / resolution());
+
+    const int xCell = xCenter / resolution();
+    const int yCell = yCenter / resolution();
+    const QPoint robotIndex(xCell, yCell);
+
+    int count = 0;
+
+    //
+    // 1. explore from the center rectangular to the outside
+    //
+    while (count * m_resolution <= radius) {
+
+        // explore square-like from left to right
+        for (int dx = -count; dx <= count; ++dx) {
+            const int x = xCell + dx;
+            exploreCell(robotIndex, QPoint(x, yCell + count), radius, targetState);
+            exploreCell(robotIndex, QPoint(x, yCell - count), radius, targetState);
+        }
+
+        // explore square-like from top to bottom
+        for (int dy = -count; dy <= count; ++dy) {
+            const int y = yCell + dy;
+            exploreCell(robotIndex, QPoint(xCell + count, y), radius, targetState);
+            exploreCell(robotIndex, QPoint(xCell - count, y), radius, targetState);
+        }
+
+        // add 4 missing corners
+        exploreCell(robotIndex, QPoint(xCell + count, yCell + count), radius, targetState);
+        exploreCell(robotIndex, QPoint(xCell + count, yCell - count), radius, targetState);
+        exploreCell(robotIndex, QPoint(xCell - count, yCell + count), radius, targetState);
+        exploreCell(robotIndex, QPoint(xCell - count, yCell - count), radius, targetState);
+
+        ++count;
+    }
+
+    //
+    // 2. neighbors to explored cells are either frontiers or explored
+    //
+    const int minCellX = 0;
+    const int minCellY = 0;
+    const int maxCellX = m_map.size() - 1;
+    const int maxCellY = maxCellX > 0 ? m_map[0].size() - 1 : 0;
+
+    const int xStart = qMax(0, xCell - cellRadius);
+    const int xEnd = qMin(size().width() - 1, xCell + cellRadius);
+
+    const int yStart = qMax(0, yCell - cellRadius - 1);
+    const int yEnd = qMin(size().height() - 1, yCell + cellRadius);
+
+    for (int a = xStart; a <= xEnd; ++a) {
+        for (int b = yStart; b <= yEnd; ++b) {
+            Cell& c = m_map[a][b];
+            if (c.state() & (Cell::Frontier | targetState /*| Cell::Obstacle*/)) continue;
+
+            const QRectF& r = c.rect();
+            const qreal x1 = r.left();
+            const qreal x2 = r.right();
+            const qreal y1 = r.top();
+            const qreal y2 = r.bottom();
+
+            bool inside = inCircle(xCenter, yCenter, radius, x1, y1)
+                       || inCircle(xCenter, yCenter, radius, x1, y2)
+                       || inCircle(xCenter, yCenter, radius, x2, y1)
+                       || inCircle(xCenter, yCenter, radius, x2, y2);
+
+            if (inside > 0) {
+                bool freeNeighbor = false;
+                if ((a > minCellX && b > minCellY && m_map[a-1][b-1].state() & targetState && !(m_map[a-1][b-1].state() & Cell::Obstacle)) ||
+                    (                b > minCellY && m_map[a  ][b-1].state() & targetState && !(m_map[a  ][b-1].state() & Cell::Obstacle)) ||
+                    (a < maxCellX && b > minCellY && m_map[a+1][b-1].state() & targetState && !(m_map[a+1][b-1].state() & Cell::Obstacle)) ||
+                    (a > minCellX &&                 m_map[a-1][b  ].state() & targetState && !(m_map[a-1][b  ].state() & Cell::Obstacle)) ||
+                    (a < maxCellX &&                 m_map[a+1][b  ].state() & targetState && !(m_map[a+1][b  ].state() & Cell::Obstacle)) ||
+                    (a > minCellX && b < maxCellY && m_map[a-1][b+1].state() & targetState && !(m_map[a-1][b+1].state() & Cell::Obstacle)) ||
+                    (                b < maxCellY && m_map[a  ][b+1].state() & targetState && !(m_map[a  ][b+1].state() & Cell::Obstacle)) ||
+                    (a < maxCellX && b < maxCellY && m_map[a+1][b+1].state() & targetState && !(m_map[a+1][b+1].state() & Cell::Obstacle))
+                   ) freeNeighbor = true;
+
+                if (freeNeighbor) {
+                    setState(c, Cell::Frontier);
+                    updateCell(a, b);
+                } 
+            }
+        }
+    }
+
+    m_scene->update();
+}
+
 void GridMap::explore(const QPointF& robotPos, double radius, Cell::State destState)
 {
     const qreal x = robotPos.x();
