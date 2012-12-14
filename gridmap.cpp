@@ -667,20 +667,21 @@ QVector<Cell*> GridMap::visibleCells(const QPointF& robotPos, double radius, Cel
     for (int a = xStart; a <= xEnd; ++a) {
         for (int b = yStart; b <= yEnd; ++b) {
             Cell& c = m_map[a][b];
-            if ((c.state() & cellState) && pathVisible(QPoint(cellX, cellY), QPoint(a, b))) {
+            if (!(c.state() == (Cell::Explored | Cell::Obstacle))
+                && pathVisible(QPoint(cellX, cellY), QPoint(a, b)))
+            {
                 const QRectF& r = c.rect();
                 const qreal x1 = r.left();
                 const qreal x2 = r.right();
                 const qreal y1 = r.top();
                 const qreal y2 = r.bottom();
 
-                int count = 0;
-                if (inCircle(x, y, radius, x1, y1)) ++count;
-                if (inCircle(x, y, radius, x1, y2)) ++count;
-                if (inCircle(x, y, radius, x2, y1)) ++count;
-                if (inCircle(x, y, radius, x2, y2)) ++count;
+                bool visible = inCircle(x, y, radius, x1, y1)
+                            || inCircle(x, y, radius, x1, y2)
+                            || inCircle(x, y, radius, x2, y1)
+                            || inCircle(x, y, radius, x2, y2);
 
-                if (count > 0) {
+                if (visible) {
                     cellVector.append(&c);
                 }
             }
