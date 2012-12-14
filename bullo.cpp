@@ -253,7 +253,7 @@ qreal DisCoverageBulloHandler::fitness(const QPointF& robotPos, const QVector<Ce
 
 QPointF DisCoverageBulloHandler::gradient(const QPointF& robotPos)
 {
-    QVector<Cell*> visibleCells = scene()->map().visibleCells(robotPos, 0.5/*operationRadius()/2*/, Cell::Free);
+    QVector<Cell*> visibleCells = scene()->map().visibleCells(robotPos, 0.5/*operationRadius()/2*/);
 
     const qreal dx = 0.005;
     const qreal dy = 0.005;
@@ -316,8 +316,8 @@ void DisCoverageBulloHandler::tick()
 
     scene()->map().updateCellWeights();
 //     m_gradient = gradient(m_robotPosition);
-    
-    m_visibleCells = scene()->map().visibleCells(m_robotPosition, 0.5/*operationRadius()/2*/, Cell::Free);
+
+    m_visibleCells = scene()->map().visibleCells(m_robotPosition, 0.5/*operationRadius()/2*/);
 }
 
 void DisCoverageBulloHandler::updateVectorField()

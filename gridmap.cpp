@@ -556,7 +556,7 @@ void GridMap::exploreInRadius(const QPointF& robotPos, double radius, bool markA
     m_scene->update();
 }
 
-QVector<Cell*> GridMap::visibleCells(const QPointF& robotPos, double radius, Cell::State cellState)
+QVector<Cell*> GridMap::visibleCells(const QPointF& robotPos, double radius)
 {
     const qreal x = robotPos.x();
     const qreal y = robotPos.y();
@@ -571,8 +571,6 @@ QVector<Cell*> GridMap::visibleCells(const QPointF& robotPos, double radius, Cel
 
     int yStart = qMax(0, cellY - cellRadius - 1);
     int yEnd = qMin(size().height() - 1, cellY + cellRadius);
-    
-//     qDebug() << cellX << cellY << xStart << xEnd << yStart << yEnd;
 
     QVector<Cell*> cellVector;
 
