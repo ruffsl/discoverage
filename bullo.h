@@ -83,9 +83,8 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
 
         QPointF m_robotPosition;
         double m_visionRadius;
-        QPointF m_gradient;
         QVector<QPointF> m_trajectory;
-        
+
         QVector<Cell*> m_visibleCells;
         QPointF g00;
         QPointF g01;

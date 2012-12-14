@@ -37,7 +37,6 @@ DisCoverageBulloHandler::DisCoverageBulloHandler(Scene* scene)
     , m_dock(0)
     , m_ui(0)
     , m_robotPosition(0, 0)
-    , m_gradient(0, 0)
 {
     toolHandlerActive(false);
 }
@@ -185,9 +184,6 @@ void DisCoverageBulloHandler::draw(QPainter& p)
     if (m_trajectory.size()) p.drawPolyline(&m_trajectory[0], m_trajectory.size());
     if (m_previewPath.size()) p.drawPolyline(&m_previewPath[0], m_previewPath.size());
 
-    p.setPen(QPen(Qt::red));
-    p.drawLine(m_robotPosition, m_robotPosition + m_gradient);
-
     p.setRenderHints(rh, true);
     
     foreach (Cell* c, m_visibleCells) {
@@ -315,7 +311,6 @@ void DisCoverageBulloHandler::tick()
     m_trajectory.append(m_robotPosition);
 
     scene()->map().updateCellWeights();
-//     m_gradient = gradient(m_robotPosition);
 
     m_visibleCells = scene()->map().visibleCells(m_robotPosition, 0.5/*operationRadius()/2*/);
 }
