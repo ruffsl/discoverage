@@ -141,7 +141,7 @@ GridMap::GridMap(Scene* scene, double width, double height, double resolution)
 
     m_frontierCache.clear();
     m_exploredCellCount = 0;
-    m_freeCellCount = xCellCount * yCellCount;
+    m_freeCellCount = xCellCount * yCellCount - 4 * (xCellCount + yCellCount - 4);
 }
 
 GridMap::~GridMap()
