@@ -1188,6 +1188,10 @@ bool GridMap::aaPathVisible(const QPoint& from, const QPoint& to)
     return true;
 }
 
+static inline int sgn(int val) {
+    return (0 < val) - (val < 0);
+}
+
 void GridMap::computeDistanceTransform()
 {
     QList<Cell*> queue;
@@ -1206,10 +1210,13 @@ void GridMap::computeDistanceTransform()
         dirtyCells.append(baseCell);
         baseCell->setPathState(Cell::PathClose);
 
+        const int xBase = baseCell->index().x();
+        const int yBase = baseCell->index().y();
+
         // 8-neighborhood
         for (int i = 0; i < 16; ++i) {
-            const int x = baseCell->index().x() + directionMap[i][0];
-            const int y = baseCell->index().y() + directionMap[i][1];
+            const int x = xBase + directionMap[i][0];
+            const int y = yBase + directionMap[i][1];
 
             // check validity
             if (!isValidField(x, y))
@@ -1218,10 +1225,30 @@ void GridMap::computeDistanceTransform()
             Cell* cell = &m_map[x][y];
 
             // obstacle or not explored
-            if (!(cell->state() & Cell::Free && 
-                  cell->state() & Cell::Explored))
+            if (!(cell->state() == (Cell::Free | Cell::Explored)))
                 continue;
 
+            // chess horse jumps: make sure cells inbetween are free and explored
+            if (i >= 8 && i < 12) {
+                // {  2, -1},  // top right right
+                // {  2,  1},  // bottom right right
+                // { -2,  1},  // bottom left left
+                // { -2, -1},  // top left left
+                const int xIdx = xBase + sgn(directionMap[i][0]);
+                if (!isValidField(xIdx, yBase) || m_map[xIdx][yBase].state() != (Cell::Free | Cell::Explored)
+                 || !isValidField(xIdx, yBase + directionMap[i][1]) || m_map[xIdx][yBase + directionMap[i][1]].state() != (Cell::Free | Cell::Explored))
+                    continue;
+            } else if (i >= 12) {
+                // {  1, -2},  // top top right
+                // {  1,  2},  // bottom bottom right
+                // { -1,  2},  // bottom bottom left
+                // { -1, -2}   // top top bottom left
+                const int yIdx = yBase + sgn(directionMap[i][1]);
+                if (!isValidField(xBase, yIdx) || m_map[xBase][yIdx].state() != (Cell::Free | Cell::Explored)
+                 || !isValidField(xBase + directionMap[i][0], yIdx) || m_map[xBase + directionMap[i][0]][yIdx].state() != (Cell::Free | Cell::Explored))
+                    continue;
+            }
+            
             const float dist = baseCell->frontierDist()
                      + m_resolution * (i < 4 ? 1.0 : (i < 8 ? 1.4142136 : 2.236068));
 
