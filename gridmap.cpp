@@ -533,7 +533,7 @@ void GridMap::exploreInRadius(const QPointF& robotPos, double radius, bool markA
                        || inCircle(xCenter, yCenter, radius, x2, y1)
                        || inCircle(xCenter, yCenter, radius, x2, y2);
 
-            if (inside > 0) {
+            if (inside) {
                 bool freeNeighbor = false;
                 if ((a > minCellX && b > minCellY && m_map[a-1][b-1].state() & targetState && !(m_map[a-1][b-1].state() & Cell::Obstacle)) ||
                     (                b > minCellY && m_map[a  ][b-1].state() & targetState && !(m_map[a  ][b-1].state() & Cell::Obstacle)) ||
