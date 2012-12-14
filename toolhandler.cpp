@@ -348,8 +348,12 @@ ObstacleHandler::~ObstacleHandler()
 void ObstacleHandler::draw(QPainter& p)
 {
     ToolHandler::draw(p);
-    highlightCurrentCell(p);
-    drawOperationRadius(p);
+    
+    p.setOpacity(0.2);
+    QRectF rect(QPointF(mousePosition()), 2 * mapToScreen(scene()->map().resolution()) * QSizeF(1, 1));
+    rect.moveTo(rect.topLeft() - mapToScreen(scene()->map().resolution()) * QPointF(1, 1));
+    p.fillRect(rect, Qt::black);
+    p.setOpacity(1.0);
 }
 
 void ObstacleHandler::mouseMoveEvent(QMouseEvent* event)
@@ -373,36 +377,24 @@ void ObstacleHandler::updateObstacles()
         destState = Cell::Free;
     }
 
-    int cx = mapToCell(mousePosition().x());
-    int cy = mapToCell(mousePosition().y());
-
     qreal x = mapToMap(mousePosition().x());
     qreal y = mapToMap(mousePosition().y());
 
+    const qreal res = scene()->map().resolution();
+    QRectF rect(QPointF(x - res, y - res), 2 * res * QSizeF(1, 1));
+
     GridMap& m = scene()->map();
 
-    int cr = operationRadius() / m.resolution();
+    int xStart = qMax(0, (int)(rect.left() / res /*- 1*/));
+    int xEnd = qMin(m.size().width() - 1, (int)(rect.right() / res /*+ 1*/));
 
-    int xStart = qMax(0, cx - cr - 1);
-    int xEnd = qMin(m.size().width() - 1, cx + cr + 1);
-
-    int yStart = qMax(0, cy - cr - 1);
-    int yEnd = qMin(m.size().height() - 1, cy + cr + 1);
+    int yStart = qMax(0, (int)(rect.top() / res /*- 1*/));
+    int yEnd = qMin(m.size().height() - 1, (int)(rect.bottom() / res /*+ 1*/));
     for (int a = xStart; a <= xEnd; ++a) {
         for (int b = yStart; b <= yEnd; ++b) {
             Cell& c = m.cell(a, b);
             if (!(c.state() & destState)) {
-                const QRectF& r = c.rect();
-                const qreal x1 = r.left();
-                const qreal x2 = r.right();
-                const qreal y1 = r.top();
-                const qreal y2 = r.bottom();
-
-                if (inCircle(x, y, operationRadius(), x1, y1) ||
-                    inCircle(x, y, operationRadius(), x1, y2) ||
-                    inCircle(x, y, operationRadius(), x2, y1) ||
-                    inCircle(x, y, operationRadius(), x2, y2))
-                {
+                if (rect.contains(c.center())) {
                     m.setState(c, destState);
                     m.updateCell(a, b);
                 }
