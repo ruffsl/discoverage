@@ -441,14 +441,11 @@ void ExplorationHandler::mousePressEvent(QMouseEvent* event)
 
 void ExplorationHandler::updateExploredState()
 {
-    Cell::State destState = Cell::Explored;
-    if (QApplication::keyboardModifiers() & Qt::ControlModifier) {
-        destState = Cell::Unknown;
-    }
+    const bool markAsExplored = !(QApplication::keyboardModifiers() & Qt::ControlModifier);
 
     QPointF pos = scene()->map().mapScreenToMap(mousePosition());
     if (scene()->map().isValidField(pos.x(), pos.y())) {
-        scene()->map().explore(pos, operationRadius(), destState);
+        scene()->map().exploreInRadius(pos, operationRadius(), markAsExplored);
     }
 }
 //END ExplorationHandler
