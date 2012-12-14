@@ -364,18 +364,21 @@ void GridMap::setState(Cell& cell, Cell::State state)
     const bool wasObstacle = oldState & Cell::Obstacle;
     const bool isObstacle  = newState & Cell::Obstacle;
 
+    // update frontier cache
     if (wasFrontier && !isFrontier) {
         m_frontierCache.remove(&cell);
     } else if (!wasFrontier && isFrontier) {
         m_frontierCache.insert(&cell);
     }
 
+    // update free cell count
     if (wasFree && !isFree) {
         --m_freeCellCount;
     } else if (!wasFree && isFree) {
         ++m_freeCellCount;
     }
-    
+
+    // update explored cell count
     if (wasFree && isFree) {
         if (wasExplored && !isExplored) {
             --m_exploredCellCount;
