@@ -185,16 +185,15 @@ void DisCoverageBulloHandler::draw(QPainter& p)
     if (m_previewPath.size()) p.drawPolyline(&m_previewPath[0], m_previewPath.size());
 
     p.setRenderHints(rh, true);
-    
+
     foreach (Cell* c, m_visibleCells) {
         p.drawEllipse(c->center(), 0.05, 0.05);
     }
-    
+
     p.drawEllipse(g00, 0.05, 0.05);
     p.drawEllipse(g01, 0.05, 0.05);
     p.drawEllipse(g10, 0.05, 0.05);
     p.drawEllipse(g11, 0.05, 0.05);
-
 }
 
 void DisCoverageBulloHandler::mouseMoveEvent(QMouseEvent* event)
