@@ -349,7 +349,7 @@ const QSet<Cell*>& GridMap::frontiers() const
     return m_frontierCache;
 }
 
-void GridMap::setState(Cell& cell, Cell::State state)
+bool GridMap::setState(Cell& cell, Cell::State state)
 {
     const Cell::State oldState = cell.state();
     cell.setState(state);
@@ -394,6 +394,8 @@ void GridMap::setState(Cell& cell, Cell::State state)
             --m_exploredCellCount;
         }
     }
+
+    return oldState != newState;
 }
 
 bool GridMap::isValidField(int xIndex, int yIndex) const
@@ -412,17 +414,17 @@ inline static bool inCircle(qreal x, qreal y, qreal radius, qreal px, qreal py)
     return (dx*dx + dy*dy) <= radius*radius;
 }
 
-void GridMap::exploreCell(const QPoint& center, const QPoint& target, qreal radius, Cell::State targetState)
+bool GridMap::exploreCell(const QPoint& center, const QPoint& target, qreal radius, Cell::State targetState)
 {
     // check validity
     if (!isValidField(target.x(), target.y()))
-        return;
+        return false;
 
     Cell& c = m_map[target.x()][target.y()];
 
     // exit, if nothing to change
     if (c.state() & targetState)
-        return;
+        return false;
 
     // count the corners lying in the circle
     const QRectF& r = c.rect();
@@ -443,24 +445,28 @@ void GridMap::exploreCell(const QPoint& center, const QPoint& target, qreal radi
 
     // exit, if outside radius
     if (count == 0)
-        return;
+        return false;
 
     // make sure the path is visible
     if (!pathVisible(center, target))
-        return;
+        return false;
 
     // if inside, mark as targetState, otherwise as Frontier
+    bool changed = false;
     if (count == 4) {
-        setState(c, targetState);
+        changed = setState(c, targetState);
     } else {
-        setState(c, c.isObstacle() ? targetState : Cell::Frontier);
+        changed = setState(c, c.isObstacle() ? targetState : Cell::Frontier);
     }
 
     // update pixmap cache
-    updateCell(target.x(), target.y());
+    if (changed)
+        updateCell(target.x(), target.y());
+
+    return changed;
 }
 
-void GridMap::exploreInRadius(const QPointF& robotPos, double radius, bool markAsExplored)
+bool GridMap::exploreInRadius(const QPointF& robotPos, double radius, bool markAsExplored)
 {
     const Cell::State targetState = markAsExplored ? Cell::Explored : Cell::Unknown;
 
@@ -473,6 +479,7 @@ void GridMap::exploreInRadius(const QPointF& robotPos, double radius, bool markA
     const int yCell = yCenter / resolution();
     const QPoint robotIndex(xCell, yCell);
 
+    bool changed = false;
     int count = 0;
 
     //
@@ -483,22 +490,22 @@ void GridMap::exploreInRadius(const QPointF& robotPos, double radius, bool markA
         // explore square-like from left to right
         for (int dx = -count; dx <= count; ++dx) {
             const int x = xCell + dx;
-            exploreCell(robotIndex, QPoint(x, yCell + count), radius, targetState);
-            exploreCell(robotIndex, QPoint(x, yCell - count), radius, targetState);
+            changed = exploreCell(robotIndex, QPoint(x, yCell + count), radius, targetState) || changed;
+            changed = exploreCell(robotIndex, QPoint(x, yCell - count), radius, targetState) || changed;
         }
 
         // explore square-like from top to bottom
         for (int dy = -count; dy <= count; ++dy) {
             const int y = yCell + dy;
-            exploreCell(robotIndex, QPoint(xCell + count, y), radius, targetState);
-            exploreCell(robotIndex, QPoint(xCell - count, y), radius, targetState);
+            changed = exploreCell(robotIndex, QPoint(xCell + count, y), radius, targetState) || changed;
+            changed = exploreCell(robotIndex, QPoint(xCell - count, y), radius, targetState) || changed;
         }
 
         // add 4 missing corners
-        exploreCell(robotIndex, QPoint(xCell + count, yCell + count), radius, targetState);
-        exploreCell(robotIndex, QPoint(xCell + count, yCell - count), radius, targetState);
-        exploreCell(robotIndex, QPoint(xCell - count, yCell + count), radius, targetState);
-        exploreCell(robotIndex, QPoint(xCell - count, yCell - count), radius, targetState);
+        changed = exploreCell(robotIndex, QPoint(xCell + count, yCell + count), radius, targetState) || changed;
+        changed = exploreCell(robotIndex, QPoint(xCell + count, yCell - count), radius, targetState) || changed;
+        changed = exploreCell(robotIndex, QPoint(xCell - count, yCell + count), radius, targetState) || changed;
+        changed = exploreCell(robotIndex, QPoint(xCell - count, yCell - count), radius, targetState) || changed;
 
         ++count;
     }
@@ -546,14 +553,17 @@ void GridMap::exploreInRadius(const QPointF& robotPos, double radius, bool markA
                    ) freeNeighbor = true;
 
                 if (freeNeighbor) {
-                    setState(c, c.isObstacle() ? targetState : Cell::Frontier);
+                    changed = setState(c, c.isObstacle() ? targetState : Cell::Frontier) || changed;
                     updateCell(a, b);
                 }
             }
         }
     }
 
-    m_scene->update();
+    if (changed)
+        m_scene->update();
+
+    return changed;
 }
 
 QVector<Cell*> GridMap::visibleCells(const QPointF& robotPos, double radius)

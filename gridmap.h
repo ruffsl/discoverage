@@ -116,7 +116,7 @@ class GridMap
         Cell& cell(int xIndex, int yIndex);                     // cell accessor
         Cell& cell(const QPointF & index);                      // cell accessor
         bool isValidField(int xIndex, int yIndex) const;        // index check for 
-        void setState(Cell& cell, Cell::State newState);        // modify cell state
+        bool setState(Cell& cell, Cell::State newState);        // modify cell state
         const QSet<Cell*>& frontiers() const;                   // cached list of all frontiers
 
     //
@@ -125,13 +125,13 @@ class GridMap
     public:
         void computeDistanceTransform();
         void updateCellWeights();
-        void exploreInRadius(const QPointF& robotPos, double radius, bool markAsExplored);
+        bool exploreInRadius(const QPointF& robotPos, double radius, bool markAsExplored);
 
         double explorationProgress() const;
         QVector<Cell*> visibleCells(const QPointF& robotPos, double radius);
 
     private:
-        void exploreCell(const QPoint& center, const QPoint& target, qreal radius, Cell::State targetState);
+        bool exploreCell(const QPoint& center, const QPoint& target, qreal radius, Cell::State targetState);
 
     //
     // path finding
