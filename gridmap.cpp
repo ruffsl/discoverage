@@ -518,44 +518,31 @@ bool GridMap::exploreInRadius(const QPointF& robotPos, double radius, bool markA
     const int maxCellX = m_map.size() - 1;
     const int maxCellY = maxCellX > 0 ? m_map[0].size() - 1 : 0;
 
-    const int xStart = qMax(0, xCell - cellRadius);
-    const int xEnd = qMin(size().width() - 1, xCell + cellRadius);
+    const int xStart = qMax(0, xCell - cellRadius - 1);
+    const int xEnd = qMin(size().width() - 1, xCell + cellRadius + 1);
 
     const int yStart = qMax(0, yCell - cellRadius - 1);
-    const int yEnd = qMin(size().height() - 1, yCell + cellRadius);
+    const int yEnd = qMin(size().height() - 1, yCell + cellRadius + 1);
 
     for (int a = xStart; a <= xEnd; ++a) {
         for (int b = yStart; b <= yEnd; ++b) {
             Cell& c = m_map[a][b];
             if (c.state() & (Cell::Frontier | targetState /*| Cell::Obstacle*/)) continue;
 
-            const QRectF& r = c.rect();
-            const qreal x1 = r.left();
-            const qreal x2 = r.right();
-            const qreal y1 = r.top();
-            const qreal y2 = r.bottom();
+            bool freeNeighbor = false;
+            if ((a > minCellX && b > minCellY && m_map[a-1][b-1].state() & targetState && !(m_map[a-1][b-1].state() & Cell::Obstacle)) ||
+                (                b > minCellY && m_map[a  ][b-1].state() & targetState && !(m_map[a  ][b-1].state() & Cell::Obstacle)) ||
+                (a < maxCellX && b > minCellY && m_map[a+1][b-1].state() & targetState && !(m_map[a+1][b-1].state() & Cell::Obstacle)) ||
+                (a > minCellX &&                 m_map[a-1][b  ].state() & targetState && !(m_map[a-1][b  ].state() & Cell::Obstacle)) ||
+                (a < maxCellX &&                 m_map[a+1][b  ].state() & targetState && !(m_map[a+1][b  ].state() & Cell::Obstacle)) ||
+                (a > minCellX && b < maxCellY && m_map[a-1][b+1].state() & targetState && !(m_map[a-1][b+1].state() & Cell::Obstacle)) ||
+                (                b < maxCellY && m_map[a  ][b+1].state() & targetState && !(m_map[a  ][b+1].state() & Cell::Obstacle)) ||
+                (a < maxCellX && b < maxCellY && m_map[a+1][b+1].state() & targetState && !(m_map[a+1][b+1].state() & Cell::Obstacle))
+                ) freeNeighbor = true;
 
-            bool inside = inCircle(xCenter, yCenter, radius, x1, y1)
-                       || inCircle(xCenter, yCenter, radius, x1, y2)
-                       || inCircle(xCenter, yCenter, radius, x2, y1)
-                       || inCircle(xCenter, yCenter, radius, x2, y2);
-
-            if (inside) {
-                bool freeNeighbor = false;
-                if ((a > minCellX && b > minCellY && m_map[a-1][b-1].state() & targetState && !(m_map[a-1][b-1].state() & Cell::Obstacle)) ||
-                    (                b > minCellY && m_map[a  ][b-1].state() & targetState && !(m_map[a  ][b-1].state() & Cell::Obstacle)) ||
-                    (a < maxCellX && b > minCellY && m_map[a+1][b-1].state() & targetState && !(m_map[a+1][b-1].state() & Cell::Obstacle)) ||
-                    (a > minCellX &&                 m_map[a-1][b  ].state() & targetState && !(m_map[a-1][b  ].state() & Cell::Obstacle)) ||
-                    (a < maxCellX &&                 m_map[a+1][b  ].state() & targetState && !(m_map[a+1][b  ].state() & Cell::Obstacle)) ||
-                    (a > minCellX && b < maxCellY && m_map[a-1][b+1].state() & targetState && !(m_map[a-1][b+1].state() & Cell::Obstacle)) ||
-                    (                b < maxCellY && m_map[a  ][b+1].state() & targetState && !(m_map[a  ][b+1].state() & Cell::Obstacle)) ||
-                    (a < maxCellX && b < maxCellY && m_map[a+1][b+1].state() & targetState && !(m_map[a+1][b+1].state() & Cell::Obstacle))
-                   ) freeNeighbor = true;
-
-                if (freeNeighbor) {
-                    changed = setState(c, c.isObstacle() ? targetState : Cell::Frontier) || changed;
-                    updateCell(a, b);
-                }
+            if (freeNeighbor) {
+                changed = setState(c, c.isObstacle() ? targetState : Cell::Frontier) || changed;
+                updateCell(a, b);
             }
         }
     }
