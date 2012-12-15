@@ -942,7 +942,7 @@ bool GridMap::pathVisible(const QPoint& from, const QPoint& to)
                 error -= ddx;
             }
             if (i == dx - 1) return true;
-            if ((m_map[x][y].state() & (Cell::Explored | Cell::Frontier)) && (m_map[x][y].state() & Cell::Obstacle))
+            if (m_map[x][y].state() & Cell::Obstacle)
                 return false;
 //             result.append( QPoint( x, y ) );
         }
@@ -957,7 +957,7 @@ bool GridMap::pathVisible(const QPoint& from, const QPoint& to)
                 error -= ddy;
             }
             if (i == dy - 1) return true;
-            if ((m_map[x][y].state() & (Cell::Explored | Cell::Frontier)) && (m_map[x][y].state() & Cell::Obstacle))
+            if (m_map[x][y].state() & Cell::Obstacle)
                 return false;
 //             result.append( QPoint( x, y ) );
         }
