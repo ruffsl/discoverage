@@ -103,57 +103,6 @@ void DisCoverageBulloHandler::updateParameters()
     scene()->update();
 }
 
-// void DisCoverageBulloHandler::showVectorField(bool show)
-// {
-//     if (!show) {
-//         m_vectorField.clear();
-//     } else {
-//         GridMap&m = scene()->map();
-//         const QSize s = m.size();
-//         const qreal resolution = m.resolution();
-//         m_vectorField = QVector<QVector<QLineF> >(s.width(), QVector<QLineF>(s.height()));
-// 
-//         const QSet<Cell*>& frontiers = m.frontiers();
-//         for (int a = 0; a < s.width(); ++a) {
-//             for (int b = 0; b < s.height(); ++b) {
-//                 if (m.cell(a, b).state() != (Cell::Free | Cell::Explored)) {
-//                     continue;
-//                 }
-//                 qDebug() << "next one" << a << b;
-//                 QPointF center(resolution / 2.0 + a * resolution,
-//                                resolution / 2.0 + b * resolution);
-// 
-//                 QList<Path> allPaths;
-//                 allPaths = m.frontierPaths(QPoint(a, b));
-//                 for (int i = 0; i < allPaths.size(); ++i) {
-//                     allPaths[i].beautify(m);
-//                 }
-// 
-//                 double delta = -M_PI;
-//                 double sMax = 0.0;
-//                 double deltaMax = 0.0;
-//                 while (delta < M_PI) {
-//                     double s = 0;
-//                     int i = 0;
-//                     foreach (Cell* q, frontiers) {
-//                         s += disCoverage(center, delta, q->rect().center(), allPaths[i]);
-//                         ++i;
-//                     }
-//                     
-//                     if (s > sMax) {
-//                         sMax = s;
-//                         deltaMax = delta;
-//                     }
-//                     delta += 0.1;
-//                 }
-//                 m_vectorField[a][b].setP1(center);
-//                 m_vectorField[a][b].setP2(QPointF(center.x() + resolution, center.y()));
-//                 m_vectorField[a][b].setAngle(-deltaMax * 180.0 / M_PI);
-//             }
-//         }
-//     }
-// }
-
 void DisCoverageBulloHandler::draw(QPainter& p)
 {
     ToolHandler::draw(p);
