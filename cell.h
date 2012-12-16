@@ -94,7 +94,7 @@ class Cell
         QDataStream& load(QDataStream& ds);
         QDataStream& save(QDataStream& ds);
 
-        void exportToTikz(QTextStream& ts);
+        void exportToTikz(QTextStream& ts, bool fillDensity, bool exportGradient);
 
     //
     // path planning

@@ -1195,9 +1195,36 @@ void GridMap::computeDistanceTransform()
 
 void GridMap::exportToTikz(QTextStream& ts)
 {
+    const bool showVectorField = Config::self()->showVectorField();
+    const bool drawDensity = true;
+
+    // 1st round: export all explored free cells
+    ts << "\n%\n% free explored cells\n%\n";
     for (int a = 0; a < m_map.size(); ++a) {
         for (int b = 0; b < m_map[a].size(); ++b) {
-            m_map[a][b].exportToTikz(ts);
+            Cell& c = m_map[a][b];
+            if (c.state() == (Cell::Explored | Cell::Free))
+                c.exportToTikz(ts, drawDensity, showVectorField);
+        }
+    }
+
+    // 2nd round: all unexplored cells (not frontiers)
+    ts << "\n%\n% all unexplored cells and obstacles except frontiers\n%\n";
+    for (int a = 0; a < m_map.size(); ++a) {
+        for (int b = 0; b < m_map[a].size(); ++b) {
+            Cell& c = m_map[a][b];
+            if (c.state() & (Cell::Unknown | Cell::Obstacle))
+                c.exportToTikz(ts, drawDensity, showVectorField);
+        }
+    }
+
+    // 3nd round: all frontiers
+    ts << "\n%\n% all frontiers\n%\n";
+    for (int a = 0; a < m_map.size(); ++a) {
+        for (int b = 0; b < m_map[a].size(); ++b) {
+            Cell& c = m_map[a][b];
+            if (c.state() & Cell::Frontier)
+                c.exportToTikz(ts, drawDensity, showVectorField);
         }
     }
 }

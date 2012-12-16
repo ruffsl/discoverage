@@ -198,20 +198,26 @@ QDataStream& Cell::save(QDataStream& ds)
     return ds;
 }
 
-void Cell::exportToTikz(QTextStream& ts)
+void Cell::exportToTikz(QTextStream& ts, bool fillDensity, bool exportGradient)
 {
-    static QBrush sBrushFrontier = QBrush(QColor(255, 127, 0, 255));
-    static QBrush sBrushExplored = QBrush(QColor(255, 255, 255, 0));
+    static QColor sBrushFrontier(255, 127, 0, 255);
+    static QColor sBrushExplored(255, 255, 255, 0);
 
-    static QBrush sBrushExploredObstacle = QBrush(QColor(127, 127, 127));
-    static QBrush sBrushUnexploredObstacle = QBrush(QColor(Qt::gray));
-    static QBrush sBrushFree = QBrush(QColor(255, 255, 255));
+    static QColor sBrushExploredObstacle(127, 127, 127);
+    static QColor sBrushUnexploredObstacle(Qt::gray);
+    static QColor sBrushFree(255, 255, 255);
 
-    if (m_state & Frontier) {
-        tikz::fill(ts, m_rect, QColor(255, 127, 0, 255));
+    if (m_state & Frontier) { // frontiers
+        tikz::fill(ts, m_rect, sBrushFrontier, Qt::black);
+    } else if (m_state == (Explored | Free)) { // free explored
+        QColor color = densityToColor(m_density);
+        tikz::fill(ts, m_rect, color, Qt::white);
+    } else {
+        QColor color = densityToColor(m_density);
+        tikz::fill(ts, m_rect, color, color);
     }
 
-    if (!m_gradient.isNull()) {
+    if (exportGradient && !m_gradient.isNull()) {
         QPointF src = center() - m_gradient * m_rect.width() / 4.0;
         QPointF dst = center() + m_gradient * m_rect.width() / 4.0;
         tikz::arrow(ts, src, dst);

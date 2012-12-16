@@ -48,7 +48,13 @@ namespace tikz
     extern void arrow(QTextStream& ts, const QPointF& p, const QPointF& q);
 
     /** Fill rectangle. */
-    extern void fill(QTextStream& ts, const QRectF& rect, const QColor& color);
+    extern void fill(QTextStream& ts, const QRectF& rect, const QColor& brush, const QColor& pen);
+
+    /** Fill rectangle. */
+    extern void fillRect(QTextStream& ts, const QRectF& rect, const QColor& brush, const QColor& pen);
+
+    /** draw rectangle. */
+//     extern void drawRect(QTextStream& ts, const QRectF& rect, const QColor& pen);
 };
 
 #endif // TIKZ_EXPORT_H

@@ -103,19 +103,35 @@ void arrow(QTextStream& ts, const QPointF& p, const QPointF& q)
     ts << QString("\\draw[->] (%1, %2) -- (%3, %4);\n").arg(p.x()).arg(p.y()).arg(q.x()).arg(q.y());
 }
 
-void fill(QTextStream& ts, const QRectF& rect, const QColor& color)
+static QString uniqColorString()
 {
     // lame: construct unique string without numbers for the color
     static int i = 0;
     ++i;
-    QString col = QString::number(i);
-    for (int i = 0; i < col.length(); ++i) {
-        col[i] = col[i].toAscii() + (char)('A' - '0');
+    QString colorName = QString::number(i);
+    for (int i = 0; i < colorName.length(); ++i) {
+        colorName[i] = colorName[i].toAscii() + (char)('A' - '0');
     }
-    ts << QString("\\definecolor{col%1}{rgb}{%2, %3, %4}\n").arg(col)
-        .arg(color.redF()).arg(color.greenF()).arg(color.blueF());
 
-    ts << QString("\\filldraw[fill=col%1, draw=col%1] (%2, %3) rectangle (%4, %5);\n").arg(col)
+    return colorName;
+}
+
+void fill(QTextStream& ts, const QRectF& rect, const QColor& brush, const QColor& pen)
+{
+    const QString uniqBrushColor = uniqColorString();
+    const QString uniqPenColor = uniqColorString();
+
+    QString brushColor = QString("\\definecolor{col%1}{rgb}{%2, %3, %4}\n").arg(uniqBrushColor)
+        .arg(brush.redF()).arg(brush.greenF()).arg(brush.blueF());
+
+    QString penColor = QString("\\definecolor{col%1}{rgb}{%2, %3, %4}\n").arg(uniqPenColor)
+        .arg(pen.redF()).arg(pen.greenF()).arg(pen.blueF());
+
+    ts << brushColor << penColor;
+
+    ts << QString("\\filldraw[fill=col%1, draw=col%2] (%3, %4) rectangle (%5, %6);\n")
+        .arg(uniqBrushColor)
+        .arg(uniqPenColor)
         .arg(rect.left()).arg(rect.bottom()).arg(rect.right()).arg(rect.top());
 }
 
