@@ -23,8 +23,10 @@
 #include <QRectF>
 
 #include <QDebug>
+
 class QDataStream;
 class QPainter;
+class QTextStream;
 
 class Cell
 {
@@ -85,9 +87,14 @@ class Cell
 
         void setFrontierDist(float dist);
 
+    //
+    // load & save + export
+    //
+    public:
         QDataStream& load(QDataStream& ds);
-
         QDataStream& save(QDataStream& ds);
+
+        void exportToTikz(QTextStream& ts);
 
     //
     // path planning

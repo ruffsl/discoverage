@@ -72,7 +72,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     connect(actionSave, SIGNAL(triggered()), this, SLOT(saveScene()));
     connect(actionVectorField, SIGNAL(triggered(bool)), Config::self(), SLOT(setShowVectorField(bool)));
     connect(actionStatistics, SIGNAL(triggered(bool)), dwStatistics, SLOT(setVisible(bool)));
-    connect(actionExport, SIGNAL(triggered()), this, SLOT(exportAsPdf()));
+    connect(actionExport, SIGNAL(triggered()), this, SLOT(exportToTikz()));
     connect(actionReset, SIGNAL(triggered()), m_scene, SLOT(reset()));
     connect(actionStep, SIGNAL(triggered()), m_scene, SLOT(tick()));
     connect(m_toolsUi->cmbTool, SIGNAL(currentIndexChanged(int)), m_scene, SLOT(selectTool(int)));
@@ -167,16 +167,15 @@ void MainWindow::saveScene()
     m_scene->save(config);
 }
 
-void MainWindow::exportAsPdf()
+void MainWindow::exportToTikz()
 {
-    QPrinter printer(QPrinter::ScreenResolution);
-    printer.setOutputFileName("print.pdf");
-    printer.setOutputFormat(QPrinter::PdfFormat);
-    printer.setPaperSize(m_scene->size()/3, QPrinter::Millimeter);
-//     printer.setOrientation(QPrinter::Landscape);
-//     printer.setFullPage(true);
+    QString filename("scene.tikz");
 
-    m_scene->draw(&printer);
+    QFile file(filename);
+    if (file.open(QFile::WriteOnly | QFile::Truncate)) {
+        QTextStream ts(&file);
+        m_scene->exportToTikz(ts);
+    }
 }
 
 Scene* MainWindow::scene() const

@@ -36,6 +36,7 @@ class MainWindow;
 class QEvent;
 class QWheelEvent;
 class QSettings;
+class QTextStream;
 
 class Scene : public QFrame
 {
@@ -52,13 +53,22 @@ class Scene : public QFrame
         GridMap& map();
         MainWindow* mainWindow() const;
 
-        void load(QSettings& config);
-        void save(QSettings& config);
+        ToolHandler* toolHandler()
+        { return m_toolHandler; }
 
         void draw(QPaintDevice* paintDevice);
 
-        ToolHandler* toolHandler()
-        { return m_toolHandler; }
+    //
+    // load/save & export functions
+    //
+    public:
+        /** load scene from config */
+        void load(QSettings& config);
+        /** save scene from config */
+        void save(QSettings& config);
+
+        /** export as tikz code to the text stream ts */
+        void exportToTikz(QTextStream& ts);
 
     public slots:
         void newScene();

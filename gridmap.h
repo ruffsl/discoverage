@@ -30,6 +30,7 @@
 class QSettings;
 class GridMap;
 class Scene;
+class QTextStream;
 
 class Path
 {
@@ -49,11 +50,13 @@ class GridMap
         ~GridMap();
         
     //
-    // load from / save to given config object
+    // load from / save to given config object, and export
     //
     public:
         void load(QSettings& config);
         void save(QSettings& config);
+
+        void exportToTikz(QTextStream& ts);
 
     //
     // drawing

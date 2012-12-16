@@ -14,6 +14,7 @@ set(discoverage_SRCS
   mindisthandler.cpp
   statistics.cpp
   config.cpp
+  tikzexport.cpp
 )
 
 # another list, this time it includes all header files that should be treated with moc

@@ -18,6 +18,7 @@
 */
 
 #include "scene.h"
+#include "tikzexport.h"
 
 #include <QtGui/QPainter>
 #include <QtGui/QBrush>
@@ -195,6 +196,26 @@ QDataStream& Cell::save(QDataStream& ds)
     ds << rect();
 
     return ds;
+}
+
+void Cell::exportToTikz(QTextStream& ts)
+{
+    static QBrush sBrushFrontier = QBrush(QColor(255, 127, 0, 255));
+    static QBrush sBrushExplored = QBrush(QColor(255, 255, 255, 0));
+
+    static QBrush sBrushExploredObstacle = QBrush(QColor(127, 127, 127));
+    static QBrush sBrushUnexploredObstacle = QBrush(QColor(Qt::gray));
+    static QBrush sBrushFree = QBrush(QColor(255, 255, 255));
+
+    if (m_state & Frontier) {
+        tikz::fill(ts, m_rect, QColor(255, 127, 0, 255));
+    }
+
+    if (!m_gradient.isNull()) {
+        QPointF src = center() - m_gradient * m_rect.width() / 4.0;
+        QPointF dst = center() + m_gradient * m_rect.width() / 4.0;
+        tikz::arrow(ts, src, dst);
+    }
 }
 
 // kate: replace-tabs on; indent-width 4;

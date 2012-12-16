@@ -20,6 +20,7 @@
 #include "gridmap.h"
 #include "scene.h"
 #include "config.h"
+#include "tikzexport.h"
 
 #include <QPainter>
 #include <QPoint>
@@ -1161,7 +1162,7 @@ void GridMap::computeDistanceTransform()
                  || !isValidField(xBase + directionMap[i][0], yIdx) || m_map[xBase + directionMap[i][0]][yIdx].state() != (Cell::Free | Cell::Explored))
                     continue;
             }
-            
+
             const float dist = baseCell->frontierDist()
                      + m_resolution * (i < 4 ? 1.0 : (i < 8 ? 1.4142136 : 2.236068));
 
@@ -1191,5 +1192,15 @@ void GridMap::computeDistanceTransform()
         cell->setPathState(Cell::PathNone);
     }
 }
+
+void GridMap::exportToTikz(QTextStream& ts)
+{
+    for (int a = 0; a < m_map.size(); ++a) {
+        for (int b = 0; b < m_map[a].size(); ++b) {
+            m_map[a][b].exportToTikz(ts);
+        }
+    }
+}
+
 
 // kate: replace-tabs on; indent-width 4;
