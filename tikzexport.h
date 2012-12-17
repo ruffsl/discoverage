@@ -15,13 +15,13 @@
 namespace tikz
 {
     /** begin tikz picture */
-    extern void begin(QTextStream& ts, qreal scale);
+    extern void begin(QTextStream& ts, const QString& options = QString());
 
     /** end tikz picture */
     extern void end(QTextStream& ts);
 
     /** begin a own tikz scope */
-    extern void beginScope(QTextStream& ts);
+    extern void beginScope(QTextStream& ts, const QString& options = QString());
 
     /** end a tikz scope */
     extern void endScope(QTextStream& ts);
@@ -48,13 +48,19 @@ namespace tikz
     extern void arrow(QTextStream& ts, const QPointF& p, const QPointF& q);
 
     /** Fill rectangle. */
-    extern void fill(QTextStream& ts, const QRectF& rect, const QColor& brush, const QColor& pen);
+    extern void fill(QTextStream& ts, const QRectF& rect, const QColor& brush);
+    extern void filldraw(QTextStream& ts, const QRectF& rect, const QColor& brush, const QColor& pen);
+    extern void drawRect(QTextStream& ts, const QRectF& rect, const QColor& pen);
 
-    /** Fill rectangle. */
-    extern void fillRect(QTextStream& ts, const QRectF& rect, const QColor& brush, const QColor& pen);
+    /** QString pendents (named colors) */
+    extern void fill(QTextStream& ts, const QRectF& rect, const QString& brush);
+    extern void filldraw(QTextStream& ts, const QRectF& rect, const QString& brush, const QString& pen);
+    extern void drawRect(QTextStream& ts, const QRectF& rect, const QString& pen);
 
-    /** draw rectangle. */
-//     extern void drawRect(QTextStream& ts, const QRectF& rect, const QColor& pen);
+    /** generate a uniq color identifier*/
+    extern QString uniqColorString();
 };
 
 #endif // TIKZ_EXPORT_H
+
+// kate: replace-tabs on; indent-width 4;

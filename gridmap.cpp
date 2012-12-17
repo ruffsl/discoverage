@@ -1198,12 +1198,16 @@ void GridMap::exportToTikz(QTextStream& ts)
     const bool showVectorField = Config::self()->showVectorField();
     const bool drawDensity = true;
 
+//     ts << "\\draw[help lines] (0, 0) grid [step=" << m_resolution << "] ("
+//        << (m_resolution * size().width()) << ", "
+//        << (m_resolution * size().height()) << ");\n";
+
     // 1st round: export all explored free cells
-    ts << "\n%\n% free explored cells\n%\n";
+    ts << "\n%\n% explored cells\n%\n";
     for (int a = 0; a < m_map.size(); ++a) {
         for (int b = 0; b < m_map[a].size(); ++b) {
             Cell& c = m_map[a][b];
-            if (c.state() == (Cell::Explored | Cell::Free))
+            if (c.state() & Cell::Explored)
                 c.exportToTikz(ts, drawDensity, showVectorField);
         }
     }
@@ -1213,7 +1217,7 @@ void GridMap::exportToTikz(QTextStream& ts)
     for (int a = 0; a < m_map.size(); ++a) {
         for (int b = 0; b < m_map[a].size(); ++b) {
             Cell& c = m_map[a][b];
-            if (c.state() & (Cell::Unknown | Cell::Obstacle))
+            if (c.state() & Cell::Unknown)
                 c.exportToTikz(ts, drawDensity, showVectorField);
         }
     }

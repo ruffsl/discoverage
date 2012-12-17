@@ -3,10 +3,13 @@
 namespace tikz
 {
 
-void begin(QTextStream& ts, qreal scale)
+void begin(QTextStream& ts, const QString& options)
 {
-    QString args = QString("scale=%1").arg(scale);
-    ts << QString("\\begin{tikzpicture}[%1]\n").arg(args);
+    if (options.isEmpty()) {
+        ts << "\\begin{tikzpicture}\n";
+    } else {
+        ts << "\\begin{tikzpicture}[" << options << "]\n";
+    }
 }
 
 void end(QTextStream& ts)
@@ -14,9 +17,13 @@ void end(QTextStream& ts)
     ts << "\\end{tikzpicture}\n";
 }
 
-void beginScope(QTextStream& ts)
+void beginScope(QTextStream& ts, const QString& options)
 {
-    ts << "\\begin{scope}\n";
+    if (options.isEmpty()) {
+        ts << "\\begin{scope}\n";
+    } else {
+        ts << "\\begin{scope}[" << options << "]\n";
+    }
 }
 
 void endScope(QTextStream& ts)
@@ -103,7 +110,7 @@ void arrow(QTextStream& ts, const QPointF& p, const QPointF& q)
     ts << QString("\\draw[->] (%1, %2) -- (%3, %4);\n").arg(p.x()).arg(p.y()).arg(q.x()).arg(q.y());
 }
 
-static QString uniqColorString()
+QString uniqColorString()
 {
     // lame: construct unique string without numbers for the color
     static int i = 0;
@@ -116,7 +123,19 @@ static QString uniqColorString()
     return colorName;
 }
 
-void fill(QTextStream& ts, const QRectF& rect, const QColor& brush, const QColor& pen)
+void fill(QTextStream& ts, const QRectF& rect, const QColor& brush)
+{
+    const QString uniqBrushColor = uniqColorString();
+
+    QString brushColor = QString("\\definecolor{col%1}{rgb}{%2, %3, %4}\n").arg(uniqBrushColor)
+        .arg(brush.redF()).arg(brush.greenF()).arg(brush.blueF());
+
+    ts << brushColor;
+
+    fill(ts, rect, "col" + uniqBrushColor);
+}
+
+void filldraw(QTextStream& ts, const QRectF& rect, const QColor& brush, const QColor& pen)
 {
     const QString uniqBrushColor = uniqColorString();
     const QString uniqPenColor = uniqColorString();
@@ -129,10 +148,43 @@ void fill(QTextStream& ts, const QRectF& rect, const QColor& brush, const QColor
 
     ts << brushColor << penColor;
 
-    ts << QString("\\filldraw[fill=col%1, draw=col%2] (%3, %4) rectangle (%5, %6);\n")
-        .arg(uniqBrushColor)
-        .arg(uniqPenColor)
+    filldraw(ts, rect, "col" + uniqBrushColor, "col" + uniqPenColor);
+}
+
+void drawRect(QTextStream& ts, const QRectF& rect, const QColor& pen)
+{
+    const QString uniqPenColor = uniqColorString();
+
+    QString penColor = QString("\\definecolor{col%1}{rgb}{%2, %3, %4}\n").arg(uniqPenColor)
+        .arg(pen.redF()).arg(pen.greenF()).arg(pen.blueF());
+
+    ts << penColor;
+
+    drawRect(ts, rect, "col" + uniqPenColor);
+}
+
+void fill(QTextStream& ts, const QRectF& rect, const QString& brush)
+{
+    ts << QString("\\filldraw[fill=%1, draw=%1] (%2, %3) rectangle (%4, %5);\n")
+        .arg(brush)
+        .arg(rect.left()).arg(rect.bottom()).arg(rect.right()).arg(rect.top());
+}
+
+void filldraw(QTextStream& ts, const QRectF& rect, const QString& brush, const QString& pen)
+{
+    ts << QString("\\filldraw[fill=%1, draw=%2] (%3, %4) rectangle (%5, %6);\n")
+        .arg(brush)
+        .arg(pen)
+        .arg(rect.left()).arg(rect.bottom()).arg(rect.right()).arg(rect.top());
+}
+
+void drawRect(QTextStream& ts, const QRectF& rect, const QString& pen)
+{
+    ts << QString("\\draw[%1] (%2, %3) rectangle (%4, %5);\n")
+        .arg(pen)
         .arg(rect.left()).arg(rect.bottom()).arg(rect.right()).arg(rect.top());
 }
 
 }
+
+// kate: replace-tabs on; indent-width 4;

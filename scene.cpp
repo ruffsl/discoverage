@@ -272,13 +272,11 @@ void Scene::reset()
 void Scene::tick()
 {
     m_toolHandler->tick();
-
-//     if (
 }
 
 void Scene::exportToTikz(QTextStream& ts)
 {
-    tikz::begin(ts, 1.0);
+    tikz::begin(ts, "yscale=-1");
     m_map.exportToTikz(ts);
     tikz::end(ts);
 }

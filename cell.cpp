@@ -200,21 +200,23 @@ QDataStream& Cell::save(QDataStream& ds)
 
 void Cell::exportToTikz(QTextStream& ts, bool fillDensity, bool exportGradient)
 {
-    static QColor sBrushFrontier(255, 127, 0, 255);
-    static QColor sBrushExplored(255, 255, 255, 0);
-
-    static QColor sBrushExploredObstacle(127, 127, 127);
-    static QColor sBrushUnexploredObstacle(Qt::gray);
-    static QColor sBrushFree(255, 255, 255);
-
     if (m_state & Frontier) { // frontiers
-        tikz::fill(ts, m_rect, sBrushFrontier, Qt::black);
-    } else if (m_state == (Explored | Free)) { // free explored
-        QColor color = densityToColor(m_density);
-        tikz::fill(ts, m_rect, color, Qt::white);
+        tikz::filldraw(ts, m_rect, QString("colFrontier"), QString("colBorder"));
+    } else if (m_state & Obstacle) {
+        if (m_state & Explored) {
+            tikz::filldraw(ts, m_rect, QString("colExploredObstacle"), QString("colBorder"));
+        } else {
+            tikz::filldraw(ts, m_rect, QString("colUnexploredObstacle"), QString("colBorder"));
+        }
     } else {
-        QColor color = densityToColor(m_density);
-        tikz::fill(ts, m_rect, color, color);
+        if (m_state & Unknown) {
+            tikz::drawRect(ts, m_rect, QString("colBorder"));
+        } else {
+            if (fillDensity) {
+                QColor color = densityToColor(m_density);
+                tikz::fill(ts, m_rect, color);
+            }
+        }
     }
 
     if (exportGradient && !m_gradient.isNull()) {
