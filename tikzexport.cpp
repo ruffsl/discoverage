@@ -36,7 +36,7 @@ void newline(QTextStream& ts)
     ts << "\n";
 }
 
-void path(QTextStream& ts, const QPainterPath& path)
+void path(QTextStream& ts, const QPainterPath& path, const QString& options)
 {
     int i = 0;
     for (i = 0; i < path.elementCount(); ++i) {
@@ -46,7 +46,7 @@ void path(QTextStream& ts, const QPainterPath& path)
             if (i > 0) {
                 ts << " -- cycle;\n";
             }
-            ts << QString("\\draw (%1, %2)").arg(element.x, 0, 'f').arg(element.y, 0, 'f');
+            ts << QString("\\draw[" + options + "] (%1, %2)").arg(element.x, 0, 'f').arg(element.y, 0, 'f');
         } else if (element.type == QPainterPath::LineToElement) {
             ts << QString(" -- (%1, %2)").arg(element.x, 0, 'f').arg(element.y, 0, 'f');
         }
@@ -95,9 +95,22 @@ void clip(QTextStream& ts, const QPainterPath& path)
     }
 }
 
-void circle(QTextStream& ts, const QPointF& center, qreal radius)
+void clip(QTextStream& ts, const QRectF& rect)
 {
-    ts << QString("\\draw (%1, %2) circle (%3cm);\n").arg(center.x()).arg(center.y()).arg(radius);
+    ts << QString("\\clip (%1, %2) rectangle (%3, %4);")
+        .arg(rect.left(), 0, 'f')
+        .arg(rect.top(), 0, 'f')
+        .arg(rect.right(), 0, 'f')
+        .arg(rect.bottom(), 0, 'f');
+}
+
+void circle(QTextStream& ts, const QPointF& center, qreal radius, const QString& options)
+{
+    if (options.isEmpty()) {
+        ts << QString("\\draw (%1, %2) circle (%3cm);\n").arg(center.x()).arg(center.y()).arg(radius);
+    } else {
+        ts << QString("\\draw[" + options + "] (%1, %2) circle (%3cm);\n").arg(center.x()).arg(center.y()).arg(radius);
+    }
 }
 
 void line(QTextStream& ts, const QPointF& p, const QPointF& q)

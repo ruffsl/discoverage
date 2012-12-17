@@ -28,6 +28,7 @@ class QMouseEvent;
 class QPainter;
 class Scene;
 class QSettings;
+class QTextStream;
 
 class ToolHandler
 {
@@ -63,9 +64,14 @@ class ToolHandler
         // called if a vector field is requested in all cells
         virtual void updateVectorField();
 
-        // serialization
+    //
+    // load & save, and export
+    //
+    public:
         virtual void save(QSettings& config);
         virtual void load(QSettings& config);
+
+        virtual void exportToTikz(QTextStream& ts);
 
     private:
         void setCurrentCell(const QPoint& cell);

@@ -57,6 +57,7 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
         // serialization
         virtual void load(QSettings& config);
         virtual void save(QSettings& config);
+        virtual void exportToTikz(QTextStream& ts);
 
     private Q_SLOTS:
 //         void showVectorField(bool show);
@@ -82,7 +83,7 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
         QVector<QVector<QLineF> > m_vectorField;
 
         QPointF m_robotPosition;
-        double m_visionRadius;
+        qreal m_integrationRadius;
         QVector<QPointF> m_trajectory;
 
         QVector<Cell*> m_visibleCells;

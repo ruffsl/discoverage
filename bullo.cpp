@@ -20,7 +20,7 @@
 #include "bullo.h"
 #include "scene.h"
 #include "mainwindow.h"
-// #include "ui_discoveragewidget.h"
+#include "tikzexport.h"
 
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
@@ -37,6 +37,7 @@ DisCoverageBulloHandler::DisCoverageBulloHandler(Scene* scene)
     , m_dock(0)
     , m_ui(0)
     , m_robotPosition(0, 0)
+    , m_integrationRadius(0.5)
 {
     toolHandlerActive(false);
 }
@@ -96,6 +97,22 @@ void DisCoverageBulloHandler::load(QSettings& config)
 //     m_ui->sbVisionRaius->blockSignals(false);
 }
 
+void DisCoverageBulloHandler::exportToTikz(QTextStream& ts)
+{
+    // construct path of visibility region
+    QVector<Cell*> visibleCells = scene()->map().visibleCells(m_robotPosition, operationRadius());
+    QPainterPath visiblePath;
+    foreach (Cell* cell, visibleCells) {
+        visiblePath.addRect(cell->rect());
+    }
+    visiblePath = visiblePath.simplified();
+    tikz::path(ts, visiblePath, "thick, blue, fill=black, fill opacity=0.2");
+
+    tikz::circle(ts, m_robotPosition, m_integrationRadius, "dashed, thick");
+    tikz::circle(ts, m_robotPosition, 0.05, "draw=black, fill=white");
+//     tikz::circle(ts, m_robotPosition, operationRadius());
+}
+
 void DisCoverageBulloHandler::updateParameters()
 {
 //     m_visionRadius = m_ui->sbVisionRaius->value();
@@ -115,18 +132,33 @@ void DisCoverageBulloHandler::draw(QPainter& p)
     QPainter::RenderHints rh = p.renderHints();
     p.setRenderHints(QPainter::Antialiasing, true);
 
+    QVector<Cell*> visibleCells = scene()->map().visibleCells(m_robotPosition, operationRadius());
+    QPainterPath visiblePath;
+    foreach (Cell* cell, visibleCells) {
+        visiblePath.addRect(cell->rect());
+    }
+    visiblePath = visiblePath.simplified();
+//     QPainterPath circularRegion;
+//     circularRegion.addEllipse(m_robotPosition, operationRadius(), operationRadius());
+//     visiblePath = circularRegion.intersected(visiblePath);
+
     QPen bluePen(QColor(0, 0, 255, 196), m.resolution() * 0.3);
     p.setPen(bluePen);
-
+    p.setBrush(Qt::NoBrush);
+    p.drawPath(visiblePath);
+    
+    p.setPen(Qt::NoPen);
+    p.setBrush(Qt::black);
     p.setOpacity(0.2);
-    p.setBrush(QBrush(Qt::blue));
-    p.drawEllipse(m_robotPosition, operationRadius(), operationRadius());
+    p.drawPath(visiblePath);
+    
+//     p.drawEllipse(m_robotPosition, operationRadius(), operationRadius());
 
     p.setOpacity(1.0);
     p.setBrush(Qt::NoBrush);
     QPen dashPen(QColor(0, 0, 0, 196), m.resolution() * 0.3, Qt::DotLine);
     p.setPen(dashPen);
-    p.drawEllipse(m_robotPosition, 0.5, 0.5);
+    p.drawEllipse(m_robotPosition, m_integrationRadius, m_integrationRadius);
 
     p.setPen(bluePen);
 
@@ -197,7 +229,7 @@ qreal DisCoverageBulloHandler::fitness(const QPointF& robotPos, const QVector<Ce
 
 QPointF DisCoverageBulloHandler::gradient(const QPointF& robotPos)
 {
-    QVector<Cell*> visibleCells = scene()->map().visibleCells(robotPos, 0.5/*operationRadius()/2*/);
+    QVector<Cell*> visibleCells = scene()->map().visibleCells(robotPos, m_integrationRadius);
 
     const qreal dx = 0.005;
     const qreal dy = 0.005;
@@ -261,7 +293,7 @@ void DisCoverageBulloHandler::tick()
     if (changed)
         scene()->map().updateCellWeights();
 
-    m_visibleCells = scene()->map().visibleCells(m_robotPosition, 0.5/*operationRadius()/2*/);
+//     m_visibleCells = scene()->map().visibleCells(m_robotPosition, m_integrationRadius);
     scene()->update();
 }
 

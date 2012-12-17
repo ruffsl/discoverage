@@ -30,7 +30,7 @@ namespace tikz
     extern void newline(QTextStream& ts);
 
     /** Export QPainterPath. */
-    extern void path(QTextStream& ts, const QPainterPath& path);
+    extern void path(QTextStream& ts, const QPainterPath& path, const QString& options = QString());
 
     /** Export QPolygon lines. */
     extern void lines(QTextStream& ts, const QPolygonF& polygon);
@@ -38,8 +38,11 @@ namespace tikz
     /** Set clip path. */
     extern void clip(QTextStream& ts, const QPainterPath& path);
 
+    /** Set clip rect. */
+    extern void clip(QTextStream& ts, const QRectF& rect);
+
     /** Export Circle. */
-    extern void circle(QTextStream& ts, const QPointF& center, qreal radius);
+    extern void circle(QTextStream& ts, const QPointF& center, qreal radius, const QString& options = QString());
 
     /** Export Line. */
     extern void line(QTextStream& ts, const QPointF& p, const QPointF& q);

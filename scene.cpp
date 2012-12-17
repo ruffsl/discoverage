@@ -278,6 +278,7 @@ void Scene::exportToTikz(QTextStream& ts)
 {
     tikz::begin(ts, "yscale=-1");
     m_map.exportToTikz(ts);
+    m_toolHandler->exportToTikz(ts);
     tikz::end(ts);
 }
 

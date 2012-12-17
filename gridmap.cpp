@@ -1198,6 +1198,10 @@ void GridMap::exportToTikz(QTextStream& ts)
     const bool showVectorField = Config::self()->showVectorField();
     const bool drawDensity = true;
 
+    QSize mapSize(size());
+    mapSize *= m_resolution;
+    tikz::clip(ts, QRectF(QPointF(0, 0), mapSize));
+
 //     ts << "\\draw[help lines] (0, 0) grid [step=" << m_resolution << "] ("
 //        << (m_resolution * size().width()) << ", "
 //        << (m_resolution * size().height()) << ");\n";

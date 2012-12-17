@@ -25,6 +25,7 @@
 #include <QtGui/QMouseEvent>
 #include <QtCore/QSettings>
 #include <QtCore/QDebug>
+#include <QtCore/QTextStream>
 
 #include <math.h>
 
@@ -142,6 +143,10 @@ void ToolHandler::load(QSettings& config)
     s_mousePosition = config.value("mouse-position", QPoint(0, 0)).toPoint();
     s_operationRadius = config.value("operation radius", 2.0).toDouble();
     config.endGroup();
+}
+
+void ToolHandler::exportToTikz(QTextStream& ts)
+{
 }
 
 void ToolHandler::drawOperationRadius(QPainter& p)
