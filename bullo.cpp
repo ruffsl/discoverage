@@ -30,6 +30,24 @@
 
 #include <math.h>
 
+static QPainterPath circularPath(const QPointF& center, qreal radius)
+{
+    int segmentCount = static_cast<int>((radius + 1.0) * 10);
+
+    QPainterPath path;
+    path.moveTo(center + QPointF(radius, 0));
+
+    for (int i = 1; i < segmentCount; ++i) {
+        QPointF p(radius * cos(i * 2.0 * M_PI / segmentCount), radius * sin(i * 2.0 * M_PI / segmentCount));
+        path.lineTo(center + p);
+    }
+
+    path.closeSubpath();
+    return path;
+}
+
+
+
 //BEGIN DisCoverageBulloHandler
 DisCoverageBulloHandler::DisCoverageBulloHandler(Scene* scene)
     : QObject()
@@ -106,6 +124,7 @@ void DisCoverageBulloHandler::exportToTikz(QTextStream& ts)
         visiblePath.addRect(cell->rect());
     }
     visiblePath = visiblePath.simplified();
+    visiblePath = visiblePath.intersected(circularPath(m_robotPosition, operationRadius()));
     tikz::path(ts, visiblePath, "thick, blue, fill=black, fill opacity=0.2");
 
     tikz::circle(ts, m_robotPosition, m_integrationRadius, "dashed, thick");
@@ -138,9 +157,7 @@ void DisCoverageBulloHandler::draw(QPainter& p)
         visiblePath.addRect(cell->rect());
     }
     visiblePath = visiblePath.simplified();
-//     QPainterPath circularRegion;
-//     circularRegion.addEllipse(m_robotPosition, operationRadius(), operationRadius());
-//     visiblePath = circularRegion.intersected(visiblePath);
+    visiblePath = visiblePath.intersected(circularPath(m_robotPosition, operationRadius()));
 
     QPen bluePen(QColor(0, 0, 255, 196), m.resolution() * 0.3);
     p.setPen(bluePen);
@@ -151,8 +168,6 @@ void DisCoverageBulloHandler::draw(QPainter& p)
     p.setBrush(Qt::black);
     p.setOpacity(0.2);
     p.drawPath(visiblePath);
-    
-//     p.drawEllipse(m_robotPosition, operationRadius(), operationRadius());
 
     p.setOpacity(1.0);
     p.setBrush(Qt::NoBrush);
@@ -160,6 +175,8 @@ void DisCoverageBulloHandler::draw(QPainter& p)
     p.setPen(dashPen);
     p.drawEllipse(m_robotPosition, m_integrationRadius, m_integrationRadius);
 
+    // draw trajectories
+    p.setOpacity(1.0);
     p.setPen(bluePen);
 
     if (m_trajectory.size()) p.drawPolyline(&m_trajectory[0], m_trajectory.size());
@@ -167,10 +184,12 @@ void DisCoverageBulloHandler::draw(QPainter& p)
 
     p.setRenderHints(rh, true);
 
+    // debug: show visible cells
     foreach (Cell* c, m_visibleCells) {
         p.drawEllipse(c->center(), 0.05, 0.05);
     }
 
+    // debug: show gradient interpolation nodes
     p.drawEllipse(g00, 0.05, 0.05);
     p.drawEllipse(g01, 0.05, 0.05);
     p.drawEllipse(g10, 0.05, 0.05);
