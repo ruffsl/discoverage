@@ -316,7 +316,7 @@ void GridMap::updateCache()
     for (int a = 0; a < m_map.size(); ++a) {
         QVector<Cell>& row = m_map[a];
         for (int b = 0; b < row.size(); ++b) {
-            row[b].draw(p, true, Config::self()->showVectorField());
+            row[b].draw(p, Config::self()->showDensity(), Config::self()->showVectorField());
         }
     }
 }
@@ -342,7 +342,7 @@ void GridMap::updateCell(Cell& cell)
     QPainter p(&m_pixmapCache);
     p.scale(scaleFactor(), scaleFactor());
     p.setPen(Qt::lightGray);
-    cell.draw(p, true, true);
+    cell.draw(p, Config::self()->showDensity(), Config::self()->showVectorField());
 }
 
 const QSet<Cell*>& GridMap::frontiers() const
@@ -1196,7 +1196,7 @@ void GridMap::computeDistanceTransform()
 void GridMap::exportToTikz(QTextStream& ts)
 {
     const bool showVectorField = Config::self()->showVectorField();
-    const bool drawDensity = true;
+    const bool showDensity = Config::self()->showDensity();
 
     QSize mapSize(size());
     mapSize *= m_resolution;
@@ -1208,7 +1208,7 @@ void GridMap::exportToTikz(QTextStream& ts)
         for (int b = 0; b < m_map[a].size(); ++b) {
             Cell& c = m_map[a][b];
             if (c.state() == (Cell::Explored | Cell::Free))
-                c.exportToTikz(ts, drawDensity, showVectorField);
+                c.exportToTikz(ts, showDensity, showVectorField);
         }
     }
 
@@ -1219,7 +1219,7 @@ void GridMap::exportToTikz(QTextStream& ts)
         for (int b = 0; b < m_map[a].size(); ++b) {
             Cell& c = m_map[a][b];
             if (c.state() & Cell::Unknown)
-                c.exportToTikz(ts, drawDensity, showVectorField);
+                c.exportToTikz(ts, showDensity, showVectorField);
         }
     }
 
@@ -1229,7 +1229,7 @@ void GridMap::exportToTikz(QTextStream& ts)
         for (int b = 0; b < m_map[a].size(); ++b) {
             Cell& c = m_map[a][b];
             if (c.state() & Cell::Frontier)
-                c.exportToTikz(ts, drawDensity, showVectorField);
+                c.exportToTikz(ts, showDensity, showVectorField);
         }
     }
 #else
