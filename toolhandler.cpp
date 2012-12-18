@@ -172,6 +172,7 @@ void ToolHandler::highlightCurrentCell(QPainter& p)
         p.scale(scene()->map().scaleFactor(), scene()->map().scaleFactor());
         p.translate(-cell.center());
         p.scale(2, 2);
+        p.setOpacity(0.7);
 
         // draw cell in double size
         cell.draw(p, true, true);
