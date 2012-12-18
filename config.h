@@ -50,6 +50,9 @@ class Config : public QObject
     // config setters and getters
     //
     public slots:
+        bool showDensity() const;
+        void setShowDensity(bool show);
+
         bool showVectorField() const;
         void setShowVectorField(bool show);
 
@@ -60,6 +63,7 @@ class Config : public QObject
     private:
         int m_refCount;
 
+        bool m_showDensity;
         bool m_showVectorField;
         double m_zoomFactor;
 };
