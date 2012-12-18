@@ -276,6 +276,12 @@ void Scene::reset()
 void Scene::tick()
 {
     m_toolHandler->tick();
+
+    if (Config::self()->showDensity() || Config::self()->showDensity()) {
+        m_map->updateCache();
+    }
+
+    update();
 }
 
 void Scene::exportToTikz(QTextStream& ts)

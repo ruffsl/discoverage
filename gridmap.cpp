@@ -547,8 +547,8 @@ bool GridMap::exploreInRadius(const QPointF& robotPos, double radius, bool markA
         }
     }
 
-    if (changed)
-        m_scene->update();
+//     if (changed)
+//         m_scene->update();
 
     return changed;
 }

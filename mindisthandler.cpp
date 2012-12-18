@@ -121,8 +121,6 @@ void MinDistHandler::tick()
     scene()->map().exploreInRadius(m_robotPosition, operationRadius(), true);
 
     m_trajectory.append(m_robotPosition);
-
-    scene()->update();
 }
 
 void MinDistHandler::updateVectorField()

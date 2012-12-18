@@ -313,7 +313,6 @@ void DisCoverageBulloHandler::tick()
         scene()->map().updateCellWeights();
 
 //     m_visibleCells = scene()->map().visibleCells(m_robotPosition, m_integrationRadius);
-    scene()->update();
 }
 
 void DisCoverageBulloHandler::updateVectorField()
