@@ -123,6 +123,7 @@
    <addaction name="actionZoomOut"/>
    <addaction name="actionZoomIn"/>
    <addaction name="separator"/>
+   <addaction name="actionDensity"/>
    <addaction name="actionVectorField"/>
    <addaction name="actionStatistics"/>
    <addaction name="separator"/>
@@ -324,6 +325,21 @@
    </property>
    <property name="toolTip">
     <string>Show statistics</string>
+   </property>
+  </action>
+  <action name="actionDensity">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="app.qrc">
+     <normaloff>:/icons/icons/hsv.png</normaloff>:/icons/icons/hsv.png</iconset>
+   </property>
+   <property name="text">
+    <string>Density</string>
+   </property>
+   <property name="toolTip">
+    <string>Show density</string>
    </property>
   </action>
  </widget>
