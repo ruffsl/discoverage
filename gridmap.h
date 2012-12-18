@@ -57,6 +57,7 @@ class GridMap
         void save(QSettings& config);
 
         void exportToTikz(QTextStream& ts);
+        void exportToTikzOpt(QTextStream& ts);
 
     //
     // drawing

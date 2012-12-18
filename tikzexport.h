@@ -31,6 +31,7 @@ namespace tikz
 
     /** Export QPainterPath. */
     extern void path(QTextStream& ts, const QPainterPath& path, const QString& options = QString());
+    extern void path(QTextStream& ts, const QRectF& rect, const QString& options = QString());
 
     /** Export QPolygon lines. */
     extern void lines(QTextStream& ts, const QPolygonF& polygon);

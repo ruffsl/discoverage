@@ -1202,20 +1202,17 @@ void GridMap::exportToTikz(QTextStream& ts)
     mapSize *= m_resolution;
     tikz::clip(ts, QRectF(QPointF(0, 0), mapSize));
 
-//     ts << "\\draw[help lines] (0, 0) grid [step=" << m_resolution << "] ("
-//        << (m_resolution * size().width()) << ", "
-//        << (m_resolution * size().height()) << ");\n";
-
     // 1st round: export all explored free cells
     ts << "\n%\n% explored cells\n%\n";
     for (int a = 0; a < m_map.size(); ++a) {
         for (int b = 0; b < m_map[a].size(); ++b) {
             Cell& c = m_map[a][b];
-            if (c.state() & Cell::Explored)
+            if (c.state() == (Cell::Explored | Cell::Free))
                 c.exportToTikz(ts, drawDensity, showVectorField);
         }
     }
 
+#if 0
     // 2nd round: all unexplored cells (not frontiers)
     ts << "\n%\n% all unexplored cells and obstacles except frontiers\n%\n";
     for (int a = 0; a < m_map.size(); ++a) {
@@ -1235,7 +1232,69 @@ void GridMap::exportToTikz(QTextStream& ts)
                 c.exportToTikz(ts, drawDensity, showVectorField);
         }
     }
+#else
+    exportToTikzOpt(ts);
+#endif
 }
 
+void GridMap::exportToTikzOpt(QTextStream& ts)
+{
+    // collect connecting regions
+    QPainterPath unexploredRegion;
+    QPainterPath exploredObstacles;
+    QPainterPath unexploredObstacles;
+    QPainterPath frontiers;
+    for (int a = 0; a < m_map.size(); ++a) {
+        for (int b = 0; b < m_map[a].size(); ++b) {
+            Cell& c = m_map[a][b];
+            if (c.state() & (Cell::Frontier | Cell::Unknown))
+                unexploredRegion.addRect(c.rect());
+
+            if (c.state() == (Cell::Obstacle | Cell::Explored))
+                exploredObstacles.addRect(c.rect());
+
+            if (c.state() == (Cell::Obstacle | Cell::Unknown))
+                unexploredObstacles.addRect(c.rect());
+
+            if (c.state() & Cell::Frontier)
+                frontiers.addRect(c.rect());
+        }
+    }
+
+    // simplify paths to reduce tikz size
+    unexploredRegion = unexploredRegion.simplified();
+    exploredObstacles = exploredObstacles.simplified();
+    unexploredObstacles = unexploredObstacles.simplified();
+    frontiers = frontiers.simplified();
+
+    const QRectF sceneRect(0, 0, m_resolution * size().width(), m_resolution * size().height());
+
+    // draw frontiers
+    tikz::beginScope(ts);
+        tikz::clip(ts, frontiers);
+        tikz::path(ts, sceneRect, "fill=colFrontier");
+    tikz::endScope(ts);
+
+    // draw unexplored obstacles
+    tikz::beginScope(ts);
+        tikz::clip(ts, unexploredObstacles);
+        tikz::path(ts, sceneRect, "fill=colUnexploredObstacle");
+    tikz::endScope(ts);
+
+    // draw explored obstacles
+    tikz::beginScope(ts);
+        tikz::clip(ts, exploredObstacles);
+        tikz::path(ts, sceneRect, "fill=colExploredObstacle");
+    tikz::endScope(ts);
+
+    // draw grid for unexplored cells
+    tikz::beginScope(ts);
+        tikz::path(ts, unexploredRegion, "draw=colBorder");
+        tikz::clip(ts, unexploredRegion);
+        ts << "\\draw[draw=colBorder] (0, 0) grid [step=" << m_resolution << "] ("
+           << m_resolution * size().width() << ", "
+           << m_resolution * size().height() << ");\n";
+    tikz::endScope(ts);
+}
 
 // kate: replace-tabs on; indent-width 4;

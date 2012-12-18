@@ -1,5 +1,7 @@
 #include "tikzexport.h"
 
+#include <QDebug>
+
 namespace tikz
 {
 
@@ -56,6 +58,21 @@ void path(QTextStream& ts, const QPainterPath& path, const QString& options)
     }
 }
 
+void path(QTextStream& ts, const QRectF& rect, const QString& options)
+{
+    if (options.isEmpty()) {
+        ts << "\\path ";
+    } else {
+        ts << "\\path[" << options << "] ";
+    }
+
+    ts << QString("(%1, %2) rectangle (%3, %4);\n")
+        .arg(rect.left(), 0, 'f')
+        .arg(rect.top(), 0, 'f')
+        .arg(rect.right(), 0, 'f')
+        .arg(rect.bottom(), 0, 'f');
+}
+
 void lines(QTextStream& ts, const QPolygonF& polygon)
 {
     if (polygon.size() == 0) {
@@ -77,22 +94,28 @@ void lines(QTextStream& ts, const QPolygonF& polygon)
 
 void clip(QTextStream& ts, const QPainterPath& path)
 {
-    int i = 0;
-    for (i = 0; i < path.elementCount(); ++i) {
+    if (path.elementCount() == 0)
+        return;
+
+    ts << "\\clip ";
+
+    for (int i = 0; i < path.elementCount(); ++i) {
         const QPainterPath::Element& element = path.elementAt(i);
 
         if (element.type == QPainterPath::MoveToElement) {
             if (i > 0) {
-                ts << " -- cycle;\n";
+                ts << " -- cycle";
+                ts << "\n      ";
             }
-            ts << QString("\\clip (%1, %2)").arg(element.x, 0, 'f').arg(element.y, 0, 'f');
         } else if (element.type == QPainterPath::LineToElement) {
-            ts << QString(" -- (%1, %2)").arg(element.x, 0, 'f').arg(element.y, 0, 'f');
+            ts << " -- ";
+        } else {
+            qDebug() << "tikz::clip: uknown QPainterPath segment type";
         }
+        ts << QString("(%1, %2)").arg(element.x, 0, 'f').arg(element.y, 0, 'f');
     }
-    if (i > 0) {
-        ts << " -- cycle;\n";
-    }
+
+    ts << " -- cycle;\n";
 }
 
 void clip(QTextStream& ts, const QRectF& rect)
