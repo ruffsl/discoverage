@@ -21,6 +21,7 @@
 #include "mainwindow.h"
 #include "ui_newscenedialog.h"
 #include "tikzexport.h"
+#include "config.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
@@ -33,7 +34,7 @@ Scene* Scene::s_self = 0;
 
 Scene::Scene(MainWindow* mainWindow, QWidget* parent)
     : QFrame(parent)
-    , m_map(this, 30, 22.5, 0.2)
+    , m_map(new GridMap(this, 30, 22.5, 0.2))
     , m_mainWindow(mainWindow)
     , m_robotHandler(this)
     , m_obstacleHandler(this)
@@ -53,7 +54,9 @@ Scene::Scene(MainWindow* mainWindow, QWidget* parent)
 
     m_toolHandler = &m_robotHandler;
 
-    m_map.updateCache();
+    m_map->updateCache();
+
+    connect(Config::self(), SIGNAL(configChanged()), this, SLOT(update()));
 }
 
 Scene::~Scene()
@@ -71,9 +74,10 @@ void Scene::newScene()
         const double width = ui.sbWidth->value();
         const double height = ui.sbHeight->value();
 
-        m_map = GridMap(this, width, height, res);
+        delete m_map;
+        m_map = new GridMap(this, width, height, res);
         mainWindow()->setStatusResolution(res);
-        m_map.updateCache();
+        m_map->updateCache();
         setFixedSize(sizeHint());
         update();
     }
@@ -81,10 +85,10 @@ void Scene::newScene()
 
 void Scene::load(QSettings& config)
 {
-    m_map.load(config);
+    m_map->load(config);
 
-    mainWindow()->setStatusResolution(m_map.resolution());
-    m_map.updateCache();
+    mainWindow()->setStatusResolution(m_map->resolution());
+    m_map->updateCache();
     setFixedSize(sizeHint());
 
     m_minDistHandler.load(config);
@@ -98,7 +102,7 @@ void Scene::load(QSettings& config)
 
 void Scene::save(QSettings& config)
 {
-    m_map.save(config);
+    m_map->save(config);
 
     m_obstacleHandler.save(config);
     m_explorationHandler.save(config);
@@ -123,7 +127,7 @@ void Scene::wheelEvent(QWheelEvent* event)
 
 QSize Scene::sizeHint() const
 {
-    return m_map.displaySize();
+    return m_map->displaySize();
 }
 
 MainWindow* Scene::mainWindow() const
@@ -133,13 +137,13 @@ MainWindow* Scene::mainWindow() const
 
 void Scene::zoomIn()
 {
-    m_map.incScaleFactor();
+    m_map->incScaleFactor();
     setFixedSize(sizeHint());
 }
 
 void Scene::zoomOut()
 {
-    m_map.decScaleFactor();
+    m_map->decScaleFactor();
     setFixedSize(sizeHint());
 }
 
@@ -205,7 +209,7 @@ void Scene::setOperationRadius(double radius)
 void Scene::draw(QPaintDevice* paintDevice)
 {
     QPainter p(paintDevice);
-    m_map.draw(p);
+    m_map->draw(p);
 
     // painter tool overlay
     m_toolHandler->draw(p);
@@ -260,7 +264,7 @@ void Scene::mouseReleaseEvent(QMouseEvent* event)
 
 GridMap& Scene::map()
 {
-    return m_map;
+    return *m_map;
 }
 
 void Scene::reset()
@@ -277,7 +281,7 @@ void Scene::tick()
 void Scene::exportToTikz(QTextStream& ts)
 {
     tikz::begin(ts, "yscale=-1");
-    m_map.exportToTikz(ts);
+    m_map->exportToTikz(ts);
     m_toolHandler->exportToTikz(ts);
     tikz::end(ts);
 }

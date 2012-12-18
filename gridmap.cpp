@@ -120,7 +120,8 @@ void Path::beautify(GridMap& gridMap)
 
 
 GridMap::GridMap(Scene* scene, double width, double height, double resolution)
-    : m_scene(scene)
+    : QObject(scene)
+    , m_scene(scene)
     , m_resolution(resolution)
 {
     const int xCellCount = ceil(width / m_resolution);
@@ -143,6 +144,8 @@ GridMap::GridMap(Scene* scene, double width, double height, double resolution)
     m_frontierCache.clear();
     m_exploredCellCount = 0;
     m_freeCellCount = xCellCount * yCellCount - 4 * (xCellCount + yCellCount - 4);
+
+    connect(Config::self(), SIGNAL(configChanged()), this, SLOT(updateCache()));
 }
 
 GridMap::~GridMap()
@@ -244,16 +247,12 @@ qreal GridMap::scaleFactor() const
 
 void GridMap::incScaleFactor()
 {
-    if (Config::self()->zoomIn()) {
-        updateCache();
-    }
+    Config::self()->zoomIn();
 }
 
 void GridMap::decScaleFactor()
 {
-    if (Config::self()->zoomOut()) {
-        updateCache();
-    }
+    Config::self()->zoomOut();
 }
 
 qreal GridMap::resolution() const

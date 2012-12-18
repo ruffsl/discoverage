@@ -23,9 +23,10 @@
 #include "cell.h"
 
 #include <QtGui/QPixmap>
+#include <QtCore/QObject>
 #include <QtCore/QPoint>
-#include <QtCore/QSize>
 #include <QtCore/QSet>
+#include <QtCore/QSize>
 
 class QSettings;
 class GridMap;
@@ -43,12 +44,14 @@ class Path
         void beautify(GridMap& gridMap);
 };
 
-class GridMap
+class GridMap : public QObject
 {
+    Q_OBJECT
+
     public:
         GridMap(Scene* scene, double width, double height, double resolution);
-        ~GridMap();
-        
+        virtual ~GridMap();
+
     //
     // load from / save to given config object, and export
     //
@@ -62,7 +65,7 @@ class GridMap
     //
     // drawing
     //
-    public:
+    public slots:
         void updateCache();
         void updateCell(int xIndex, int yIndex);
         void updateCell(Cell& cell);

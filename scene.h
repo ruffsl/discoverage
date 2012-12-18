@@ -95,7 +95,7 @@ class Scene : public QFrame
         QMouseEvent constrainEvent(QMouseEvent* event);
 
     private:
-        GridMap m_map;
+        GridMap* m_map;
 
         MainWindow* m_mainWindow;
 

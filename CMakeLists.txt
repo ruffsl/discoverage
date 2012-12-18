@@ -21,6 +21,7 @@ set(discoverage_SRCS
 set(discoverage_MOC_HDRS
   mainwindow.h
   scene.h
+  gridmap.h
   discoveragehandler.h
   bullo.h
   mindisthandler.h
