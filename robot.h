@@ -38,6 +38,9 @@ class Robot
     void setPosition(const QPointF& position);
     const QPointF& position() const;
 
+    void setSensingRange(qreal sensingRange);
+    qreal sensingRange() const;
+
     void clearTrajectory();
 
     //
@@ -62,6 +65,7 @@ class Robot
         Scene* m_scene;
 
         QPointF m_position;
+        qreal m_sensingRange;
         QVector<QPointF> m_trajectory;
 };
 
