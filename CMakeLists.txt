@@ -16,6 +16,7 @@ set(discoverage_SRCS
   config.cpp
   tikzexport.cpp
   robot.cpp
+  robotmanager.cpp
 )
 
 # another list, this time it includes all header files that should be treated with moc
