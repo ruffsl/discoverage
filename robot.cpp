@@ -108,7 +108,6 @@ void Robot::draw(QPainter& p)
 void Robot::drawRobot(QPainter& p)
 {
     static QPen blackPen(Qt::black);
-    blackPen.setWidthF(map()->resolution() * 0.3);
     p.setPen(blackPen);
     p.setBrush(color());
     p.drawEllipse(m_position, 0.05, 0.05);
@@ -116,8 +115,6 @@ void Robot::drawRobot(QPainter& p)
 
 void Robot::exportToTikz(QTextStream& ts)
 {
-    tikz::begin(ts, "yscale=-1");
-    tikz::end(ts);
 }
 
 void Robot::load(QSettings& config)

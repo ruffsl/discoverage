@@ -223,6 +223,8 @@ void Scene::draw(QPaintDevice* paintDevice)
     // painter tool overlay
     m_toolHandler->draw(p);
 
+    RobotManager::self()->draw(p);
+
     p.end();
 }
 
