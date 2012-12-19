@@ -22,6 +22,8 @@
 #include "config.h"
 #include "ui_toolwidget.h"
 #include "statistics.h"
+#include "robotmanager.h"
+#include "robotlistview.h"
 
 #include <QDebug>
 #include <QtGui/QLabel>
@@ -34,6 +36,9 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     , Ui::MainWindow()
 {
     setupUi(this);
+
+    // instantiate singleton
+    new RobotManager(this);
 
     QWidget* toolsWidget = new QWidget();
     m_toolsUi = new Ui::ToolWidget();
@@ -63,6 +68,11 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 
     m_scene = new Scene(this, this);
     scrollArea->setWidget(m_scene);
+
+    RobotListView* robotListView = new RobotListView(this);
+    dwRobotManager->setWidget(robotListView);
+//     dwRobotManager->setVisible(false);
+
 
     connect(actionQuit, SIGNAL(triggered()), qApp, SLOT(quit()));
     connect(actionZoomIn, SIGNAL(triggered()), m_scene, SLOT(zoomIn()));

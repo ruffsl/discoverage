@@ -23,18 +23,23 @@
 #include "robot.h"
 
 #include <QtCore/QDebug>
-// #include <QtGui/QResizeEvent>
 #include <QtGui/QPushButton>
 
 RobotListView::RobotListView(QWidget* parent)
     : QScrollArea(parent)
 {
     setWidget(new QWidget(this));
+    setWidgetResizable(true);
 
     QVBoxLayout* l = new QVBoxLayout(widget());
 
     QPushButton* newRobot = new QPushButton("Add robot", widget());
     l->addWidget(newRobot);
+    
+    m_robotLayout = new QVBoxLayout();
+    m_robotLayout->setSpacing(0);
+    l->addLayout(m_robotLayout);
+    l->addStretch();
 
     updateList();
 
@@ -53,6 +58,7 @@ void RobotListView::updateList()
             m_robotItems[i]->setRobot(RobotManager::self()->robot(i));
         } else {
             RobotWidget* rw = new RobotWidget(RobotManager::self()->robot(i), widget());
+            m_robotLayout->addWidget(rw);
             m_robotItems.append(rw);
         }
 
@@ -66,26 +72,5 @@ void RobotListView::updateList()
         --diff;
     }
 }
-
-// void RobotListView::resizeEvent(QResizeEvent* event)
-// {
-//   QScrollArea::resizeEvent(event);
-// 
-//   // calculate sum of all editor heights
-//   int listHeight = 0;
-//   foreach (QWidget* w, m_robotItems) {
-//     listHeight += w->sizeHint().height();
-//   }
-// 
-//   // resize scroll area widget
-//   widget()->resize(event->size().width(), listHeight);
-// 
-//   // set client geometries correctly
-//   int h = 0;
-//   foreach (QWidget* w, m_robotItems) {
-//     w->setGeometry(0, h, widget()->width(), w->sizeHint().height());
-//     h += w->sizeHint().height();
-//   }
-// }
 
 // kate: replace-tabs on; indent-width 4;

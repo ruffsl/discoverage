@@ -24,6 +24,7 @@
 #include <QtCore/QVector>
 
 class RobotWidget;
+class QBoxLayout;
 
 class RobotListView : public QScrollArea
 {
@@ -36,10 +37,8 @@ class RobotListView : public QScrollArea
     public slots:
         void updateList();
 
-    protected:
-//         virtual void resizeEvent(QResizeEvent* event);
-
     private:
+        QBoxLayout* m_robotLayout;
         QVector<RobotWidget*> m_robotItems;
 };
 

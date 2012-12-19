@@ -31,6 +31,7 @@ RobotWidget::RobotWidget(Robot* robot, QWidget* parent)
 {
     setAutoFillBackground(true);
     setupUi(this);
+    btnRemoveRobot->setIcon(QIcon(":/icons/icons/remove.png"));
 
     setRobot(m_robot);
 

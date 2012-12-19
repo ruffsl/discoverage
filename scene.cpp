@@ -22,6 +22,7 @@
 #include "ui_newscenedialog.h"
 #include "tikzexport.h"
 #include "config.h"
+#include "robotmanager.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
@@ -62,6 +63,9 @@ Scene::Scene(MainWindow* mainWindow, QWidget* parent)
     m_map->updateCache();
 
     connect(Config::self(), SIGNAL(configChanged()), this, SLOT(update()));
+
+    // add one robot by default
+    RobotManager::self()->addRobot();
 }
 
 Scene::~Scene()
