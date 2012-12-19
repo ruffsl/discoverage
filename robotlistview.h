@@ -20,16 +20,24 @@
 #ifndef DISCOVERAGE_ROBOT_LIST_VIEW_H
 #define DISCOVERAGE_ROBOT_LIST_VIEW_H
 
-#include <QtGui/QWidget>
+#include <QtGui/QScrollArea>
+#include <QtCore/QVector>
 
-class RobotListView : public QWidget
+class RobotWidget;
+
+class RobotListView : public QScrollArea
 {
+    Q_OBJECT
+
     public:
-        RobotWidget(QWidget* parent = 0);
-        virtual ~RobotWidget();
+        RobotListView(QWidget* parent = 0);
+        virtual ~RobotListView();
 
     public slots:
-        void robotRemoved();
+        void updateList();
+
+    protected:
+//         virtual void resizeEvent(QResizeEvent* event);
 
     private:
         QVector<RobotWidget*> m_robotItems;

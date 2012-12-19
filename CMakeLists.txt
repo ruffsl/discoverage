@@ -17,6 +17,8 @@ set(discoverage_SRCS
   tikzexport.cpp
   robot.cpp
   robotmanager.cpp
+  robotwidget.cpp
+  robotlistview.cpp
 )
 
 # another list, this time it includes all header files that should be treated with moc
@@ -29,6 +31,9 @@ set(discoverage_MOC_HDRS
   mindisthandler.h
   statistics.h
   config.h
+  robotmanager.h
+  robotwidget.h
+  robotlistview.h
 )
 
 # some .ui files
@@ -37,6 +42,7 @@ set(discoverage_UIS
   toolwidget.ui
   newscenedialog.ui
   discoveragewidget.ui
+  robotwidget.ui
 )
 
 # and finally an resource file

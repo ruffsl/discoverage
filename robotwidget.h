@@ -28,18 +28,18 @@ class Robot;
 
 class RobotWidget : public QWidget, private Ui::RobotWidget
 {
+    Q_OBJECT
+
     public:
         RobotWidget(Robot* robot, QWidget* parent = 0);
         virtual ~RobotWidget();
 
     public slots:
         void removeRobot();
+        void setRobot(Robot* robot);
 
     private:
-        void updateData();
-
-    private:
-        Robot *m_robot
+        Robot *m_robot;
 };
 
 #endif // DISCOVERAGE_ROBOT_WIDGET_H

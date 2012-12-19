@@ -22,19 +22,22 @@
 
 #include <QPointF>
 #include <QtCore/QVector>
+#include <QtCore/QObject>
 
 class QSettings;
 class QPainter;
 class Robot;
 class QTextStream;
 
-class RobotManager
+class RobotManager : public QObject
 {
+    Q_OBJECT
+
         static RobotManager* s_self;
 
     public:
-        RobotManager();
-        ~RobotManager();
+        RobotManager(QObject* parent);
+        virtual ~RobotManager();
 
         static RobotManager* self();
 
@@ -43,7 +46,7 @@ class RobotManager
     //
     // manage robots
     //
-    public:
+    public slots:
         void addRobot();
         void removeRobot();
         bool removeRobot(Robot* robot);
@@ -51,6 +54,10 @@ class RobotManager
         int count() const;
         int indexOf(Robot* robot) const;
         Robot* robot(int index) const;
+
+    signals:
+        // whenever a robot is added or deleted, changed() is emitted.
+        void robotCountChanged();
 
     //
     // convenience functions for all robots

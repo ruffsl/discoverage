@@ -19,6 +19,8 @@
 
 #include "robotwidget.h"
 #include "robot.h"
+#include "robotmanager.h"
+
 
 #include <QtCore/QDebug>
 
@@ -27,32 +29,29 @@ RobotWidget::RobotWidget(Robot* robot, QWidget* parent)
     , Ui::RobotWidget()
     , m_robot(robot)
 {
+    setAutoFillBackground(true);
     setupUi(this);
 
-    updateData();
+    setRobot(m_robot);
 
-    connect(btnRemoveRobot, SIGNAL(clicked()), this, SLOT(removeRobot()));
+    connect(btnRemoveRobot, SIGNAL(clicked()), this, SLOT(removeRobot()), Qt::QueuedConnection);
 }
 
 RobotWidget::~RobotWidget()
 {
 }
 
-void RobotWidget::updateData()
+void RobotWidget::setRobot(Robot* robot)
 {
+    m_robot = robot;
+
     QPixmap pixmap(16, 16);
     pixmap.fill();
-}
-
-void RobotWidget::addRobot()
-{
 }
 
 void RobotWidget::removeRobot()
 {
     RobotManager::self()->removeRobot(m_robot);
-
-    emit removed(this);
 }
 
 // kate: replace-tabs on; indent-width 4;

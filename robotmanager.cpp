@@ -32,7 +32,8 @@ RobotManager* RobotManager::self()
     return s_self;
 }
 
-RobotManager::RobotManager()
+RobotManager::RobotManager(QObject* parent)
+    : QObject(parent)
 {
     s_self = this;
 }
@@ -45,6 +46,8 @@ RobotManager::~RobotManager()
 void RobotManager::addRobot()
 {
     m_robots.append(new Robot(Scene::self()));
+
+    emit robotCountChanged();
 }
 
 void RobotManager::removeRobot()
@@ -59,6 +62,8 @@ bool RobotManager::removeRobot(Robot* robot)
     if (index != -1) {
         m_robots.remove(index);
         delete robot;
+
+        emit robotCountChanged();
     }
 
     return index != -1;

@@ -18,34 +18,74 @@
 */
 
 #include "robotlistview.h"
+#include "robotmanager.h"
+#include "robotwidget.h"
 #include "robot.h"
 
 #include <QtCore/QDebug>
+// #include <QtGui/QResizeEvent>
+#include <QtGui/QPushButton>
 
 RobotListView::RobotListView(QWidget* parent)
-    : QWidget(parent)
+    : QScrollArea(parent)
 {
-    for (int i < 0; i < RobotManager::self()->count(); ++i) {
-        RobotWidget* rw = new RobotWidget(RobotManager::self()->robot(i), this);
-        m_robotItems.append(rw);
-    }
+    setWidget(new QWidget(this));
 
-    connect(btnRemoveRobot, SIGNAL(clicked()), this, SLOT(removeRobot()));
+    QVBoxLayout* l = new QVBoxLayout(widget());
+
+    QPushButton* newRobot = new QPushButton("Add robot", widget());
+    l->addWidget(newRobot);
+
+    updateList();
+
+    connect(newRobot, SIGNAL(clicked()), RobotManager::self(), SLOT(addRobot()));
+    connect(RobotManager::self(), SIGNAL(robotCountChanged()), this, SLOT(updateList()), Qt::QueuedConnection);
 }
 
 RobotListView::~RobotListView()
 {
 }
 
-void RobotListView::addRobot()
+void RobotListView::updateList()
 {
+    for (int i = 0; i < RobotManager::self()->count(); ++i) {
+        if (i < m_robotItems.count()) {
+            m_robotItems[i]->setRobot(RobotManager::self()->robot(i));
+        } else {
+            RobotWidget* rw = new RobotWidget(RobotManager::self()->robot(i), widget());
+            m_robotItems.append(rw);
+        }
+
+        m_robotItems[i]->setBackgroundRole((i % 2) ? QPalette::AlternateBase : QPalette::Base);
+    }
+
+    int diff = m_robotItems.count() > RobotManager::self()->count();
+    while (diff > 0) {
+        delete m_robotItems.last();
+        m_robotItems.pop_back();
+        --diff;
+    }
 }
 
-void RobotListView::removeRobot()
-{
-    RobotManager::self()->removeRobot(m_robot);
-
-    emit removed(this);
-}
+// void RobotListView::resizeEvent(QResizeEvent* event)
+// {
+//   QScrollArea::resizeEvent(event);
+// 
+//   // calculate sum of all editor heights
+//   int listHeight = 0;
+//   foreach (QWidget* w, m_robotItems) {
+//     listHeight += w->sizeHint().height();
+//   }
+// 
+//   // resize scroll area widget
+//   widget()->resize(event->size().width(), listHeight);
+// 
+//   // set client geometries correctly
+//   int h = 0;
+//   foreach (QWidget* w, m_robotItems) {
+//     w->setGeometry(0, h, widget()->width(), w->sizeHint().height());
+//     h += w->sizeHint().height();
+//   }
+// }
 
 // kate: replace-tabs on; indent-width 4;
