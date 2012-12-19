@@ -28,7 +28,7 @@
 
 Robot::Robot(Scene* scene)
     : m_scene(scene)
-    , m_position(0, 0)
+    , m_position(scene->map().center())
     , m_sensingRange(3.0)
 {
 }

@@ -82,6 +82,7 @@ class GridMap : public QObject
 
         qreal resolution() const;       // grid resolution. 0.2 means 0.2m x 0.2m
         QSize size() const;             // amount of cells in the grid map in
+        QPointF center() const;         // returns the center of the map in physical coordinates
 
         inline int mapScreenToCell(qreal screenPos) const {
             return screenPos / (scaleFactor() * resolution());
