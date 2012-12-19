@@ -63,6 +63,11 @@ void Robot::clearTrajectory()
     m_trajectory.clear();
 }
 
+bool Robot::isActive() const
+{
+    return RobotManager::self()->activeRobot() == this;
+}
+
 Scene* Robot::scene() const
 {
     return m_scene;

@@ -50,6 +50,8 @@ class RobotManager : public QObject
         void addRobot();
         void removeRobot();
         bool removeRobot(Robot* robot);
+        void setActiveRobot(Robot* robot);
+        Robot* activeRobot();
 
         int count() const;
         int indexOf(Robot* robot) const;
@@ -58,6 +60,9 @@ class RobotManager : public QObject
     signals:
         // whenever a robot is added or deleted, changed() is emitted.
         void robotCountChanged();
+
+        // emitted, whenever the active robot changes
+        void activeRobotChanged(Robot* robot);
 
     //
     // convenience functions for all robots
@@ -77,6 +82,7 @@ class RobotManager : public QObject
 
     private:
         QVector<Robot*> m_robots;
+        Robot* m_activeRobot;
 };
 
 #endif // DISCOVERAGE_ROBOT_MANAGER_H

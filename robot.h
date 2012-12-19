@@ -44,6 +44,8 @@ class Robot
 
     void clearTrajectory();
 
+    bool isActive() const;
+
     //
     // environment information
     //

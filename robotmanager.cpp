@@ -34,6 +34,7 @@ RobotManager* RobotManager::self()
 
 RobotManager::RobotManager(QObject* parent)
     : QObject(parent)
+    , m_activeRobot(0)
 {
     s_self = this;
 }
@@ -59,14 +60,35 @@ void RobotManager::removeRobot()
 bool RobotManager::removeRobot(Robot* robot)
 {
     const int index = m_robots.indexOf(robot);
-    if (index != -1) {
-        m_robots.remove(index);
-        delete robot;
+    if (index == -1)
+        return false;
 
-        emit robotCountChanged();
+    m_robots.remove(index);
+    delete robot;
+
+    // take care of active robot
+    if (robot == m_activeRobot) {
+        setActiveRobot(m_robots.size() ? m_robots[0] : 0);
     }
 
+    emit robotCountChanged();
+
     return index != -1;
+}
+
+Robot* RobotManager::activeRobot()
+{
+    return m_activeRobot;
+}
+
+void RobotManager::setActiveRobot(Robot* robot)
+{
+    if (m_activeRobot == robot)
+        return;
+
+    m_activeRobot = robot;
+
+    emit activeRobotChanged(m_activeRobot);
 }
 
 int RobotManager::count() const
