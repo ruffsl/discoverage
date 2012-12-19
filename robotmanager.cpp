@@ -25,12 +25,21 @@
 #include <QtGui/QPainter>
 #include <QtCore/QSettings>
 
+RobotManager* RobotManager::s_self = 0;
+
+RobotManager* RobotManager::self()
+{
+    return s_self;
+}
+
 RobotManager::RobotManager()
 {
+    s_self = this;
 }
 
 RobotManager::~RobotManager()
 {
+    s_self = 0;
 }
 
 void RobotManager::addRobot()

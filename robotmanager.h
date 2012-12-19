@@ -30,9 +30,13 @@ class QTextStream;
 
 class RobotManager
 {
+        static RobotManager* s_self;
+
     public:
         RobotManager();
         ~RobotManager();
+
+        static RobotManager* self();
 
         void draw(QPainter& p);
 
