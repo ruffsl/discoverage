@@ -60,7 +60,6 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
         virtual void exportToTikz(QTextStream& ts);
 
     private Q_SLOTS:
-//         void showVectorField(bool show);
         void updateParameters();
 
     private:
