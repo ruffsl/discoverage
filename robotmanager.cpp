@@ -19,12 +19,13 @@
 
 #include "robotmanager.h"
 #include "robot.h"
+#include "scene.h"
 
 #include <QtCore/QDebug>
 #include <QtGui/QPainter>
 #include <QtCore/QSettings>
 
-RobotManager::RobotManager(Scene* scene)
+RobotManager::RobotManager()
 {
 }
 
@@ -32,34 +33,18 @@ RobotManager::~RobotManager()
 {
 }
 
-void RobotManager::setPosition(const QPointF& position)
-{
-    m_position = position;
-}
-
-const QPointF& RobotManager::position() const
-{
-    return m_position;
-}
-
 void RobotManager::setSensingRange(qreal sensingRange)
 {
-    m_sensingRange = sensingRange;
-}
-
-qreal RobotManager::sensingRange() const
-{
-    return m_sensingRange;
+    foreach (Robot* robot, m_robots) {
+        robot->setSensingRange(sensingRange);
+    }
 }
 
 void RobotManager::clearTrajectory()
 {
-    m_trajectory.clear();
-}
-
-Scene* RobotManager::scene() const
-{
-    return m_scene;
+    foreach (Robot* robot, m_robots) {
+        robot->clearTrajectory();
+    }
 }
 
 void RobotManager::draw(QPainter& p)
@@ -87,7 +72,7 @@ void RobotManager::load(QSettings& config)
     for (int i = 0; i < robotCount; ++i) {
         config.beginGroup(QString("robot-%1").arg(i));
 
-        Robot robot = new Robot(Scene::self());
+        Robot* robot = new Robot(Scene::self());
         robot->load(config);
         m_robots.append(robot);
 

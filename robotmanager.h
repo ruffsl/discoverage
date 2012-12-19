@@ -24,15 +24,24 @@
 #include <QtCore/QVector>
 
 class QSettings;
+class QPainter;
 class Robot;
+class QTextStream;
 
 class RobotManager
 {
     public:
-        RobotManager(Scene *scene);
+        RobotManager();
         ~RobotManager();
 
         void draw(QPainter& p);
+
+    //
+    // convenience functions for all robots
+    //
+    public:
+        void setSensingRange(qreal sensingRange);
+        void clearTrajectory();
 
     //
     // load/save & export functions
