@@ -37,10 +37,17 @@ RobotWidget::RobotWidget(Robot* robot, QWidget* parent)
 
     connect(btnRemoveRobot, SIGNAL(clicked()), this, SLOT(removeRobot()), Qt::QueuedConnection);
     connect(sbSensingRange, SIGNAL(valueChanged(double)), this, SLOT(setSensingRange(double)));
+
+    connect(sbSensingRange, SIGNAL(valueChanged(double)), this, SLOT(activateRobot()));
 }
 
 RobotWidget::~RobotWidget()
 {
+}
+
+Robot* RobotWidget::robot() const
+{
+    return m_robot;
 }
 
 static QPixmap pixmap(const QColor& color)
@@ -74,4 +81,13 @@ void RobotWidget::removeRobot()
     RobotManager::self()->removeRobot(m_robot);
 }
 
+void RobotWidget::mousePressEvent(QMouseEvent * event)
+{
+    activateRobot();
+}
+
+void RobotWidget::activateRobot()
+{
+    RobotManager::self()->setActiveRobot(m_robot);
+}
 // kate: replace-tabs on; indent-width 4;

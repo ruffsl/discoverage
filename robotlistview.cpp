@@ -36,7 +36,7 @@ RobotListView::RobotListView(QWidget* parent)
     QPushButton* newRobot = new QPushButton("Add robot", widget());
     newRobot->setIcon(QIcon(":/icons/icons/add.png"));
     l->addWidget(newRobot);
-    
+
     m_robotLayout = new QVBoxLayout();
     m_robotLayout->setSpacing(0);
     l->addLayout(m_robotLayout);
@@ -46,6 +46,7 @@ RobotListView::RobotListView(QWidget* parent)
 
     connect(newRobot, SIGNAL(clicked()), RobotManager::self(), SLOT(addRobot()));
     connect(RobotManager::self(), SIGNAL(robotCountChanged()), this, SLOT(updateList()), Qt::QueuedConnection);
+    connect(RobotManager::self(), SIGNAL(activeRobotChanged(Robot*)), this, SLOT(updateActiveRobot(Robot*)));
 }
 
 RobotListView::~RobotListView()
@@ -64,6 +65,12 @@ void RobotListView::updateList()
         }
 
         m_robotItems[i]->setBackgroundRole((i % 2) ? QPalette::AlternateBase : QPalette::Base);
+
+        // see updateActiveRobot()
+        if (m_robotItems[i]->robot()->isActive()) {
+            m_robotItems[i]->setBackgroundRole(QPalette::Highlight);
+        }
+
     }
 
     int diff = m_robotItems.count() > RobotManager::self()->count();
@@ -71,6 +78,18 @@ void RobotListView::updateList()
         delete m_robotItems.last();
         m_robotItems.pop_back();
         --diff;
+    }
+}
+
+void RobotListView::updateActiveRobot(Robot* robot)
+{
+    // highlight the active robot with a selection color
+    for (int i = 0; i < RobotManager::self()->count(); ++i) {
+        m_robotItems[i]->setBackgroundRole((i % 2) ? QPalette::AlternateBase : QPalette::Base);
+
+        if (m_robotItems[i]->robot()->isActive()) {
+            m_robotItems[i]->setBackgroundRole(QPalette::Highlight);
+        }
     }
 }
 

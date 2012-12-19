@@ -34,10 +34,16 @@ class RobotWidget : public QWidget, private Ui::RobotWidget
         RobotWidget(Robot* robot, QWidget* parent = 0);
         virtual ~RobotWidget();
 
+        Robot* robot() const;
+
     public slots:
         void removeRobot();
         void setRobot(Robot* robot);
         void setSensingRange(double range);
+        void activateRobot();
+
+    protected:
+        virtual void mousePressEvent(QMouseEvent * event);
 
     private:
         Robot *m_robot;

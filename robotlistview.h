@@ -25,6 +25,7 @@
 
 class RobotWidget;
 class QBoxLayout;
+class Robot;
 
 class RobotListView : public QScrollArea
 {
@@ -36,6 +37,7 @@ class RobotListView : public QScrollArea
 
     public slots:
         void updateList();
+        void updateActiveRobot(Robot* robot);
 
     private:
         QBoxLayout* m_robotLayout;
