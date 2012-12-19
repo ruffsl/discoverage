@@ -97,6 +97,11 @@ GridMap* Robot::map() const
 
 void Robot::draw(QPainter& p)
 {
+    drawRobot(p);
+}
+
+void Robot::drawRobot(QPainter& p)
+{
     static QPen blackPen(Qt::black);
     blackPen.setWidthF(map()->resolution() * 0.3);
     p.setPen(blackPen);

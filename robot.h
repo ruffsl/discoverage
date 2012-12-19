@@ -52,6 +52,9 @@ class Robot
 
         virtual void draw(QPainter& p);
 
+    private:
+        void drawRobot(QPainter& p);
+
     //
     // load/save & export functions
     //
