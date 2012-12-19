@@ -28,12 +28,20 @@ RobotWidget::RobotWidget(Robot* robot, QWidget* parent)
     , m_robot(robot)
 {
     setupUi(this);
-    
+
+    updateData();
+
     connect(btnRemoveRobot, SIGNAL(clicked()), this, SLOT(removeRobot()));
 }
 
 RobotWidget::~RobotWidget()
 {
+}
+
+void RobotWidget::updateData()
+{
+    QPixmap pixmap(16, 16);
+    pixmap.fill();
 }
 
 void RobotWidget::addRobot()

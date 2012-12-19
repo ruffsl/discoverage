@@ -36,6 +36,9 @@ class RobotWidget : public QWidget, private Ui::RobotWidget
         void removeRobot();
 
     private:
+        void updateData();
+
+    private:
         Robot *m_robot
 };
 

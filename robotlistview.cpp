@@ -22,13 +22,14 @@
 
 #include <QtCore/QDebug>
 
-RobotListView::RobotListView(Robot* robot, QWidget* parent)
+RobotListView::RobotListView(QWidget* parent)
     : QWidget(parent)
-    , Ui::RobotListView()
-    , m_robot(robot)
 {
-    setupUi(this);
-    
+    for (int i < 0; i < RobotManager::self()->count(); ++i) {
+        RobotWidget* rw = new RobotWidget(RobotManager::self()->robot(i), this);
+        m_robotItems.append(rw);
+    }
+
     connect(btnRemoveRobot, SIGNAL(clicked()), this, SLOT(removeRobot()));
 }
 

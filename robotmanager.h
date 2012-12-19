@@ -48,7 +48,9 @@ class RobotManager
         void removeRobot();
         bool removeRobot(Robot* robot);
 
+        int count() const;
         int indexOf(Robot* robot) const;
+        Robot* robot(int index) const;
 
     //
     // convenience functions for all robots
