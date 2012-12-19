@@ -40,13 +40,20 @@ void RobotManager::addRobot()
 
 void RobotManager::removeRobot()
 {
-    const int count = m_robots.size();
-    if (count > 0) {
-        delete m_robots[count];
-        m_robots.remove(count);
-    }
+    if (m_robots.size() > 0)
+        removeRobot(m_robots.last());
 }
 
+bool RobotManager::removeRobot(Robot* robot)
+{
+    const int index = m_robots.indexOf(robot);
+    if (index != -1) {
+        m_robots.remove(index);
+        delete robot;
+    }
+
+    return index != -1;
+}
 
 void RobotManager::setSensingRange(qreal sensingRange)
 {
