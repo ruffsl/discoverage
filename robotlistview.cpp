@@ -34,6 +34,7 @@ RobotListView::RobotListView(QWidget* parent)
     QVBoxLayout* l = new QVBoxLayout(widget());
 
     QPushButton* newRobot = new QPushButton("Add robot", widget());
+    newRobot->setIcon(QIcon(":/icons/icons/add.png"));
     l->addWidget(newRobot);
     
     m_robotLayout = new QVBoxLayout();
