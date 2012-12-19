@@ -48,6 +48,8 @@ class RobotManager
         void removeRobot();
         bool removeRobot(Robot* robot);
 
+        int indexOf(Robot* robot) const;
+
     //
     // convenience functions for all robots
     //

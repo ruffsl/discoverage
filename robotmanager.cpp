@@ -64,6 +64,11 @@ bool RobotManager::removeRobot(Robot* robot)
     return index != -1;
 }
 
+int RobotManager::indexOf(Robot* robot) const
+{
+    return m_robots.indexOf(robot);
+}
+
 void RobotManager::setSensingRange(qreal sensingRange)
 {
     foreach (Robot* robot, m_robots) {

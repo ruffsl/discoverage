@@ -163,11 +163,14 @@ void DisCoverageBulloHandler::draw(QPainter& p)
     p.setPen(bluePen);
     p.setBrush(Qt::NoBrush);
     p.drawPath(visiblePath);
-    
+
+    QPainterPath all;
+    all.addRect(0, 0, m.size().width() * m.resolution(), m.size().height() * m.resolution());
+    visiblePath = all.subtracted(visiblePath);
     p.setPen(Qt::NoPen);
     p.setBrush(Qt::black);
     p.setOpacity(0.2);
-    p.drawPath(visiblePath);
+    p.drawPolygon(visiblePath.toFillPolygon());
 
     p.setOpacity(1.0);
     p.setBrush(Qt::NoBrush);
