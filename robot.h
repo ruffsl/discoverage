@@ -22,6 +22,7 @@
 
 #include <QPointF>
 #include <QtCore/QVector>
+#include <QtGui/QColor>
 
 class Scene;
 class GridMap;
@@ -50,6 +51,7 @@ class Robot
         Scene* scene() const;
         GridMap* map() const;
 
+        QColor color();
         virtual void draw(QPainter& p);
 
     private:

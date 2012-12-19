@@ -27,26 +27,6 @@
 #include <QtGui/QPainter>
 #include <QtCore/QSettings>
 
-static QColor colorForRobot(Robot* robot)
-{
-    const int index = RobotManager::self()->indexOf(robot);
-    static QColor orange(255, 128, 0);
-    static QColor lila(191, 127, 255);
-
-    switch (index) {
-        case 0: return Qt::blue;
-        case 1: return Qt::green;
-        case 2: return Qt::red;
-        case 3: return Qt::yellow;
-        case 4: return Qt::magenta;
-        case 5: return Qt::cyan;
-        case 6: return Qt::gray;
-        case 7: return orange;
-        case 8: return lila;
-        default: return Qt::white;
-    }
-}
-
 Robot::Robot(Scene* scene)
     : m_scene(scene)
     , m_position(scene->map().center())
@@ -95,6 +75,26 @@ GridMap* Robot::map() const
     return &m_scene->map();
 }
 
+QColor Robot::color()
+{
+    const int index = RobotManager::self()->indexOf(this);
+    static QColor orange(255, 128, 0);
+    static QColor lila(191, 127, 255);
+
+    switch (index) {
+        case 0: return Qt::blue;
+        case 1: return Qt::green;
+        case 2: return Qt::red;
+        case 3: return Qt::yellow;
+        case 4: return Qt::magenta;
+        case 5: return Qt::cyan;
+        case 6: return Qt::gray;
+        case 7: return orange;
+        case 8: return lila;
+        default: return Qt::white;
+    }
+}
+
 void Robot::draw(QPainter& p)
 {
     drawRobot(p);
@@ -105,7 +105,7 @@ void Robot::drawRobot(QPainter& p)
     static QPen blackPen(Qt::black);
     blackPen.setWidthF(map()->resolution() * 0.3);
     p.setPen(blackPen);
-    p.setBrush(colorForRobot(this));
+    p.setBrush(color());
     p.drawEllipse(m_position, 0.05, 0.05);
 }
 
