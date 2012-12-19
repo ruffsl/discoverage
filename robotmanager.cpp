@@ -33,6 +33,21 @@ RobotManager::~RobotManager()
 {
 }
 
+void RobotManager::addRobot()
+{
+    m_robots.append(new Robot(Scene::self()));
+}
+
+void RobotManager::removeRobot()
+{
+    const int count = m_robots.size();
+    if (count > 0) {
+        delete m_robots[count];
+        m_robots.remove(count);
+    }
+}
+
+
 void RobotManager::setSensingRange(qreal sensingRange)
 {
     foreach (Robot* robot, m_robots) {

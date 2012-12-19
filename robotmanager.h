@@ -34,6 +34,13 @@ class RobotManager
         RobotManager();
         ~RobotManager();
 
+    //
+    // manager functios
+    //
+    public:
+        void addRobot();
+        void removeRobot();
+
         void draw(QPainter& p);
 
     //
