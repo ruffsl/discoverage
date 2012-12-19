@@ -21,8 +21,8 @@
 #include "robot.h"
 #include "robotmanager.h"
 
-
 #include <QtCore/QDebug>
+#include <QtGui/QPainter>
 
 RobotWidget::RobotWidget(Robot* robot, QWidget* parent)
     : QWidget(parent)
@@ -36,18 +36,37 @@ RobotWidget::RobotWidget(Robot* robot, QWidget* parent)
     setRobot(m_robot);
 
     connect(btnRemoveRobot, SIGNAL(clicked()), this, SLOT(removeRobot()), Qt::QueuedConnection);
+    connect(sbSensingRange, SIGNAL(valueChanged(double)), this, SLOT(setSensingRange(double)));
 }
 
 RobotWidget::~RobotWidget()
 {
 }
 
+static QPixmap pixmap(const QColor& color)
+{
+    QPixmap pixmap(16, 16);
+    pixmap.fill(color);
+    QPainter p(&pixmap);
+    QPen blackPen(Qt::black, 1);
+    p.setPen(blackPen);
+    p.drawRect(0, 0, 15, 15);
+    p.end();
+
+    return pixmap;
+}
+
 void RobotWidget::setRobot(Robot* robot)
 {
     m_robot = robot;
 
-    QPixmap pixmap(16, 16);
-    pixmap.fill();
+    lblPixmap->setPixmap(pixmap(robot->color()));
+    sbSensingRange->setValue(robot->sensingRange());
+}
+
+void RobotWidget::setSensingRange(double range)
+{
+    m_robot->setSensingRange(range);
 }
 
 void RobotWidget::removeRobot()

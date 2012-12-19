@@ -37,6 +37,7 @@ class RobotWidget : public QWidget, private Ui::RobotWidget
     public slots:
         void removeRobot();
         void setRobot(Robot* robot);
+        void setSensingRange(double range);
 
     private:
         Robot *m_robot;
