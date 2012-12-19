@@ -32,6 +32,11 @@
 
 Scene* Scene::s_self = 0;
 
+Scene* Scene::self()
+{
+    return s_self;
+}
+
 Scene::Scene(MainWindow* mainWindow, QWidget* parent)
     : QFrame(parent)
     , m_map(new GridMap(this, 30, 22.5, 0.2))
