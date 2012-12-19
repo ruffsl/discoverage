@@ -20,6 +20,7 @@
 #include "robotwidget.h"
 #include "robot.h"
 #include "robotmanager.h"
+#include "scene.h"
 
 #include <QtCore/QDebug>
 #include <QtGui/QPainter>
@@ -37,8 +38,9 @@ RobotWidget::RobotWidget(Robot* robot, QWidget* parent)
 
     connect(btnRemoveRobot, SIGNAL(clicked()), this, SLOT(removeRobot()), Qt::QueuedConnection);
     connect(sbSensingRange, SIGNAL(valueChanged(double)), this, SLOT(setSensingRange(double)));
+    connect(chkFillSensingRange, SIGNAL(toggled(bool)), this, SLOT(setFillSensingRange(bool)));
 
-    connect(sbSensingRange, SIGNAL(valueChanged(double)), this, SLOT(activateRobot()));
+    connect(sbSensingRange, SIGNAL(valueChanged(double)), this, SLOT(setRobotActive()));
 }
 
 RobotWidget::~RobotWidget()
@@ -74,6 +76,15 @@ void RobotWidget::setRobot(Robot* robot)
 void RobotWidget::setSensingRange(double range)
 {
     m_robot->setSensingRange(range);
+
+    Scene::self()->update();
+}
+
+void RobotWidget::setFillSensingRange(bool fill)
+{
+    m_robot->setFillSensingRange(fill);
+
+    Scene::self()->update();
 }
 
 void RobotWidget::removeRobot()
@@ -83,10 +94,11 @@ void RobotWidget::removeRobot()
 
 void RobotWidget::mousePressEvent(QMouseEvent * event)
 {
-    activateRobot();
+    QWidget::mousePressEvent(event);
+    setRobotActive();
 }
 
-void RobotWidget::activateRobot()
+void RobotWidget::setRobotActive()
 {
     RobotManager::self()->setActiveRobot(m_robot);
 }

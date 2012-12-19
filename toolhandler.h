@@ -29,6 +29,7 @@ class QPainter;
 class Scene;
 class QSettings;
 class QTextStream;
+class QKeyEvent;
 
 class ToolHandler
 {
@@ -57,6 +58,7 @@ class ToolHandler
         virtual void mouseMoveEvent(QMouseEvent* event);
         virtual void mousePressEvent(QMouseEvent* event) = 0;
         virtual void mouseReleaseEvent(QMouseEvent* event);
+        virtual void keyPressEvent(QKeyEvent* event);
         virtual void toolHandlerActive(bool activated);
         virtual void reset();
         virtual void tick();
@@ -93,6 +95,7 @@ class RobotHandler : public ToolHandler
         virtual void draw(QPainter& p);
         virtual void mouseMoveEvent(QMouseEvent* event);
         virtual void mousePressEvent(QMouseEvent* event);
+        virtual void keyPressEvent(QKeyEvent* event);
 
     private:
         void updateDisCoverage();

@@ -28,8 +28,8 @@
 #include <QDebug>
 #include <QtGui/QLabel>
 #include <QtGui/QFileDialog>
+#include <QtGui/QKeyEvent>
 #include <QtCore/QSettings>
-#include <QtGui/QPrinter>
 
 MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     : QMainWindow(parent, flags)
@@ -194,4 +194,12 @@ Scene* MainWindow::scene() const
     return m_scene;
 }
 
+void MainWindow::keyPressEvent(QKeyEvent* event)
+{
+    scene()->toolHandler()->keyPressEvent(event);
+
+    if (!event->isAccepted()) {
+        QMainWindow::keyPressEvent(event);
+    }
+}
 // kate: replace-tabs on; indent-width 4;

@@ -20,9 +20,12 @@
 #include "toolhandler.h"
 #include "scene.h"
 #include "mainwindow.h"
+#include "robotmanager.h"
+#include "robot.h"
 
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
+#include <QtGui/QKeyEvent>
 #include <QtCore/QSettings>
 #include <QtCore/QDebug>
 #include <QtCore/QTextStream>
@@ -109,6 +112,11 @@ void ToolHandler::mouseMoveEvent(QMouseEvent* event)
 
 void ToolHandler::mouseReleaseEvent(QMouseEvent* event)
 {
+}
+
+void ToolHandler::keyPressEvent(QKeyEvent* event)
+{
+    event->ignore();
 }
 
 void ToolHandler::toolHandlerActive(bool activated)
@@ -224,7 +232,7 @@ void RobotHandler::draw(QPainter& p)
         p.setPen(QPen(Qt::red, 0.2));
         p.drawLine(pt, pt + QPointF(cos(m_delta), sin(m_delta)));
     }
-    
+
     p.setRenderHints(rh, true);
 }
 
@@ -234,12 +242,26 @@ void RobotHandler::mouseMoveEvent(QMouseEvent* event)
 
     if (event->buttons() & Qt::LeftButton) {
         updateDisCoverage();
+
+        if (Robot* robot = RobotManager::self()->activeRobot()) {
+            QPointF pos = scene()->map().mapScreenToMap(event->posF());
+            robot->setPosition(pos);
+        }
     }
 }
 
 void RobotHandler::mousePressEvent(QMouseEvent* event)
 {
     mouseMoveEvent(event);
+}
+
+void RobotHandler::keyPressEvent(QKeyEvent* event)
+{
+    int index = event->key() - Qt::Key_1;
+
+    if (index >= 0 && index < RobotManager::self()->count()) {
+        RobotManager::self()->setActiveRobot(RobotManager::self()->robot(index));
+    }
 }
 
 void RobotHandler::updateDisCoverage()

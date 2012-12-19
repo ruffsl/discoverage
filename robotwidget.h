@@ -40,7 +40,8 @@ class RobotWidget : public QWidget, private Ui::RobotWidget
         void removeRobot();
         void setRobot(Robot* robot);
         void setSensingRange(double range);
-        void activateRobot();
+        void setFillSensingRange(bool fill);
+        void setRobotActive();
 
     protected:
         virtual void mousePressEvent(QMouseEvent * event);

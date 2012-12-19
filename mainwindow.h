@@ -49,6 +49,9 @@ class MainWindow : public QMainWindow, protected Ui::MainWindow
         void saveScene();
         void exportToTikz();
 
+    protected:
+        virtual void keyPressEvent(QKeyEvent* event);
+
     private:
         Ui::ToolWidget* m_toolsUi;
         QLabel* m_statusPosition;

@@ -31,6 +31,7 @@ Robot::Robot(Scene* scene)
     : m_scene(scene)
     , m_position(scene->map().center())
     , m_sensingRange(3.0)
+    , m_fillSensingRange(false)
 {
 }
 
@@ -68,6 +69,16 @@ bool Robot::isActive() const
     return RobotManager::self()->activeRobot() == this;
 }
 
+void Robot::setFillSensingRange(bool fill)
+{
+    m_fillSensingRange = fill;
+}
+
+bool Robot::fillSensingRange() const
+{
+    return m_fillSensingRange;
+}
+
 Scene* Robot::scene() const
 {
     return m_scene;
@@ -103,11 +114,28 @@ QColor Robot::color()
 void Robot::draw(QPainter& p)
 {
     drawRobot(p);
+
+    // draw sensed area
+    p.setPen(QPen(color(), map()->resolution() * 0.3));
+    if (fillSensingRange()) {
+        p.setOpacity(0.2);
+        p.setBrush(color());
+    } else {
+        p.setBrush(Qt::NoBrush);
+    }
+
+    p.drawEllipse(m_position, m_sensingRange, m_sensingRange);
+    p.setOpacity(1.0);
+    p.setBrush(Qt::NoBrush);
+
+    p.drawEllipse(m_position, m_sensingRange, m_sensingRange);
 }
 
 void Robot::drawRobot(QPainter& p)
 {
     static QPen blackPen(Qt::black);
+    blackPen.setWidthF(map()->resolution() * 0.1);
+    p.setOpacity(1.0);
     p.setPen(blackPen);
     p.setBrush(color());
     p.drawEllipse(m_position, 0.05, 0.05);
@@ -121,12 +149,14 @@ void Robot::load(QSettings& config)
 {
     setPosition(config.value("position", QPointF(0.0, 0.0)).toPointF());
     setSensingRange(config.value("sensing-range", 3.0).toDouble());
+    setSensingRange(config.value("fill-sensing-range", false).toBool());
 }
 
 void Robot::save(QSettings& config)
 {
     config.setValue("position", position());
     config.setValue("sensing-range", sensingRange());
+    config.setValue("fill-sensing-range", fillSensingRange());
 }
 
 // kate: replace-tabs on; indent-width 4;

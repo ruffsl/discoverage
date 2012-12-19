@@ -46,6 +46,9 @@ class Robot
 
     bool isActive() const;
 
+    void setFillSensingRange(bool fill);
+    bool fillSensingRange() const;
+
     //
     // environment information
     //
@@ -74,6 +77,8 @@ class Robot
         QPointF m_position;
         qreal m_sensingRange;
         QVector<QPointF> m_trajectory;
+
+        bool m_fillSensingRange;
 };
 
 #endif // DISCOVERAGE_ROBOT_H
