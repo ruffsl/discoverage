@@ -23,6 +23,7 @@
 #include "tikzexport.h"
 #include "config.h"
 #include "robotmanager.h"
+#include "robot.h"
 
 #include <QtCore/QDebug>
 #include <QtCore/QFile>
@@ -290,6 +291,10 @@ void Scene::reset()
 void Scene::tick()
 {
     m_toolHandler->tick();
+
+    for (int i = 0; i < RobotManager::self()->count(); ++i) {
+        RobotManager::self()->robot(i)->tick();
+    }
 
     if (Config::self()->showDensity() || Config::self()->showDensity()) {
         m_map->updateCache();
