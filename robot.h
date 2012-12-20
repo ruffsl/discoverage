@@ -67,6 +67,7 @@ class Robot
 
     private:
         void drawRobot(QPainter& p);
+        void drawSensedArea(QPainter& p);
 
     //
     // load/save & export functions

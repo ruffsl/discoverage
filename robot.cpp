@@ -27,6 +27,8 @@
 #include <QtGui/QPainter>
 #include <QtCore/QSettings>
 
+#include <math.h>
+
 Robot::Robot(Scene* scene)
     : m_scene(scene)
     , m_position(scene->map().center())
@@ -111,24 +113,48 @@ QColor Robot::color()
     }
 }
 
-void Robot::draw(QPainter& p)
+static QPainterPath circularPath(const QPointF& center, qreal radius)
 {
-    drawRobot(p);
+    int segmentCount = static_cast<int>((radius + 1.0) * 10);
 
-    // draw sensed area
-    p.setPen(QPen(color(), map()->resolution() * 0.3));
+    QPainterPath path;
+    path.moveTo(center + QPointF(radius, 0));
+
+    for (int i = 1; i < segmentCount; ++i) {
+        QPointF p(radius * cos(i * 2.0 * M_PI / segmentCount), radius * sin(i * 2.0 * M_PI / segmentCount));
+        path.lineTo(center + p);
+    }
+
+    path.closeSubpath();
+    return path;
+}
+
+void Robot::drawSensedArea(QPainter& p)
+{
+    QVector<Cell*> visibleCells = scene()->map().visibleCells(m_position, m_sensingRange);
+    QPainterPath visiblePath;
+    foreach (Cell* cell, visibleCells) {
+        visiblePath.addRect(cell->rect());
+    }
+    visiblePath = visiblePath.simplified();
+    visiblePath = visiblePath.intersected(circularPath(m_position, m_sensingRange));
+
+    QColor col(color());
+    QPen pen(color(), map()->resolution() * 0.3);
+    p.setPen(pen);
     if (fillSensingRange()) {
-        p.setOpacity(0.2);
-        p.setBrush(color());
+        col.setAlpha(50);
+        p.setBrush(col);
     } else {
         p.setBrush(Qt::NoBrush);
     }
+    p.drawPath(visiblePath);
+}
 
-    p.drawEllipse(m_position, m_sensingRange, m_sensingRange);
-    p.setOpacity(1.0);
-    p.setBrush(Qt::NoBrush);
-
-    p.drawEllipse(m_position, m_sensingRange, m_sensingRange);
+void Robot::draw(QPainter& p)
+{
+    drawRobot(p);
+    drawSensedArea(p);
 
     // draw trajectory
     if (m_trajectory.size()) p.drawPolyline(&m_trajectory[0], m_trajectory.size());
