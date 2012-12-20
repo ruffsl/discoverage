@@ -80,13 +80,6 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
         QDockWidget* m_dock;
         Ui::DisCoverageBulloWidget* m_ui;
  
-        QVector<QVector<QLineF> > m_vectorField;
-
-        QPointF m_robotPosition;
-        qreal m_integrationRadius;
-        QVector<QPointF> m_trajectory;
-
-        QVector<Cell*> m_visibleCells;
         QPointF g00;
         QPointF g01;
         QPointF g10;

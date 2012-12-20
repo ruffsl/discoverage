@@ -154,6 +154,10 @@ void Robot::drawSensedArea(QPainter& p)
 void Robot::draw(QPainter& p)
 {
     drawRobot(p);
+
+    p.setPen(QPen(QColor(0, 0, 0, 196), map()->resolution() * 0.3, Qt::DotLine));
+    p.drawEllipse(m_position, m_sensingRange, m_sensingRange);
+
     drawSensedArea(p);
 
     // draw trajectory
@@ -172,6 +176,19 @@ void Robot::drawRobot(QPainter& p)
 
 void Robot::exportToTikz(QTextStream& ts)
 {
+    // construct path of visibility region
+    QVector<Cell*> visibleCells = scene()->map().visibleCells(m_position, m_sensingRange);
+    QPainterPath visiblePath;
+    foreach (Cell* cell, visibleCells) {
+        visiblePath.addRect(cell->rect());
+    }
+    visiblePath = visiblePath.simplified();
+    visiblePath = visiblePath.intersected(circularPath(m_position, m_sensingRange));
+    tikz::path(ts, visiblePath, "thick, blue, fill=black, fill opacity=0.2");
+
+    tikz::circle(ts, m_position, 0.5, "dashed, thick");
+    tikz::circle(ts, m_position, 0.05, "draw=black, fill=white");
+//     tikz::circle(ts, m_robotPosition, operationRadius());
 }
 
 void Robot::load(QSettings& config)

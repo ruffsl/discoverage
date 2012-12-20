@@ -299,6 +299,8 @@ void Scene::tick()
     if (Config::self()->showDensity() || Config::self()->showDensity()) {
         m_map->updateCache();
     }
+    map().updateCellWeights();
+
 
     update();
 }
@@ -308,6 +310,11 @@ void Scene::exportToTikz(QTextStream& ts)
     tikz::begin(ts, "yscale=-1");
     m_map->exportToTikz(ts);
     m_toolHandler->exportToTikz(ts);
+
+    for (int i = 0; i < RobotManager::self()->count(); ++i) {
+        RobotManager::self()->robot(i)->exportToTikz(ts);
+    }
+
     tikz::end(ts);
 }
 

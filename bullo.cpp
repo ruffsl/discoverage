@@ -55,8 +55,6 @@ DisCoverageBulloHandler::DisCoverageBulloHandler(Scene* scene)
     , ToolHandler(scene)
     , m_dock(0)
     , m_ui(0)
-    , m_robotPosition(0, 0)
-    , m_integrationRadius(0.5)
 {
     toolHandlerActive(false);
 }
@@ -85,7 +83,6 @@ QDockWidget* DisCoverageBulloHandler::dockWidget()
 //         m_dock->setWidget(w);
 //         scene()->mainWindow()->addDockWidget(Qt::RightDockWidgetArea, m_dock);
 
-//         connect(m_ui->chkShowVectorField, SIGNAL(toggled(bool)), this, SLOT(showVectorField(bool)));
 //         connect(m_ui->sbVisionRaius, SIGNAL(valueChanged(double)), this, SLOT(updateParameters()));
 
 //         updateParameters();
@@ -96,42 +93,15 @@ QDockWidget* DisCoverageBulloHandler::dockWidget()
 void DisCoverageBulloHandler::save(QSettings& config)
 {
     ToolHandler::save(config);
-
-    config.beginGroup("dis-coverage");
-    config.setValue("robot-position", m_robotPosition);
-    config.endGroup();
 }
 
 void DisCoverageBulloHandler::load(QSettings& config)
 {
     ToolHandler::load(config);
-
-    config.beginGroup("dis-coverage");
-    m_robotPosition = config.value("robot-position", QPointF(0.0, 0.0)).toPointF();
-    config.endGroup();
-
-//     m_ui->sbVisionRaius->blockSignals(true);
-// 
-//     m_ui->sbVisionRaius->setValue(m_visionRadius);
-// 
-//     m_ui->sbVisionRaius->blockSignals(false);
 }
 
 void DisCoverageBulloHandler::exportToTikz(QTextStream& ts)
 {
-    // construct path of visibility region
-    QVector<Cell*> visibleCells = scene()->map().visibleCells(m_robotPosition, operationRadius());
-    QPainterPath visiblePath;
-    foreach (Cell* cell, visibleCells) {
-        visiblePath.addRect(cell->rect());
-    }
-    visiblePath = visiblePath.simplified();
-    visiblePath = visiblePath.intersected(circularPath(m_robotPosition, operationRadius()));
-    tikz::path(ts, visiblePath, "thick, blue, fill=black, fill opacity=0.2");
-
-    tikz::circle(ts, m_robotPosition, m_integrationRadius, "dashed, thick");
-    tikz::circle(ts, m_robotPosition, 0.05, "draw=black, fill=white");
-//     tikz::circle(ts, m_robotPosition, operationRadius());
 }
 
 void DisCoverageBulloHandler::updateParameters()
@@ -147,67 +117,25 @@ void DisCoverageBulloHandler::draw(QPainter& p)
 
     highlightCurrentCell(p);
 
-    GridMap &m = scene()->map();
-    p.scale(m.scaleFactor(), m.scaleFactor());
-
-    QPainter::RenderHints rh = p.renderHints();
-    p.setRenderHints(QPainter::Antialiasing, true);
-
-    QVector<Cell*> visibleCells = scene()->map().visibleCells(m_robotPosition, operationRadius());
-    QPainterPath visiblePath;
-    foreach (Cell* cell, visibleCells) {
-        visiblePath.addRect(cell->rect());
-    }
-    visiblePath = visiblePath.simplified();
-    visiblePath = visiblePath.intersected(circularPath(m_robotPosition, operationRadius()));
-
-    QPen bluePen(QColor(0, 0, 255, 196), m.resolution() * 0.3);
-    p.setPen(bluePen);
-    p.setBrush(Qt::NoBrush);
-    p.drawPath(visiblePath);
-
-    QPainterPath all;
-    all.addRect(0, 0, m.size().width() * m.resolution(), m.size().height() * m.resolution());
-    visiblePath = all.subtracted(visiblePath);
-    p.setPen(Qt::NoPen);
-    p.setBrush(Qt::black);
-    p.setOpacity(0.2);
-    p.drawPolygon(visiblePath.toFillPolygon());
-
-    p.setOpacity(1.0);
-    p.setBrush(Qt::NoBrush);
-    QPen dashPen(QColor(0, 0, 0, 196), m.resolution() * 0.3, Qt::DotLine);
-    p.setPen(dashPen);
-    p.drawEllipse(m_robotPosition, m_integrationRadius, m_integrationRadius);
+    p.scale(scene()->map().scaleFactor(), scene()->map().scaleFactor());
 
     // draw trajectories
-    p.setOpacity(1.0);
-    p.setPen(bluePen);
-
-    if (m_trajectory.size()) p.drawPolyline(&m_trajectory[0], m_trajectory.size());
+    p.setRenderHints(QPainter::Antialiasing, true);
+    p.setPen(Qt::blue);
     if (m_previewPath.size()) p.drawPolyline(&m_previewPath[0], m_previewPath.size());
-
-    p.setRenderHints(rh, true);
-
-    // debug: show visible cells
-    foreach (Cell* c, m_visibleCells) {
-        p.drawEllipse(c->center(), 0.05, 0.05);
-    }
 
     // debug: show gradient interpolation nodes
     p.drawEllipse(g00, 0.05, 0.05);
     p.drawEllipse(g01, 0.05, 0.05);
     p.drawEllipse(g10, 0.05, 0.05);
     p.drawEllipse(g11, 0.05, 0.05);
+
+    p.setRenderHints(QPainter::Antialiasing, false);
 }
 
 void DisCoverageBulloHandler::mouseMoveEvent(QMouseEvent* event)
 {
     ToolHandler::mouseMoveEvent(event);
-
-    if (event->buttons() & Qt::LeftButton) {
-        m_robotPosition = scene()->map().mapScreenToMap(event->posF());
-    }
 
     if (event->buttons() & Qt::RightButton) {
         QPointF robotPos = scene()->map().mapScreenToMap(event->posF());
@@ -230,7 +158,6 @@ void DisCoverageBulloHandler::mouseReleaseEvent(QMouseEvent* event)
 
 void DisCoverageBulloHandler::reset()
 {
-    m_trajectory.clear();
 }
 
 qreal DisCoverageBulloHandler::performance(const QPointF& p, const QPointF& q)
@@ -262,7 +189,7 @@ QPointF DisCoverageBulloHandler::gradient(Robot* robot, bool interpolate)
 
 QPointF DisCoverageBulloHandler::gradient(const QPointF& robotPos)
 {
-    QVector<Cell*> visibleCells = scene()->map().visibleCells(robotPos, m_integrationRadius);
+    QVector<Cell*> visibleCells = scene()->map().visibleCells(robotPos, 0.5);
 
     const qreal dx = 0.005;
     const qreal dy = 0.005;
@@ -312,21 +239,6 @@ QPointF DisCoverageBulloHandler::interpolatedGradient(const QPointF& robotPos)
 
 void DisCoverageBulloHandler::tick()
 {
-    if (m_trajectory.size() == 0) {
-        m_trajectory.append(m_robotPosition);
-    }
-
-    m_robotPosition += interpolatedGradient(m_robotPosition) * scene()->map().resolution();
-//     m_robotPosition += gradient(m_robotPosition) * scene()->map().resolution();
-
-    bool changed = scene()->map().exploreInRadius(m_robotPosition, operationRadius(), Cell::Explored);
-
-    m_trajectory.append(m_robotPosition);
-
-    if (changed)
-        scene()->map().updateCellWeights();
-
-//     m_visibleCells = scene()->map().visibleCells(m_robotPosition, m_integrationRadius);
 }
 
 void DisCoverageBulloHandler::updateVectorField()
