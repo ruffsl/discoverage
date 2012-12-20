@@ -254,9 +254,9 @@ qreal DisCoverageBulloHandler::fitness(const QPointF& robotPos, const QVector<Ce
 QPointF DisCoverageBulloHandler::gradient(Robot* robot, bool interpolate)
 {
     if (interpolate) {
-        return gradient(robot->position());
-    } else {
         return interpolatedGradient(robot->position());
+    } else {
+        return gradient(robot->position());
     }
 }
 
