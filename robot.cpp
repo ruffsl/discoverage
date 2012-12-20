@@ -129,6 +129,9 @@ void Robot::draw(QPainter& p)
     p.setBrush(Qt::NoBrush);
 
     p.drawEllipse(m_position, m_sensingRange, m_sensingRange);
+
+    // draw trajectory
+    if (m_trajectory.size()) p.drawPolyline(&m_trajectory[0], m_trajectory.size());
 }
 
 void Robot::drawRobot(QPainter& p)
