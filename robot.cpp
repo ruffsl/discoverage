@@ -221,9 +221,6 @@ void Robot::tick()
     bool changed = scene()->map().exploreInRadius(m_position, m_sensingRange, Cell::Explored);
 
     m_trajectory.append(m_position);
-
-//     if (changed)
-//         scene()->map().updateCellWeights();
 }
 
 

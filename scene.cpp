@@ -299,6 +299,8 @@ void Scene::tick()
     if (Config::self()->showDensity() || Config::self()->showDensity()) {
         m_map->updateCache();
     }
+
+    // TODO / FIXME: only update when necessary!
     map().updateCellWeights();
 
 
