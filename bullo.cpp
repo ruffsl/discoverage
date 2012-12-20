@@ -21,6 +21,7 @@
 #include "scene.h"
 #include "mainwindow.h"
 #include "tikzexport.h"
+#include "robot.h"
 
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
@@ -248,6 +249,15 @@ qreal DisCoverageBulloHandler::fitness(const QPointF& robotPos, const QVector<Ce
     }
 //     qDebug() << sum;
     return sum;
+}
+
+QPointF DisCoverageBulloHandler::gradient(Robot* robot, bool interpolate)
+{
+    if (interpolate) {
+        return gradient(robot->position());
+    } else {
+        return interpolatedGradient(robot->position());
+    }
 }
 
 QPointF DisCoverageBulloHandler::gradient(const QPointF& robotPos)

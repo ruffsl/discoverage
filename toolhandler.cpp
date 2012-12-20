@@ -190,6 +190,11 @@ void ToolHandler::highlightCurrentCell(QPainter& p)
         p.restore();
     }
 }
+
+QPointF ToolHandler::gradient(Robot* /*robot*/, bool /*interpolate*/)
+{
+    return QPointF();
+}
 //END ToolHandler
 
 

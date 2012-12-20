@@ -30,6 +30,7 @@ class Scene;
 class QSettings;
 class QTextStream;
 class QKeyEvent;
+class Robot;
 
 class ToolHandler
 {
@@ -65,6 +66,8 @@ class ToolHandler
 
         // called if a vector field is requested in all cells
         virtual void updateVectorField();
+
+        virtual QPointF gradient(Robot* robot, bool interpolate);
 
     //
     // load & save, and export

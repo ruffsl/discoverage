@@ -52,7 +52,8 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
         virtual void tick();
 
         // update vector field for all explored cells
-        void updateVectorField();
+        virtual void updateVectorField();
+        virtual QPointF gradient(Robot* robot, bool interpolate);
 
         // serialization
         virtual void load(QSettings& config);
