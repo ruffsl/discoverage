@@ -190,7 +190,6 @@ void DisCoverageHandler::draw(QPainter& p)
     highlightCurrentCell(p);
 
     GridMap &m = scene()->map();
-    p.scale(m.scaleFactor(), m.scaleFactor());
     
     QPainter::RenderHints rh = p.renderHints();
     p.setRenderHints(QPainter::Antialiasing, true);
