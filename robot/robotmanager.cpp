@@ -46,7 +46,11 @@ RobotManager::~RobotManager()
 
 void RobotManager::addRobot()
 {
-    m_robots.append(new Robot(Scene::self()));
+    Robot* robot = new Robot(Scene::self());
+    m_robots.append(robot);
+
+    if (m_robots.size() == 1)
+        setActiveRobot(robot);
 
     emit robotCountChanged();
 }
