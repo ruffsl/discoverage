@@ -117,8 +117,6 @@ void DisCoverageBulloHandler::draw(QPainter& p)
 
     highlightCurrentCell(p);
 
-    p.scale(scene()->map().scaleFactor(), scene()->map().scaleFactor());
-
     // draw trajectories
     p.setRenderHints(QPainter::Antialiasing, true);
     p.setPen(Qt::blue);

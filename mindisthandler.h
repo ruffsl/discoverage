@@ -50,17 +50,13 @@ class MinDistHandler : public QObject, public ToolHandler
         // compute vector field
         void updateVectorField();
 
+        virtual QPointF gradient(Robot* robot, bool interpolate);
+
         // serialization
         virtual void load(QSettings& config);
         virtual void save(QSettings& config);
 
     private:
-        void updateMinDist(const QPointF& robotPosition);
-
-    private:
-        double m_orientation;
-        QPointF m_robotPosition;
-        QVector<QPointF> m_trajectory;
 };
 
 #endif // MINDIST_HANDLER_H

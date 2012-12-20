@@ -177,7 +177,6 @@ void ToolHandler::highlightCurrentCell(QPainter& p)
 
         // scale by 2
         p.save();
-        p.scale(scene()->map().scaleFactor(), scene()->map().scaleFactor());
         p.translate(-cell.center());
         p.scale(2, 2);
         p.setOpacity(0.7);
@@ -218,7 +217,6 @@ void RobotHandler::draw(QPainter& p)
     highlightCurrentCell(p);
 
     GridMap &m = scene()->map();
-    p.scale(m.scaleFactor(), m.scaleFactor());
 
     QPainter::RenderHints rh = p.renderHints();
     p.setRenderHints(QPainter::Antialiasing, true);
@@ -369,10 +367,10 @@ ObstacleHandler::~ObstacleHandler()
 void ObstacleHandler::draw(QPainter& p)
 {
     ToolHandler::draw(p);
-    
+
     p.setOpacity(0.2);
-    QRectF rect(QPointF(mousePosition()), 2 * mapToScreen(scene()->map().resolution()) * QSizeF(1, 1));
-    rect.moveTo(rect.topLeft() - mapToScreen(scene()->map().resolution()) * QPointF(1, 1));
+    QRectF rect(scene()->map().mapScreenToMap(mousePosition()), 2 * QSizeF(1, 1) * scene()->map().resolution());
+    rect.moveTo(rect.topLeft() - scene()->map().resolution() * QPointF(1, 1));
     p.fillRect(rect, Qt::black);
     p.setOpacity(1.0);
 }

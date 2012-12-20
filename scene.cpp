@@ -224,8 +224,11 @@ void Scene::draw(QPaintDevice* paintDevice)
     QPainter p(paintDevice);
     m_map->draw(p);
 
+    p.scale(m_map->scaleFactor(), m_map->scaleFactor());
+
     // painter tool overlay
     m_toolHandler->draw(p);
+
 
     RobotManager::self()->draw(p);
 

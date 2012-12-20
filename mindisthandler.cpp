@@ -21,6 +21,7 @@
 #include "scene.h"
 #include "mainwindow.h"
 #include "ui_discoveragewidget.h"
+#include "robot.h"
 
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
@@ -48,19 +49,11 @@ void MinDistHandler::toolHandlerActive(bool activated)
 void MinDistHandler::save(QSettings& config)
 {
     ToolHandler::save(config);
-
-    config.beginGroup("min-dist");
-    config.setValue("robot-position", m_robotPosition);
-    config.endGroup();
 }
 
 void MinDistHandler::load(QSettings& config)
 {
     ToolHandler::load(config);
-
-    config.beginGroup("dis-coverage");
-    m_robotPosition = config.value("robot-position", QPointF(0.0, 0.0)).toPointF();
-    config.endGroup();
 }
 
 void MinDistHandler::draw(QPainter& p)
@@ -68,36 +61,11 @@ void MinDistHandler::draw(QPainter& p)
     ToolHandler::draw(p);
 
     highlightCurrentCell(p);
-
-    GridMap &m = scene()->map();
-    p.scale(m.scaleFactor(), m.scaleFactor());
-    
-    QPainter::RenderHints rh = p.renderHints();
-    p.setRenderHints(QPainter::Antialiasing, true);
-
-    QPen bluePen(QColor(0, 0, 255, 196), m.resolution() * 0.3);
-    p.setPen(bluePen);
-    p.setOpacity(0.2);
-    p.setBrush(QBrush(Qt::blue));
-    p.drawEllipse(m_robotPosition, operationRadius(), operationRadius());
-    p.setOpacity(1.0);
-
-    if (m_trajectory.size()) p.drawPolyline(&m_trajectory[0], m_trajectory.size());
-
-    p.setPen(QPen(Qt::red, m.resolution() * 0.5));
-    p.drawLine(m_robotPosition, m_robotPosition + QPointF(cos(m_orientation), sin(m_orientation)) * scene()->map().resolution());
-
-    p.setRenderHints(rh, true);
 }
 
 void MinDistHandler::mouseMoveEvent(QMouseEvent* event)
 {
     ToolHandler::mouseMoveEvent(event);
-
-    if (event->buttons() & Qt::LeftButton) {
-        m_robotPosition = scene()->map().mapScreenToMap(event->posF());
-        updateMinDist(m_robotPosition);
-    }
 }
 
 void MinDistHandler::mousePressEvent(QMouseEvent* event)
@@ -107,20 +75,10 @@ void MinDistHandler::mousePressEvent(QMouseEvent* event)
 
 void MinDistHandler::reset()
 {
-    m_trajectory.clear();
 }
 
 void MinDistHandler::tick()
 {
-    if (m_trajectory.size() == 0) {
-        m_trajectory.append(m_robotPosition);
-    }
-
-    updateMinDist(m_robotPosition);
-    m_robotPosition += QPointF(cos(m_orientation), sin(m_orientation)) * scene()->map().resolution();
-    scene()->map().exploreInRadius(m_robotPosition, operationRadius(), true);
-
-    m_trajectory.append(m_robotPosition);
 }
 
 void MinDistHandler::updateVectorField()
@@ -143,21 +101,21 @@ void MinDistHandler::updateVectorField()
                         shortestPathIndex = i;
                     }
                 }
-                QPointF gradient(0, 0);
+                QPointF grad(0, 0);
                 if (shortestPathIndex != -1 && paths[shortestPathIndex].m_path.size()) {
-                    gradient = paths[shortestPathIndex].m_path[1] - paths[shortestPathIndex].m_path[0];
-                    gradient /= sqrt(gradient.x()*gradient.x() + gradient.y()*gradient.y());
+                    grad = paths[shortestPathIndex].m_path[1] - paths[shortestPathIndex].m_path[0];
+                    grad /= sqrt(grad.x()*grad.x() + grad.y()*grad.y());
                 }
-                c.setGradient(gradient);
+                c.setGradient(grad);
             }
         }
     }
 }
 
-void MinDistHandler::updateMinDist(const QPointF& robotPosition)
+QPointF MinDistHandler::gradient(Robot* robot, bool /*interpolate*/)
 {
     GridMap& m = scene()->map();
-    QPoint pt = m.mapMapToCell(robotPosition);
+    QPoint pt = m.mapMapToCell(robot->position());
     QList<Path> allPaths = m.frontierPaths(pt);
     double shortestPath = 1000000000.0;
     int shortestPathIndex = -1;
@@ -169,40 +127,23 @@ void MinDistHandler::updateMinDist(const QPointF& robotPosition)
         }
     }
 
-//     // prefer the current orientation
-//     for (int i = 0; i < allPaths.size(); ++i) {
-//         if (i == shortestPathIndex) continue;
-// 
-//         if (allPaths[i].m_length - 1.4142*m.resolution() < shortestPath) {
-// 
-//             const QPointF cellCenter = scene()->map().cell(allPaths[i].m_path[1]).rect().center();
-// 
-//             // pos is continuous robot position
-//             // cellCenter is center of 2nd path cell
-//             const double dx = cellCenter.x() - robotPosition.x();
-//             const double dy = cellCenter.y() - robotPosition.y();
-// 
-//             double newOrientation = atan2(dy, dx);
-//             double oDiff = (M_PI/4.0 - qMin(fabs(m_orientation - newOrientation), M_PI/4.0)) / (M_PI/4.0);
-//             if (allPaths[i].m_length - oDiff * 1.4142 * m.resolution() < shortestPath) {
-//                 shortestPath = allPaths[i].m_length;
-//                 shortestPathIndex = i;
-//             }
-//         }
-//     }
-
     if (shortestPathIndex < 0 || allPaths[shortestPathIndex].m_path.size() < 2) {
-        return;
+        return QPointF(0, 0);
     }
 
     const QPointF cellCenter = scene()->map().cell(allPaths[shortestPathIndex].m_path[1]).rect().center();
 
     // pos is continuous robot position
     // cellCenter is center of 2nd path cell
-    const double dx = cellCenter.x() - robotPosition.x();
-    const double dy = cellCenter.y() - robotPosition.y();
+    const double dx = cellCenter.x() - robot->position().x();
+    const double dy = cellCenter.y() - robot->position().y();
 
-    m_orientation = atan2(dy, dx);
+    QPointF grad(dx, dy);
+    if (!grad.isNull()) {
+        grad /= sqrt(grad.x()*grad.x() + grad.y()*grad.y());
+    }
+
+    return grad;
 }
 //END MinDistHandler
 
