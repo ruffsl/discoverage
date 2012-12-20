@@ -153,15 +153,20 @@ void Robot::drawSensedArea(QPainter& p)
 
 void Robot::draw(QPainter& p)
 {
+    p.setRenderHints(QPainter::Antialiasing, true);
+
     drawRobot(p);
 
     p.setPen(QPen(QColor(0, 0, 0, 196), map()->resolution() * 0.3, Qt::DotLine));
-    p.drawEllipse(m_position, m_sensingRange, m_sensingRange);
+    p.setBrush(Qt::NoBrush);
+    p.drawEllipse(m_position, 0.5, 0.5);
 
     drawSensedArea(p);
 
     // draw trajectory
     if (m_trajectory.size()) p.drawPolyline(&m_trajectory[0], m_trajectory.size());
+
+    p.setRenderHints(QPainter::Antialiasing, false);
 }
 
 void Robot::drawRobot(QPainter& p)
