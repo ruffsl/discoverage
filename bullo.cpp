@@ -67,14 +67,15 @@ DisCoverageBulloHandler::~DisCoverageBulloHandler()
 
 void DisCoverageBulloHandler::toolHandlerActive(bool activated)
 {
-    dockWidget()->setVisible(activated);
+//     dockWidget()->setVisible(activated);
 }
 
 QDockWidget* DisCoverageBulloHandler::dockWidget()
 {
     if (!m_dock) {
-        m_dock = new QDockWidget("DisCoverage", scene()->mainWindow());
-        m_dock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
+//         m_dock = new QDockWidget("DisCoverage", scene()->mainWindow());
+//         m_dock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
+
 //         m_ui = new Ui::DisCoverageWidget();
 //         QWidget* w = new QWidget();
 //         m_ui->setupUi(w);
@@ -86,7 +87,7 @@ QDockWidget* DisCoverageBulloHandler::dockWidget()
 //         connect(m_ui->chkShowVectorField, SIGNAL(toggled(bool)), this, SLOT(showVectorField(bool)));
 //         connect(m_ui->sbVisionRaius, SIGNAL(valueChanged(double)), this, SLOT(updateParameters()));
 
-        updateParameters();
+//         updateParameters();
     }
     return m_dock;
 }
