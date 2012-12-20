@@ -163,7 +163,7 @@ void ToolHandler::drawOperationRadius(QPainter& p)
     QPainter::RenderHints rh = p.renderHints();
     p.setRenderHints(QPainter::Antialiasing, true);
     p.setBrush(QBrush(Qt::blue));
-    p.drawEllipse(QPointF(mousePosition()), mapToScreen(operationRadius()), mapToScreen(operationRadius()));
+    p.drawEllipse(scene()->map().mapScreenToMap(mousePosition()), operationRadius(), operationRadius());
     p.setRenderHints(rh, true);
     p.setOpacity(1.0);
 }
