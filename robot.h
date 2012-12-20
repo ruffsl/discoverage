@@ -36,18 +36,24 @@ class Robot
         Robot(Scene *scene);
         virtual ~Robot();
 
-    void setPosition(const QPointF& position);
-    const QPointF& position() const;
+        bool isActive() const;
 
-    void setSensingRange(qreal sensingRange);
-    qreal sensingRange() const;
+        void tick();
 
-    void clearTrajectory();
+    //
+    // Robot properties
+    //
+    public:
+        void setPosition(const QPointF& position);
+        const QPointF& position() const;
 
-    bool isActive() const;
+        void setSensingRange(qreal sensingRange);
+        qreal sensingRange() const;
 
-    void setFillSensingRange(bool fill);
-    bool fillSensingRange() const;
+        void clearTrajectory();
+
+        void setFillSensingRange(bool fill);
+        bool fillSensingRange() const;
 
     //
     // environment information

@@ -159,4 +159,21 @@ void Robot::save(QSettings& config)
     config.setValue("fill-sensing-range", fillSensingRange());
 }
 
+void Robot::tick()
+{
+    if (m_trajectory.size() == 0) {
+        m_trajectory.append(m_position);
+    }
+
+    m_position += scene()->toolHandler()->gradient(this, true) * scene()->map().resolution();
+
+    bool changed = scene()->map().exploreInRadius(m_position, m_sensingRange, Cell::Explored);
+
+    m_trajectory.append(m_position);
+
+//     if (changed)
+//         scene()->map().updateCellWeights();
+}
+
+
 // kate: replace-tabs on; indent-width 4;
