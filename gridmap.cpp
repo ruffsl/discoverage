@@ -567,18 +567,21 @@ QVector<Cell*> GridMap::visibleCells(const QPointF& robotPos, double radius)
     const qreal x = robotPos.x();
     const qreal y = robotPos.y();
 
-    const int cellRadius = ceil(radius / resolution());
-
     int cellX = x / resolution();
     int cellY = y / resolution();
+
+    QVector<Cell*> cellVector;
+    if (!isValidField(cellX, cellY)) {
+        return cellVector;
+    }
+
+    const int cellRadius = ceil(radius / resolution());
 
     int xStart = qMax(0, cellX - cellRadius);
     int xEnd = qMin(size().width() - 1, cellX + cellRadius);
 
     int yStart = qMax(0, cellY - cellRadius - 1);
     int yEnd = qMin(size().height() - 1, cellY + cellRadius);
-
-    QVector<Cell*> cellVector;
 
     for (int a = xStart; a <= xEnd; ++a) {
         for (int b = yStart; b <= yEnd; ++b) {
