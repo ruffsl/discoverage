@@ -289,6 +289,9 @@ GridMap& Scene::map()
 void Scene::reset()
 {
     m_toolHandler->reset();
+    for (int i = 0; i < RobotManager::self()->count(); ++i) {
+        RobotManager::self()->robot(i)->reset();
+    }
     update();
 }
 

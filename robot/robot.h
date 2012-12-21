@@ -38,7 +38,8 @@ class Robot
 
         bool isActive() const;
 
-        void tick();
+        virtual void tick();
+        virtual void reset();
 
     //
     // Robot properties

@@ -223,5 +223,9 @@ void Robot::tick()
     m_trajectory.append(m_position);
 }
 
+void Robot::reset()
+{
+    clearTrajectory();
+}
 
 // kate: replace-tabs on; indent-width 4;
