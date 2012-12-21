@@ -248,8 +248,8 @@ QMouseEvent Scene::constrainEvent(QMouseEvent* event)
     QPoint pos = event->pos();
     if (pos.x() < 0) pos.setX(0);
     if (pos.y() < 0) pos.setY(0);
-    if (pos.x() >= width()) pos.setX(width() - 1);
-    if (pos.y() >= height()) pos.setY(height() - 1);
+    if (pos.x() >= width()) pos.setX(width() - 2);
+    if (pos.y() >= height()) pos.setY(height() - 2);
     return QMouseEvent(event->type(), pos, event->button(), event->buttons(), event->modifiers());
 }
 
