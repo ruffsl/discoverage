@@ -256,6 +256,7 @@ QMouseEvent Scene::constrainEvent(QMouseEvent* event)
 void Scene::mouseMoveEvent(QMouseEvent* event)
 {
     QMouseEvent constrainedEvent(constrainEvent(event));
+    ToolHandler::updateCurrentCell(constrainedEvent.pos());
     m_toolHandler->mouseMoveEvent(&constrainedEvent);
     update();
 }
@@ -267,6 +268,7 @@ void Scene::mousePressEvent(QMouseEvent* event)
     }
 
     QMouseEvent constrainedEvent(constrainEvent(event));
+    ToolHandler::updateCurrentCell(constrainedEvent.pos());
     m_toolHandler->mousePressEvent(&constrainedEvent);
     update();
 }

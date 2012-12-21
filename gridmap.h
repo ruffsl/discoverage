@@ -89,7 +89,8 @@ class GridMap : public QObject
         }
         
         QPoint mapScreenToCell(const QPointF& screenPos) const {
-            return (screenPos / (scaleFactor() * resolution())).toPoint();
+            QPointF pt(screenPos / (scaleFactor() * resolution()));
+            return QPoint(pt.x(), pt.y());
         }
 
         qreal mapScreenToMap(qreal screenPos) const {

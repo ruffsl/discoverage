@@ -35,17 +35,21 @@ class Robot;
 class ToolHandler
 {
     public:
+        static void setCurrentCell(const QPoint& cellIndex);
+        static void updateCurrentCell(const QPoint& mousePos);
+        static QPoint cellForMousePosition(const QPoint& mousePosition);
+
+        static void setOperationRadius(double radius);
+        static qreal operationRadius();
+
+    public:
         ToolHandler(Scene* scene);
         virtual ~ToolHandler();
 
         Scene* scene() const;
-        QPoint cellForMousePosition(const QPoint& mousePosition) const;
 
         QPoint currentCell() const;
         QPoint mousePosition() const;
-
-        static void setOperationRadius(double radius);
-        static qreal operationRadius();
 
         int mapToCell(qreal screenPos) const;
         qreal mapToMap(qreal screenPos) const;
@@ -57,7 +61,7 @@ class ToolHandler
     public:
         virtual void draw(QPainter& p);
         virtual void mouseMoveEvent(QMouseEvent* event);
-        virtual void mousePressEvent(QMouseEvent* event) = 0;
+        virtual void mousePressEvent(QMouseEvent* event);
         virtual void mouseReleaseEvent(QMouseEvent* event);
         virtual void keyPressEvent(QKeyEvent* event);
         virtual void toolHandlerActive(bool activated);
@@ -79,9 +83,6 @@ class ToolHandler
         virtual void exportToTikz(QTextStream& ts);
 
     private:
-        void setCurrentCell(const QPoint& cell);
-
-    private:
         Scene* m_scene;
         static QPoint s_currentCell;
         static QPoint s_mousePosition;
@@ -96,17 +97,9 @@ class RobotHandler : public ToolHandler
 
     public:
         virtual void draw(QPainter& p);
-        virtual void mouseMoveEvent(QMouseEvent* event);
-        virtual void mousePressEvent(QMouseEvent* event);
-        virtual void keyPressEvent(QKeyEvent* event);
-
-    private:
-        void updateDisCoverage();
-        float disCoverage(const QPointF& pos, float delta, const QPointF& q, const Path& path);
 
     private:
         QList<Path> m_allPaths;
-        double m_delta;
 };
 
 class ObstacleHandler : public ToolHandler

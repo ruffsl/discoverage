@@ -51,15 +51,24 @@ Scene* ToolHandler::scene() const
     return m_scene;
 }
 
-QPoint ToolHandler::cellForMousePosition(const QPoint& mousePosition) const
+QPoint ToolHandler::cellForMousePosition(const QPoint& mousePosition)
 {
-    return QPoint(mapToCell(mousePosition.x()), mapToCell(mousePosition.y()));
+    return Scene::self()->map().mapScreenToCell(mousePosition);
 }
 
-void ToolHandler::setCurrentCell(const QPoint& cell)
+void ToolHandler::setCurrentCell(const QPoint& cellIndex)
 {
-    s_currentCell = cell;
-    scene()->mainWindow()->setStatusPosition(cell + QPoint(1, 1));
+    s_currentCell = cellIndex;
+    Scene::self()->mainWindow()->setStatusPosition(cellIndex + QPoint(1, 1));
+}
+
+void ToolHandler::updateCurrentCell(const QPoint& mousePos)
+{
+    const QPoint cellIndex = cellForMousePosition(mousePos);
+    if (Scene::self()->map().isValidField(cellIndex.x(), cellIndex.y())) {
+        setCurrentCell(cellIndex);
+        s_mousePosition = mousePos;
+    }
 }
 
 QPoint ToolHandler::currentCell() const
@@ -101,12 +110,23 @@ void ToolHandler::draw(QPainter& p)
 {
 }
 
+void ToolHandler::mousePressEvent(QMouseEvent* event)
+{
+    if (event->buttons() & Qt::LeftButton) {
+        if (Robot* robot = RobotManager::self()->activeRobot()) {
+            QPointF pos = scene()->map().mapScreenToMap(event->posF());
+            robot->setPosition(pos);
+        }
+    }
+}
+
 void ToolHandler::mouseMoveEvent(QMouseEvent* event)
 {
-    const QPoint cell = cellForMousePosition(event->pos());
-    if (scene()->map().isValidField(cell.x(), cell.y())) {
-        setCurrentCell(cell);
-        s_mousePosition = event->pos();
+    if (event->buttons() & Qt::LeftButton) {
+        if (Robot* robot = RobotManager::self()->activeRobot()) {
+            QPointF pos = scene()->map().mapScreenToMap(event->posF());
+            robot->setPosition(pos);
+        }
     }
 }
 
@@ -116,7 +136,11 @@ void ToolHandler::mouseReleaseEvent(QMouseEvent* event)
 
 void ToolHandler::keyPressEvent(QKeyEvent* event)
 {
-    event->ignore();
+    int index = event->key() - Qt::Key_1;
+
+    if (index >= 0 && index < RobotManager::self()->count()) {
+        RobotManager::self()->setActiveRobot(RobotManager::self()->robot(index));
+    }
 }
 
 void ToolHandler::toolHandlerActive(bool activated)
@@ -229,125 +253,8 @@ void RobotHandler::draw(QPainter& p)
         }
     }
 
-    if (m_allPaths.size()) {
-        const QPointF& pathPt = m_allPaths.first().m_path[0];
-        const QPointF pt = m.cell(pathPt.x(), pathPt.y()).rect().center();
-        p.setPen(QPen(Qt::red, 0.2));
-        p.drawLine(pt, pt + QPointF(cos(m_delta), sin(m_delta)));
-    }
-
     p.setRenderHints(rh, true);
 }
-
-void RobotHandler::mouseMoveEvent(QMouseEvent* event)
-{
-    ToolHandler::mouseMoveEvent(event);
-
-    if (event->buttons() & Qt::LeftButton) {
-        updateDisCoverage();
-
-        if (Robot* robot = RobotManager::self()->activeRobot()) {
-            QPointF pos = scene()->map().mapScreenToMap(event->posF());
-            robot->setPosition(pos);
-        }
-    }
-}
-
-void RobotHandler::mousePressEvent(QMouseEvent* event)
-{
-    mouseMoveEvent(event);
-}
-
-void RobotHandler::keyPressEvent(QKeyEvent* event)
-{
-    int index = event->key() - Qt::Key_1;
-
-    if (index >= 0 && index < RobotManager::self()->count()) {
-        RobotManager::self()->setActiveRobot(RobotManager::self()->robot(index));
-    }
-}
-
-void RobotHandler::updateDisCoverage()
-{
-    GridMap&m = scene()->map();
-    QPoint pt = currentCell();
-    const QSet<Cell*>& frontiers = scene()->map().frontiers();
-    m_allPaths.clear();
-    m_allPaths = m.frontierPaths(pt);
-    for (int i = 0; i < m_allPaths.size(); ++i) {
-        m_allPaths[i].beautify(m);
-    }
-
-    float delta = -M_PI;
-    QPointF pi = m.cell(pt.x(), pt.y()).rect().center();
-    float sMax = 0.0f;
-    float deltaMax = 0.0f;
-    while (delta < M_PI) {
-        float s = 0;
-        int i = 0;
-        foreach (Cell* q, frontiers) {
-            s += disCoverage(pi, delta, q->rect().center(), m_allPaths[i]);
-            ++i;
-        }
-
-        if (s > sMax) {
-            sMax = s;
-            deltaMax = delta;
-        }
-//         qDebug() << s;
-        delta += 0.1f;
-    }
-
-    qDebug() << deltaMax << sMax;
-    m_delta = deltaMax;
-}
-
-float RobotHandler::disCoverage(const QPointF& pos, float delta, const QPointF& q, const Path& path)
-{
-    if (path.m_path.size() < 2) {
-        return 0.0f;
-    }
-
-    const float theta = 0.5;
-    const float sigma = 2.0;
-
-    const QPoint& p1 = path.m_path[0];
-    const QPoint& p2 = path.m_path[1];
-
-    const float dx = p2.x() - p1.x();
-    const float dy = p2.y() - p1.y();
-
-    float alpha = - delta + atan2(dy, dx);
-
-    if (alpha > M_PI) alpha -= 2 * M_PI;
-    else if (alpha < -M_PI) alpha += 2 * M_PI;
-
-    float len = path.m_length*0.2;
-
-    return exp(- alpha*alpha/(2.0*theta*theta)
-               - len*len/(2.0*sigma*sigma));
-}
-
-#if 0
-float RobotHandler::disCoverage(const QPointF& pos, float delta, const QPointF& q, const Path& path)
-{
-    const float theta = 0.5;
-    const float sigma = 2.0;
-
-    const float dx = q.x() - pos.x();
-    const float dy = q.y() - pos.y();
-
-    float alpha = - delta + atan2(dy, dx);
-
-    if (alpha > M_PI) alpha -= 2 * M_PI;
-    else if (alpha < -M_PI) alpha += 2 * M_PI;
-
-    float len = path.m_length*0.2;
-
-    return exp(- alpha*alpha/(2.0*theta*theta)
-               - len*len/(2.0*sigma*sigma));
-}
-#endif
 //END RobotHandler
 
 
@@ -377,8 +284,6 @@ void ObstacleHandler::draw(QPainter& p)
 
 void ObstacleHandler::mouseMoveEvent(QMouseEvent* event)
 {
-    ToolHandler::mouseMoveEvent(event);
-
     if (event->buttons() & Qt::LeftButton) {
         updateObstacles();
     }
@@ -386,7 +291,6 @@ void ObstacleHandler::mouseMoveEvent(QMouseEvent* event)
 
 void ObstacleHandler::mousePressEvent(QMouseEvent* event)
 {
-    mouseMoveEvent(event);
 }
 
 void ObstacleHandler::updateObstacles()
@@ -446,8 +350,6 @@ void ExplorationHandler::draw(QPainter& p)
 
 void ExplorationHandler::mouseMoveEvent(QMouseEvent* event)
 {
-    ToolHandler::mouseMoveEvent(event);
-
     if (event->buttons() & Qt::LeftButton) {
         updateExploredState();
     }
@@ -455,7 +357,6 @@ void ExplorationHandler::mouseMoveEvent(QMouseEvent* event)
 
 void ExplorationHandler::mousePressEvent(QMouseEvent* event)
 {
-    mouseMoveEvent(event);
 }
 
 void ExplorationHandler::updateExploredState()
