@@ -40,7 +40,7 @@ class Path
         QList<QPoint> m_path;
         float m_cost;
         float m_length;
-        
+
         void beautify(GridMap& gridMap, bool computeExactLength = true);
 };
 
@@ -80,41 +80,41 @@ class GridMap : public QObject
         void incScaleFactor();          // increase zoom factor
         void decScaleFactor();          // decrease zoom factor
 
-        qreal resolution() const;       // grid resolution. 0.2 means 0.2m x 0.2m
+        inline qreal resolution() const;// grid resolution. 0.2 means 0.2m x 0.2m
         QSize size() const;             // amount of cells in the grid map in
         QPointF center() const;         // returns the center of the map in physical coordinates
 
         inline int mapScreenToCell(qreal screenPos) const {
             return screenPos / (scaleFactor() * resolution());
         }
-        
-        QPoint mapScreenToCell(const QPointF& screenPos) const {
+
+        inline QPoint mapScreenToCell(const QPointF& screenPos) const {
             QPointF pt(screenPos / (scaleFactor() * resolution()));
             return QPoint(pt.x(), pt.y());
         }
 
-        qreal mapScreenToMap(qreal screenPos) const {
+        inline qreal mapScreenToMap(qreal screenPos) const {
             return screenPos / scaleFactor();
         }
-        
-        QPointF mapScreenToMap(const QPointF& screenPos) const {
+
+        inline QPointF mapScreenToMap(const QPointF& screenPos) const {
             return screenPos / scaleFactor();
         }
-        
-        int mapMapToCell(qreal mapPos) const {
+
+        inline int mapMapToCell(qreal mapPos) const {
             return mapPos / resolution();
         }
-        
-        QPoint mapMapToCell(const QPointF& mapPos) const {
+
+        inline QPoint mapMapToCell(const QPointF& mapPos) const {
             return QPoint(mapPos.x() / resolution(), mapPos.y() / resolution());
         }
 
 
-        qreal mapMapToScreen(qreal mapPos) const {
+        inline qreal mapMapToScreen(qreal mapPos) const {
             return mapPos * scaleFactor();
         }
 
-        QPointF mapMapToScreen(const QPointF& mapPos) const {
+        inline QPointF mapMapToScreen(const QPointF& mapPos) const {
             return mapPos * scaleFactor();
         }
 
@@ -124,13 +124,7 @@ class GridMap : public QObject
     public:
         Cell& cell(int xIndex, int yIndex);                     // cell accessor
         Cell& cell(const QPointF & index);                      // cell accessor
-        inline bool isValidField(int xIndex, int yIndex) const  // index check for 
-        {
-            return xIndex >= 0 &&
-            yIndex >= 0 &&
-            xIndex < m_map.size() &&
-            yIndex < m_map[0].size();
-        }
+        inline bool isValidField(int xIndex, int yIndex) const; // index check for
 
         bool setState(Cell& cell, Cell::State newState);        // modify cell state
         const QSet<Cell*>& frontiers() const;                   // cached list of all frontiers
@@ -155,7 +149,6 @@ class GridMap : public QObject
     public:
         bool pathVisible(const QPoint& from, const QPoint& to);
         bool aaPathVisible(const QPoint& from, const QPoint& to);
-        bool DrawWuLine (const QPoint& from, const QPoint& to);
         QList<Path> frontierPaths(const QPoint& start);
         Path aStar(const QPoint& from, const QPoint& to);
         float heuristic(const QPoint& start, const QPoint& end);
@@ -175,6 +168,23 @@ class GridMap : public QObject
         int m_freeCellCount;
         int m_exploredCellCount;
 };
+
+//
+// inline methods
+//
+
+qreal GridMap::resolution() const
+{
+    return m_resolution;
+}
+
+bool GridMap::isValidField(int xIndex, int yIndex) const
+{
+    return xIndex >= 0 &&
+    yIndex >= 0 &&
+    xIndex < m_map.size() &&
+    yIndex < m_map[0].size();
+}
 
 #endif // GRIDMAP_H
 

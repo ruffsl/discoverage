@@ -272,11 +272,6 @@ void GridMap::decScaleFactor()
     Config::self()->zoomOut();
 }
 
-qreal GridMap::resolution() const
-{
-    return m_resolution;
-}
-
 void GridMap::updateCellWeights()
 {
     Q_ASSERT(m_map.size() > 0);
@@ -340,7 +335,7 @@ void GridMap::updateCache()
 void GridMap::draw(QPainter& p)
 {
     p.drawPixmap(0, 0, m_pixmapCache);
-    
+
 //     p.scale(scaleFactor(), scaleFactor());
 //     foreach (Cell* c, m_frontierCache) {
 //         p.fillRect(c->rect(), Qt::blue);
