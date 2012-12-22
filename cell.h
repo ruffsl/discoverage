@@ -56,36 +56,33 @@ class Cell
         const QRectF& rect() const;
         const QPointF center() const;
 
-        inline bool isObstacle() const {
-            return m_state & Obstacle;
-        }
+        inline bool isObstacle() const
+        { return m_state & Obstacle; }
 
-        inline bool isPassable() const {
-            return ! ((m_state & Explored) && (m_state & Obstacle));
-        }
+        inline State state() const
+        { return m_state; }
 
-        inline State state() const {
-            return m_state;
-        }
-        
         // get density
         inline float density() const
         { return m_density; }
 
         // set density
-        void setDensity(float density);
+        inline void setDensity(float density)
+        { m_density = density; }
 
         // get gradient
         inline QPointF gradient()  const
         { return m_gradient; }
-        
+
         // set gradient
-        void setGradient(const QPointF& gradient);
+        inline void setGradient(const QPointF& gradient)
+        { m_gradient = gradient; }
 
         inline float frontierDist() const
         { return m_frontierDist; }
 
-        void setFrontierDist(float dist);
+        inline void setFrontierDist(float dist)
+        { m_frontierDist = dist; }
 
     //
     // load & save + export

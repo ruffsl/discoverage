@@ -415,14 +415,6 @@ bool GridMap::setState(Cell& cell, Cell::State state)
     return oldState != newState;
 }
 
-bool GridMap::isValidField(int xIndex, int yIndex) const
-{
-    return xIndex >= 0 &&
-           yIndex >= 0 &&
-           xIndex < m_map.size() &&
-           yIndex < m_map[0].size();
-}
-
 inline static bool inCircle(qreal x, qreal y, qreal radius, qreal px, qreal py)
 {
     qreal dx = x - px;
@@ -1195,7 +1187,7 @@ void GridMap::computeDistanceTransform()
                     continue;
 
                 // remove all entry
-                queue.removeAll(cell);
+                queue.removeOne(cell);
             }
 
             cell->setFrontierDist(dist);

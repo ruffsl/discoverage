@@ -124,7 +124,14 @@ class GridMap : public QObject
     public:
         Cell& cell(int xIndex, int yIndex);                     // cell accessor
         Cell& cell(const QPointF & index);                      // cell accessor
-        bool isValidField(int xIndex, int yIndex) const;        // index check for 
+        inline bool isValidField(int xIndex, int yIndex) const  // index check for 
+        {
+            return xIndex >= 0 &&
+            yIndex >= 0 &&
+            xIndex < m_map.size() &&
+            yIndex < m_map[0].size();
+        }
+
         bool setState(Cell& cell, Cell::State newState);        // modify cell state
         const QSet<Cell*>& frontiers() const;                   // cached list of all frontiers
 

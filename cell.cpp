@@ -161,21 +161,6 @@ void Cell::setState(State newState)
     }
 }
 
-void Cell::setDensity(float density)
-{
-    m_density = density;
-}
-
-void Cell::setGradient(const QPointF& gradient)
-{
-    m_gradient = gradient;
-}
-
-void Cell::setFrontierDist(float dist)
-{
-    m_frontierDist = dist;
-}
-
 QDataStream& Cell::load(QDataStream& ds)
 {
     qint32 s;
