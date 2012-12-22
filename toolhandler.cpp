@@ -357,6 +357,9 @@ void ExplorationHandler::mouseMoveEvent(QMouseEvent* event)
 
 void ExplorationHandler::mousePressEvent(QMouseEvent* event)
 {
+    if (event->buttons() & Qt::LeftButton) {
+        updateExploredState();
+    }
 }
 
 void ExplorationHandler::updateExploredState()
