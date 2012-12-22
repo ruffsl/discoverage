@@ -41,7 +41,7 @@ class Path
         float m_cost;
         float m_length;
         
-        void beautify(GridMap& gridMap);
+        void beautify(GridMap& gridMap, bool computeExactLength = true);
 };
 
 class GridMap : public QObject

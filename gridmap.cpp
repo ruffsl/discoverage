@@ -61,7 +61,7 @@ static int directionMap[16][2] = {
     { -1, -2}   // top top bottom left
 };
 
-void Path::beautify(GridMap& gridMap)
+void Path::beautify(GridMap& gridMap, bool computeExactLength)
 {
 // Complexity: O(n)
 //     int start = 0;
@@ -115,6 +115,14 @@ void Path::beautify(GridMap& gridMap)
         }
         start = mid;
         mid = m_path.size() - 1;
+    }
+
+    if (computeExactLength) {
+        m_length = 0;
+        for (int i = 0; i < m_path.size() - 1; ++i) {
+            const QPoint d(m_path[i+1] - m_path[i]);
+            m_length += sqrt(d.x()*d.x() + d.y()*d.y());
+        }
     }
 }
 
