@@ -93,6 +93,7 @@ void Cell::draw(QPainter& p, bool showDensity, bool showGradient)
     static QBrush sBrushFree = QBrush(QColor(255, 255, 255));
 
     p.setPen(Qt::NoPen);
+    p.setBrush(Qt::NoBrush);
     if (m_state & Free) {
         p.fillRect(m_rect, sBrushFree);
     } else {
@@ -103,14 +104,16 @@ void Cell::draw(QPainter& p, bool showDensity, bool showGradient)
         p.setPen(Qt::gray);
         p.drawRect(m_rect);
     } else if (m_state & Frontier) {
-        p.fillRect(m_rect, sBrushFrontier);
+        p.setBrush(sBrushFrontier);
         p.setPen(Qt::gray);
         p.drawRect(m_rect);
     } else if (!(m_state & Obstacle)) { // m_state & Explored
         if (showDensity) {
             p.fillRect(m_rect, densityToColor(m_density));
         } else {
-            p.fillRect(m_rect, Qt::white);
+            p.setPen(Qt::white);
+            p.setBrush(sBrushFree);
+            p.drawRect(m_rect);
         }
 
         if (showGradient && !m_gradient.isNull()) {

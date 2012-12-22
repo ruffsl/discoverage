@@ -357,7 +357,6 @@ void GridMap::updateCell(Cell& cell)
 {
     QPainter p(&m_pixmapCache);
     p.scale(scaleFactor(), scaleFactor());
-    p.setPen(Qt::lightGray);
     cell.draw(p, Config::self()->showDensity(), Config::self()->showVectorField());
 }
 
