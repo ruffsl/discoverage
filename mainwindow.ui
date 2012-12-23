@@ -38,8 +38,8 @@
       <widget class="QWidget" name="scrollAreaWidgetContents">
        <property name="geometry">
         <rect>
-         <x>0</x>
-         <y>78</y>
+         <x>9</x>
+         <y>86</y>
          <width>681</width>
          <height>383</height>
         </rect>
@@ -123,6 +123,7 @@
    <addaction name="actionZoomOut"/>
    <addaction name="actionZoomIn"/>
    <addaction name="separator"/>
+   <addaction name="actionPartition"/>
    <addaction name="actionDensity"/>
    <addaction name="actionVectorField"/>
    <addaction name="actionStatistics"/>
@@ -352,6 +353,21 @@
    </property>
    <property name="toolTip">
     <string>Show density</string>
+   </property>
+  </action>
+  <action name="actionPartition">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="app.qrc">
+     <normaloff>:/icons/icons/partition.png</normaloff>:/icons/icons/partition.png</iconset>
+   </property>
+   <property name="text">
+    <string>Partition</string>
+   </property>
+   <property name="toolTip">
+    <string>Show Partition</string>
    </property>
   </action>
  </widget>
