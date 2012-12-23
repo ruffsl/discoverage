@@ -372,8 +372,8 @@ bool GridMap::setState(Cell& cell, Cell::State state)
     const bool isFree  = newState & Cell::Free;
     const bool wasExplored = oldState & Cell::Explored;
     const bool isExplored  = newState & Cell::Explored;
-    const bool wasObstacle = oldState & Cell::Obstacle;
-    const bool isObstacle  = newState & Cell::Obstacle;
+//     const bool wasObstacle = oldState & Cell::Obstacle;
+//     const bool isObstacle  = newState & Cell::Obstacle;
 
     // update frontier cache
     if (wasFrontier && !isFrontier) {
@@ -549,9 +549,6 @@ bool GridMap::exploreInRadius(const QPointF& robotPos, double radius, bool markA
             }
         }
     }
-
-//     if (changed)
-//         m_scene->update();
 
     return changed;
 }
@@ -994,12 +991,12 @@ bool GridMap::aaPathVisible(const QPoint& from, const QPoint& to)
     short Y0 = from.y();
     short X1 = to.x();
     short Y1 = to.y();
-    
-    short NumLevels = 256;
-    unsigned short IntensityBits = 8;
 
-    unsigned short IntensityShift, ErrorAdj, ErrorAcc;
-    unsigned short ErrorAccTemp, Weighting, WeightingComplementMask;
+//     short NumLevels = 256;
+//     unsigned short IntensityBits = 8;
+
+    unsigned short /*IntensityShift,*/ ErrorAdj, ErrorAcc;
+    unsigned short ErrorAccTemp/*, Weighting, WeightingComplementMask*/;
     short DeltaX, DeltaY, Temp, XDir;
 
     /* Make sure the line runs top to bottom */
@@ -1048,10 +1045,10 @@ bool GridMap::aaPathVisible(const QPoint& from, const QPoint& to)
     /* Line is not horizontal, diagonal, or vertical */
     ErrorAcc = 0;  /* initialize the line error accumulator to 0 */
     /* # of bits by which to shift ErrorAcc to get intensity level */
-    IntensityShift = 16 - IntensityBits;
+//     IntensityShift = 16 - IntensityBits;
     /* Mask used to flip all bits in an intensity weighting, producing the
     result (1 - intensity weighting) */
-    WeightingComplementMask = NumLevels - 1;
+//     WeightingComplementMask = NumLevels - 1;
     /* Is this an X-major or Y-major line? */
     if (DeltaY > DeltaX) {
         /* Y-major line; calculate 16-bit fixed-point fractional part of a
@@ -1070,7 +1067,7 @@ bool GridMap::aaPathVisible(const QPoint& from, const QPoint& to)
             /* The IntensityBits most significant bits of ErrorAcc give us the
             intensity weighting for this pixel, and the complement of the
             weighting for the paired pixel */
-            Weighting = ErrorAcc >> IntensityShift;
+//             Weighting = ErrorAcc >> IntensityShift;
             if (m_map[X0][Y0].isObstacle()) return false; // DrawPixel(X0, Y0, BaseColor + Weighting);
             if (m_map[X0 + XDir][Y0].isObstacle()) return false; // DrawPixel(X0 + XDir, Y0, BaseColor + (Weighting ^ WeightingComplementMask));
         }
@@ -1096,7 +1093,7 @@ bool GridMap::aaPathVisible(const QPoint& from, const QPoint& to)
         /* The IntensityBits most significant bits of ErrorAcc give us the
         intensity weighting for this pixel, and the complement of the
         weighting for the paired pixel */
-        Weighting = ErrorAcc >> IntensityShift;
+//         Weighting = ErrorAcc >> IntensityShift;
         if (m_map[X0][Y0].isObstacle()) return false; // DrawPixel(X0, Y0, BaseColor + Weighting);
         if (m_map[X0][Y0 + 1].isObstacle()) return false; // DrawPixel(X0, Y0 + 1, BaseColor + (Weighting ^ WeightingComplementMask));
     }
