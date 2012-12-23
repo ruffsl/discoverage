@@ -27,6 +27,7 @@
 class QDataStream;
 class QPainter;
 class QTextStream;
+class Robot;
 
 class Cell
 {
@@ -83,6 +84,12 @@ class Cell
 
         inline void setFrontierDist(float dist)
         { m_frontierDist = dist; }
+
+        inline Robot* robot() const
+        { return m_robot; }
+
+        inline void setRobot(Robot* robot)
+        { m_robot = robot; }
 
     //
     // load & save + export
@@ -156,6 +163,7 @@ class Cell
         State m_state;
         QPoint m_index;
         QPointF m_gradient;
+        Robot* m_robot;
 
     public:
         float m_costF;
