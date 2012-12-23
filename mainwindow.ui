@@ -90,8 +90,17 @@
     <addaction name="actionMarkAsExplored"/>
     <addaction name="actionMarkAsUnexplored"/>
    </widget>
+   <widget class="QMenu" name="menu_Visualization">
+    <property name="title">
+     <string>&amp;Visualization</string>
+    </property>
+    <addaction name="actionPartition"/>
+    <addaction name="actionDensity"/>
+    <addaction name="actionVectorField"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSimulation"/>
+   <addaction name="menu_Visualization"/>
    <addaction name="menu_Tools"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
