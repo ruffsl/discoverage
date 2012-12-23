@@ -48,6 +48,7 @@ Cell::Cell()
     , m_costG(0.0)
     , m_density(1.0)
     , m_frontierDist(0.0)
+    , m_robotDist(0.0)
 {
 }
 
@@ -62,6 +63,7 @@ Cell::Cell(const QRectF& rect)
     , m_costG(0.0)
     , m_density(1.0)
     , m_frontierDist(0.0)
+    , m_robotDist(0.0)
 {
 }
 

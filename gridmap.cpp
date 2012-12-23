@@ -1112,6 +1112,9 @@ static inline int sgn(int val) {
 
 void GridMap::computeDistanceTransform()
 {
+    QTime time;
+    time.start();
+
     QList<Cell*> queue;
 
     // queue all frontier cells
@@ -1195,10 +1198,15 @@ void GridMap::computeDistanceTransform()
     foreach (Cell* cell, dirtyCells) {
         cell->setPathState(Cell::PathNone);
     }
+
+    qDebug() << "computeDistanceTransform took " << time.elapsed() << "milli seconds";
 }
 
 void GridMap::computeVoronoiPartition()
 {
+    QTime time;
+    time.start();
+
     QList<Cell*> queue;
 
     // queue all robots
@@ -1259,23 +1267,23 @@ void GridMap::computeVoronoiPartition()
                     continue;
             }
 
-            const float dist = baseCell->frontierDist()
+            const float dist = baseCell->robotDist()
                 + m_resolution * (i < 4 ? 1.0 : (i < 8 ? 1.4142136 : 2.236068));
 
             // Ignorieren wenn Knoten geschlossen ist und bessere Kosten hat
-            if (cell->pathState() == Cell::PathClose && cell->frontierDist() < dist)
+            if (cell->pathState() == Cell::PathClose && cell->robotDist() < dist)
                 continue;
 
             // cell already in queue, only replace, if shorter path
             if (cell->pathState() == Cell::PathOpen) {
-                if (cell->frontierDist() <= dist)
+                if (cell->robotDist() <= dist)
                     continue;
 
                 // remove all entry
                 queue.removeOne(cell);
             }
 
-            cell->setFrontierDist(dist);
+            cell->setRobotDist(dist);
             cell->setRobot(baseCell->robot());
 
             // flag open and queue
@@ -1288,6 +1296,8 @@ void GridMap::computeVoronoiPartition()
     foreach (Cell* cell, dirtyCells) {
         cell->setPathState(Cell::PathNone);
     }
+
+    qDebug() << "computeVoronoiPartition took " << time.elapsed() << "milli seconds";
 }
 
 void GridMap::exportToTikz(QTextStream& ts)

@@ -91,6 +91,12 @@ class Cell
         inline void setRobot(Robot* robot)
         { m_robot = robot; }
 
+        inline float robotDist() const
+        { return m_robotDist; }
+
+        inline void setRobotDist(float dist)
+        { m_robotDist = dist; }
+
     //
     // load & save + export
     //
@@ -170,6 +176,7 @@ class Cell
         float m_costG;
         float m_density;
         float m_frontierDist;
+        float m_robotDist;
 };
 
 inline Cell::State operator|(Cell::State state, int value)
