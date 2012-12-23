@@ -21,6 +21,8 @@
 #include "scene.h"
 #include "config.h"
 #include "tikzexport.h"
+#include "robotmanager.h"
+#include "robot.h"
 
 #include <QPainter>
 #include <QPoint>
@@ -1182,6 +1184,99 @@ void GridMap::computeDistanceTransform()
             }
 
             cell->setFrontierDist(dist);
+
+            // flag open and queue
+            cell->setPathState(Cell::PathOpen);
+            queue.append(cell);
+        }
+    }
+
+    // cleanup again
+    foreach (Cell* cell, dirtyCells) {
+        cell->setPathState(Cell::PathNone);
+    }
+}
+
+void GridMap::computeVoronoiPartition()
+{
+    QList<Cell*> queue;
+
+    // queue all robots
+    for (int i = 0; i < RobotManager::self()->count(); ++i) {
+        Robot* robot = RobotManager::self()->robot(i);
+        QPoint cellIndex = mapMapToCell(robot->position());
+        if (isValidField(cellIndex)) {
+            Cell* cell = &m_map[cellIndex.x()][cellIndex.y()];
+            cell->setRobot(robot);
+            queue.append(cell);
+        }
+    }
+
+    QList<Cell*> dirtyCells;
+    // now we have all robots as seeds in the queue
+    // next, as long as the queue is not empty, flood by iterating the neighbors
+    while (queue.size()) {
+        Cell* baseCell = queue.takeFirst();
+        dirtyCells.append(baseCell);
+        baseCell->setPathState(Cell::PathClose);
+
+        const int xBase = baseCell->index().x();
+        const int yBase = baseCell->index().y();
+
+        // 8-neighborhood
+        for (int i = 0; i < 16; ++i) {
+            const int x = xBase + directionMap[i][0];
+            const int y = yBase + directionMap[i][1];
+
+            // check validity
+            if (!isValidField(x, y))
+                continue;
+
+            Cell* cell = &m_map[x][y];
+
+            // obstacle or not explored
+            if (!(cell->state() == (Cell::Free | Cell::Explored)))
+                continue;
+
+            // chess horse jumps: make sure cells inbetween are free and explored
+            if (i >= 8 && i < 12) {
+                // {  2, -1},  // top right right
+                // {  2,  1},  // bottom right right
+                // { -2,  1},  // bottom left left
+                // { -2, -1},  // top left left
+                const int xIdx = xBase + sgn(directionMap[i][0]);
+                if (!isValidField(xIdx, yBase) || m_map[xIdx][yBase].state() != (Cell::Free | Cell::Explored)
+                    || !isValidField(xIdx, yBase + directionMap[i][1]) || m_map[xIdx][yBase + directionMap[i][1]].state() != (Cell::Free | Cell::Explored))
+                    continue;
+            } else if (i >= 12) {
+                // {  1, -2},  // top top right
+                // {  1,  2},  // bottom bottom right
+                // { -1,  2},  // bottom bottom left
+                // { -1, -2}   // top top bottom left
+                const int yIdx = yBase + sgn(directionMap[i][1]);
+                if (!isValidField(xBase, yIdx) || m_map[xBase][yIdx].state() != (Cell::Free | Cell::Explored)
+                    || !isValidField(xBase + directionMap[i][0], yIdx) || m_map[xBase + directionMap[i][0]][yIdx].state() != (Cell::Free | Cell::Explored))
+                    continue;
+            }
+
+            const float dist = baseCell->frontierDist()
+                + m_resolution * (i < 4 ? 1.0 : (i < 8 ? 1.4142136 : 2.236068));
+
+            // Ignorieren wenn Knoten geschlossen ist und bessere Kosten hat
+            if (cell->pathState() == Cell::PathClose && cell->frontierDist() < dist)
+                continue;
+
+            // cell already in queue, only replace, if shorter path
+            if (cell->pathState() == Cell::PathOpen) {
+                if (cell->frontierDist() <= dist)
+                    continue;
+
+                // remove all entry
+                queue.removeOne(cell);
+            }
+
+            cell->setFrontierDist(dist);
+            cell->setRobot(baseCell->robot());
 
             // flag open and queue
             cell->setPathState(Cell::PathOpen);
