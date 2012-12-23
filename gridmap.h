@@ -125,6 +125,7 @@ class GridMap : public QObject
         Cell& cell(int xIndex, int yIndex);                     // cell accessor
         Cell& cell(const QPointF & index);                      // cell accessor
         inline bool isValidField(int xIndex, int yIndex) const; // index check for
+        inline bool isValidField(const QPoint& cellIndex) const;// index check for
 
         bool setState(Cell& cell, Cell::State newState);        // modify cell state
         const QSet<Cell*>& frontiers() const;                   // cached list of all frontiers
@@ -181,9 +182,14 @@ qreal GridMap::resolution() const
 bool GridMap::isValidField(int xIndex, int yIndex) const
 {
     return xIndex >= 0 &&
-    yIndex >= 0 &&
-    xIndex < m_map.size() &&
-    yIndex < m_map[0].size();
+           yIndex >= 0 &&
+           xIndex < m_map.size() &&
+           yIndex < m_map[0].size();
+}
+
+bool GridMap::isValidField(const QPoint& cellIndex) const
+{
+    return isValidField(cellIndex.x(), cellIndex.y());
 }
 
 #endif // GRIDMAP_H
