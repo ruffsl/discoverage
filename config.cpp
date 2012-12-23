@@ -35,6 +35,7 @@ Config* Config::self()
 Config::Config()
     : QObject()
     , m_refCount(0)
+    , m_showPartition(false)
     , m_showDensity(false)
     , m_showVectorField(false)
     , m_zoomFactor(4.0)
@@ -67,7 +68,8 @@ void Config::load(QSettings& config)
     begin();
     config.beginGroup("config");
 
-    setShowDensity(config.value("show-density",  true).toBool());
+    setShowPartition(config.value("show-partition",  false).toBool());
+    setShowDensity(config.value("show-density",  false).toBool());
     setShowVectorField(config.value("show-vector-field",  false).toBool());
     m_zoomFactor = config.value("map-zoom-factor",  4.0).toDouble();
 
@@ -79,11 +81,27 @@ void Config::save(QSettings& config)
 {
     config.beginGroup("config");
 
+    config.setValue("show-partition", showPartition());
     config.setValue("show-density", showDensity());
     config.setValue("show-vector-field", showVectorField());
     config.setValue("map-zoom-factor", zoom());
 
     config.endGroup();
+}
+
+bool Config::showPartition() const
+{
+    return m_showPartition;
+}
+
+void Config::setShowPartition(bool show)
+{
+    if (m_showPartition == show)
+        return;
+
+    begin();
+    m_showPartition = show;
+    end();
 }
 
 bool Config::showDensity() const

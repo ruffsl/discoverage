@@ -50,6 +50,9 @@ class Config : public QObject
     // config setters and getters
     //
     public slots:
+        bool showPartition() const;
+        void setShowPartition(bool show);
+
         bool showDensity() const;
         void setShowDensity(bool show);
 
@@ -63,6 +66,7 @@ class Config : public QObject
     private:
         int m_refCount;
 
+        bool m_showPartition;
         bool m_showDensity;
         bool m_showVectorField;
         double m_zoomFactor;
