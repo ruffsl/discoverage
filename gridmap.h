@@ -123,7 +123,7 @@ class GridMap : public QObject
     //
     public:
         Cell& cell(int xIndex, int yIndex);                     // cell accessor
-        Cell& cell(const QPointF & index);                      // cell accessor
+        Cell& cell(const QPoint & cellIndex);                   // cell accessor
         inline bool isValidField(int xIndex, int yIndex) const; // index check for
         inline bool isValidField(const QPoint& cellIndex) const;// index check for
 

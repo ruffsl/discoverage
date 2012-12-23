@@ -252,11 +252,9 @@ Cell& GridMap::cell(int xIndex, int yIndex)
     return m_map[xIndex][yIndex];
 }
 
-Cell& GridMap::cell(const QPointF & index)
+Cell& GridMap::cell(const QPoint & cellIndex)
 {
-    // assert on index-out-of-range
-    Q_ASSERT(index.x() >= 0 && index.y() >= 0 && index.x() < size().width() && index.y() < size().height());
-    return m_map[index.x()][index.y()];
+    return cell(cellIndex.x(), cellIndex.y());
 }
 
 qreal GridMap::scaleFactor() const
