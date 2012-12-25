@@ -76,9 +76,47 @@ QDockWidget* DisCoverageHandler::dockWidget()
     return m_dock;
 }
 
-bool DisCoverageHandler::autoAdaptDistanceVariance() const
+void DisCoverageHandler::setOpeningAngleStdDeviation(double theta)
+{
+    m_ui->sbTheta->blockSignals(true);
+    m_ui->sbTheta->setValue(theta);
+    m_ui->sbTheta->blockSignals(false);
+}
+
+bool DisCoverageHandler::openingAngleStdDeviation() const
+{
+    return m_ui->sbTheta->value();
+}
+
+void DisCoverageHandler::setAutoAdaptDistanceStdDeviation(bool autoAdapt)
+{
+    m_ui->chkAutoDist->blockSignals(true);
+    m_ui->chkAutoDist->setChecked(autoAdapt);
+    m_ui->chkAutoDist->blockSignals(false);
+}
+
+bool DisCoverageHandler::autoAdaptDistanceStdDeviation() const
 {
     return m_ui->chkAutoDist->isChecked();
+}
+
+void DisCoverageHandler::setDistanceStdDeviation(double sigma)
+{
+    m_ui->sbSigma->blockSignals(true);
+    m_ui->sbSigma->setValue(sigma);
+    m_ui->sbSigma->blockSignals(false);
+}
+
+double DisCoverageHandler::distanceStdDeviation() const
+{
+    return m_ui->sbSigma->value();
+}
+
+void DisCoverageHandler::setFollowLocalOptimum(bool localOptimum)
+{
+    m_ui->chkLocalOptimum->blockSignals(true);
+    m_ui->chkLocalOptimum->setChecked(localOptimum);
+    m_ui->chkLocalOptimum->blockSignals(false);
 }
 
 bool DisCoverageHandler::followLocalOptimum() const
@@ -91,11 +129,10 @@ void DisCoverageHandler::save(QSettings& config)
     ToolHandler::save(config);
 
     config.beginGroup("dis-coverage");
-    config.setValue("theta", m_theta);
-    config.setValue("sigma", m_sigma);
-    config.setValue("delta", m_delta);
-    config.setValue("local-optimum", m_ui->chkLocalOptimum->isChecked());
-    config.setValue("auto-dist", m_ui->chkAutoDist->isChecked());
+    config.setValue("theta", openingAngleStdDeviation());
+    config.setValue("sigma", distanceStdDeviation());
+    config.setValue("local-optimum", followLocalOptimum());
+    config.setValue("auto-dist", autoAdaptDistanceStdDeviation());
     config.endGroup();
 }
 
@@ -104,32 +141,15 @@ void DisCoverageHandler::load(QSettings& config)
     ToolHandler::load(config);
 
     config.beginGroup("dis-coverage");
-    m_theta = config.value("theta", 0.5).toDouble();
-    m_sigma = config.value("sigma", 2.0).toDouble();
-    m_delta = config.value("delta", 0.0).toDouble();
-    const bool localOptimum = config.value("local-optimum", true).toBool();
-    const bool autoDist = config.value("auto-dist", false).toBool();
+    setOpeningAngleStdDeviation(config.value("theta", 0.5).toDouble());
+    setDistanceStdDeviation(config.value("sigma", 2.0).toDouble());
+    setFollowLocalOptimum(config.value("local-optimum", true).toBool());
+    setAutoAdaptDistanceStdDeviation(config.value("auto-dist", false).toBool());
     config.endGroup();
-
-    m_ui->sbTheta->blockSignals(true);
-    m_ui->sbSigma->blockSignals(true);
-    m_ui->chkLocalOptimum->blockSignals(true);
-
-    m_ui->sbTheta->setValue(m_theta);
-    m_ui->sbSigma->setValue(m_sigma);
-    m_ui->chkLocalOptimum->setChecked(localOptimum);
-    m_ui->chkAutoDist->setChecked(autoDist);
-
-    m_ui->sbTheta->blockSignals(false);
-    m_ui->sbSigma->blockSignals(false);
-    m_ui->chkLocalOptimum->blockSignals(false);
 }
 
 void DisCoverageHandler::updateParameters()
 {
-    m_theta = m_ui->sbTheta->value();
-    m_sigma = m_ui->sbSigma->value();
-
     scene()->update();
 }
 
@@ -258,8 +278,8 @@ double DisCoverageHandler::disCoverage(const QPointF& pos, double delta, const Q
         return 0.0f;
     }
 
-    const double theta = m_theta;
-    const double sigma = m_sigma;
+    const double theta = openingAngleStdDeviation();
+    const double sigma = distanceStdDeviation();
 
     const QPointF cellCenter = scene()->map().cell(path.m_path[1]).rect().center();
 
@@ -311,12 +331,9 @@ void OrientationPlotter::updatePlot(Robot* robot)
         }
     }
 
-//     if (m_ui->chkAutoDist->isChecked()) {
-//         m_sigma = shortestPath;
-//         m_ui->sbSigma->blockSignals(true);
-//         m_ui->sbSigma->setValue(shortestPath);
-//         m_ui->sbSigma->blockSignals(false);
-//     }
+    if (m_handler->autoAdaptDistanceStdDeviation()) {
+        m_handler->setDistanceStdDeviation(shortestPath);
+    }
 
     QVector<QPointF> deltaPoints;
 

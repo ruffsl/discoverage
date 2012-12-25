@@ -44,8 +44,18 @@ class DisCoverageHandler : public QObject, public ToolHandler
         virtual ~DisCoverageHandler();
 
         double disCoverage(const QPointF& pos, double delta, const QPointF& q, const Path& path);
-        bool autoAdaptDistanceVariance() const;
+
+        void setOpeningAngleStdDeviation(double theta);
+        bool openingAngleStdDeviation() const;
+
+        void setAutoAdaptDistanceStdDeviation(bool autoAdapt);
+        bool autoAdaptDistanceStdDeviation() const;
+
+        void setFollowLocalOptimum(bool localOptimum);
         bool followLocalOptimum() const;
+
+        void setDistanceStdDeviation(double sigma);
+        double distanceStdDeviation() const;
 
     public:
         virtual void draw(QPainter& p);
@@ -69,11 +79,6 @@ class DisCoverageHandler : public QObject, public ToolHandler
         QDockWidget* dockWidget();
 
     private:
-        double m_delta;
-        double m_visionRadius;
-        double m_theta;
-        double m_sigma;
-
         QDockWidget* m_dock;
         Ui::DisCoverageWidget* m_ui;
         OrientationPlotter* m_plotter;
