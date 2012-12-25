@@ -76,6 +76,16 @@ QDockWidget* DisCoverageHandler::dockWidget()
     return m_dock;
 }
 
+bool DisCoverageHandler::autoAdaptDistanceVariance() const
+{
+    return m_ui->chkAutoDist->isChecked();
+}
+
+bool DisCoverageHandler::followLocalOptimum() const
+{
+    return m_ui->chkLocalOptimum->isChecked();
+}
+
 void DisCoverageHandler::save(QSettings& config)
 {
     ToolHandler::save(config);

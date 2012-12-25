@@ -44,6 +44,8 @@ class DisCoverageHandler : public QObject, public ToolHandler
         virtual ~DisCoverageHandler();
 
         double disCoverage(const QPointF& pos, double delta, const QPointF& q, const Path& path);
+        bool autoAdaptDistanceVariance() const;
+        bool followLocalOptimum() const;
 
     public:
         virtual void draw(QPainter& p);
