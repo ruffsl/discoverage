@@ -141,6 +141,7 @@ class GridMap : public QObject
 
         double explorationProgress() const;
         QVector<Cell*> visibleCells(const QPointF& robotPos, double radius);
+        QVector<Cell*> visibleCells(Robot* robot);
 
     private:
         bool exploreCell(const QPoint& center, const QPoint& target, qreal radius, Cell::State targetState);

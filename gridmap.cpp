@@ -612,6 +612,21 @@ QVector<Cell*> GridMap::visibleCells(const QPointF& robotPos, double radius)
     return cellVector;
 }
 
+QVector<Cell*> GridMap::visibleCells(Robot* robot)
+{
+    QVector<Cell*> cellVector;
+    QVector<Cell*> visibleList = visibleCells(robot->position(), robot->sensingRange());
+
+    for (QVector<Cell*>::const_iterator it = visibleList.begin(); it != visibleList.end(); ++it)
+    {
+        if (it->robot() == robot) {
+            cellVector.append(*it);
+        }
+    }
+
+    return cellVector;
+}
+
 double GridMap::explorationProgress() const
 {
 //     qDebug() << m_freeCellCount;
