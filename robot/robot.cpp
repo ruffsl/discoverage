@@ -63,6 +63,20 @@ qreal Robot::orientation() const
     }
 }
 
+QPointF Robot::orientationVector() const
+{
+    const int count = m_trajectory.size();
+    if (count < 2) {
+        return QPointF(0, 0);
+    } else {
+        QPointF lastMove = m_trajectory[count - 1] - m_trajectory[count - 2];
+        if (!lastMove.isNull()) {
+            lastMove /= sqrt(lastMove.x()*lastMove.x() + lastMove.y()*lastMove.y());
+        }
+        return lastMove;
+    }
+}
+
 void Robot::setSensingRange(qreal sensingRange)
 {
     m_sensingRange = sensingRange;

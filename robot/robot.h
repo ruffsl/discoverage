@@ -48,7 +48,11 @@ class Robot
         void setPosition(const QPointF& position);
         const QPointF& position() const;
 
+        // orientation of last move in [-pi; pi]
         qreal orientation() const;
+
+        // orientation of last move as unit vector
+        QPointF orientationVector() const;
 
         void setSensingRange(qreal sensingRange);
         qreal sensingRange() const;
