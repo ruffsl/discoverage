@@ -239,9 +239,21 @@ void DisCoverageBulloHandler::tick()
 {
 }
 
+void DisCoverageBulloHandler::postProcess()
+{
+    scene()->map().computeVoronoiPartition();
+    scene()->map().computeDistanceTransform();
+    scene()->map().updateDensity();
+
+    if (Config::self()->showVectorFiel()) {
+        updateVectorField();
+    }
+
+    scene()->map().updateCache();
+}
+
 void DisCoverageBulloHandler::updateVectorField()
 {
-    qDebug() << "update vector field";
     const int dx = scene()->map().size().width();
     const int dy = scene()->map().size().height();
 

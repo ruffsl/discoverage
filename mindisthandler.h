@@ -47,8 +47,7 @@ class MinDistHandler : public QObject, public ToolHandler
         virtual void reset();
         virtual void tick();
 
-        // compute vector field
-        void updateVectorField();
+        virtual void postProcess();
 
         virtual QPointF gradient(Robot* robot, bool interpolate);
 
@@ -56,7 +55,8 @@ class MinDistHandler : public QObject, public ToolHandler
         virtual void load(QSettings& config);
         virtual void save(QSettings& config);
 
-    private:
+    protected:
+        void updateVectorField();
 };
 
 #endif // MINDIST_HANDLER_H

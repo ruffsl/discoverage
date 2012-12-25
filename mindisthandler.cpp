@@ -81,6 +81,10 @@ void MinDistHandler::tick()
 {
 }
 
+void MinDistHandler::postProcess()
+{
+}
+
 void MinDistHandler::updateVectorField()
 {
     qDebug() << "update vector field";

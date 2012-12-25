@@ -298,19 +298,11 @@ void Scene::reset()
 
 void Scene::tick()
 {
-    m_toolHandler->tick();
-
     for (int i = 0; i < RobotManager::self()->count(); ++i) {
         RobotManager::self()->robot(i)->tick();
     }
 
-    if (Config::self()->showDensity() || Config::self()->showDensity()) {
-        m_map->updateCache();
-    }
-
-    // TODO / FIXME: only update when necessary!
-    map().updateCellWeights();
-
+    m_toolHandler->postProcess();
 
     update();
 }

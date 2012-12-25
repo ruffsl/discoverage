@@ -50,15 +50,18 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
         virtual void toolHandlerActive(bool activated);
         virtual void reset();
         virtual void tick();
+        virtual void postProcess();
 
-        // update vector field for all explored cells
-        virtual void updateVectorField();
         virtual QPointF gradient(Robot* robot, bool interpolate);
 
         // serialization
         virtual void load(QSettings& config);
         virtual void save(QSettings& config);
         virtual void exportToTikz(QTextStream& ts);
+
+    protected:
+        // update vector field for all explored cells
+        void updateVectorField();
 
     private Q_SLOTS:
         void updateParameters();

@@ -155,17 +155,7 @@ void ToolHandler::tick()
 {
 }
 
-bool ToolHandler::needsDistanceTransform() const
-{
-    return false;
-}
-
-bool ToolHandler::needsVoronoiPartition() const
-{
-    return false;
-}
-
-void ToolHandler::updateVectorField()
+void ToolHandler::postProcess()
 {
 }
 

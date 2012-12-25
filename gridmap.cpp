@@ -312,13 +312,6 @@ void GridMap::updateCache()
     }
     m_pixmapCache.fill();
 
-    // precalculate all weights in the cells
-    updateDensity();
-
-    if (Config::self()->showVectorField()) {
-        m_scene->toolHandler()->updateVectorField();
-    }
-
     // finally draw to pixmap cache
     QPainter p(&m_pixmapCache);
     p.scale(scaleFactor(), scaleFactor());

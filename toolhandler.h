@@ -96,43 +96,7 @@ class ToolHandler
          */
         virtual void tick();
 
-        /**
-         * Reimplement this function, if the strategy needs a distrance transform
-         * of the entire environment. The distance transform assigns a distance
-         * to each cell in the grid map. The distance represents the shortest
-         * distance from the cell to the frontier. The result of this distance
-         * transform is similar to the Generalized Voronoi partition.
-         *
-         * The default implementation returns @e false.
-         *
-         * @see Cell::frontierDist()
-         */
-        virtual bool needsDistanceTransform() const;
-
-        /**
-         * Reimplement this function, if the strategy needs a Geodesic Voronoi
-         * partition (GVD) of the environment. The robots are the generators of
-         * the GVD. Each cell is then assigned a robot it belongs to, i.e. the
-         * assigned robot is the one with the geodesic shortest distance.
-         *
-         * The default implementation returns @e false.
-         *
-         * @see Cell::robot()
-         */
-        virtual bool needsVoronoiPartition() const;
-
-        /**
-         * Reimplement this function, if the strategy is able to provide a vector
-         * field for the explored environment. Use Cell::setGradient() to set a
-         * gradient in all explored and free cells of the grid map.
-         *
-         * This method is called after tick(), and also after computing the distance
-         * transform and the voronoi partition, if needsDistanceTransform() and
-         * needsVoronoiPartition() return true, respectively.
-         *
-         * The default implementation does nothing.
-         */
-        virtual void updateVectorField();
+        virtual void postProcess();
 
         /**
          * TODO
