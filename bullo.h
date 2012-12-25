@@ -72,9 +72,6 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
         qreal performance(const QPointF& p, const QPointF& q);
         qreal fitness(const QPointF& robotPos, const QVector<Cell*>& cells);
 
-        void updateDisCoverage(const QPointF& robotPosition);
-        double disCoverage(const QPointF& pos, double delta, const QPointF& q, const Path& path);
-
         void updatePreviewTrajectory(const QPointF& robotPos);
 
         QDockWidget* dockWidget();
