@@ -22,6 +22,7 @@
 #include "mainwindow.h"
 #include "ui_discoveragewidget.h"
 #include "robot.h"
+#include "config.h"
 
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
@@ -83,14 +84,28 @@ void MinDistHandler::tick()
 
 void MinDistHandler::postProcess()
 {
+    scene()->map().computeVoronoiPartition();
+
+    if (Config::self()->showDensity()) {
+        scene()->map().computeDistanceTransform();
+        scene()->map().updateDensity();
+    }
+
+    if (Config::self()->showVectorField()) {
+        updateVectorField();
+    }
+
+    scene()->map().updateCache();
 }
 
 void MinDistHandler::updateVectorField()
 {
-    qDebug() << "update vector field";
     const int dx = scene()->map().size().width();
     const int dy = scene()->map().size().height();
 
+    // FIXME: this is slow: compute for all explored free cells the shortest paths
+    //        to all frontiers. Then pick the shortest one, and set the gradient
+    //        according to direction of the first path segment
     for (int a = 0; a < dx; ++a) {
         for (int b = 0; b < dy; ++b) {
             Cell& c = scene()->map().cell(a, b);
