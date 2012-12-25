@@ -22,6 +22,7 @@
 #include "mainwindow.h"
 #include "tikzexport.h"
 #include "robot.h"
+#include "config.h"
 
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
@@ -245,7 +246,7 @@ void DisCoverageBulloHandler::postProcess()
     scene()->map().computeDistanceTransform();
     scene()->map().updateDensity();
 
-    if (Config::self()->showVectorFiel()) {
+    if (Config::self()->showVectorField()) {
         updateVectorField();
     }
 
