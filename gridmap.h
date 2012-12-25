@@ -136,7 +136,7 @@ class GridMap : public QObject
     public:
         void computeDistanceTransform();
         void computeVoronoiPartition();
-        void updateCellWeights();
+        void updateDensity();
         bool exploreInRadius(const QPointF& robotPos, double radius, bool markAsExplored);
 
         double explorationProgress() const;

@@ -272,11 +272,9 @@ void GridMap::decScaleFactor()
     Config::self()->zoomOut();
 }
 
-void GridMap::updateCellWeights()
+void GridMap::updateDensity()
 {
     Q_ASSERT(m_map.size() > 0);
-    
-    computeDistanceTransform();
     
     for (int a = 0; a < m_map.size(); ++a) {
         for (int b = 0; b < m_map[a].size(); ++b) {
@@ -315,7 +313,7 @@ void GridMap::updateCache()
     m_pixmapCache.fill();
 
     // precalculate all weights in the cells
-    updateCellWeights();
+    updateDensity();
 
     if (Config::self()->showVectorField()) {
         m_scene->toolHandler()->updateVectorField();
@@ -336,7 +334,21 @@ void GridMap::draw(QPainter& p)
 {
     p.drawPixmap(0, 0, m_pixmapCache);
 
+//     p.save();
 //     p.scale(scaleFactor(), scaleFactor());
+//
+//     for (int a = 0; a < m_map.size(); ++a) {
+//         QVector<Cell>& row = m_map[a];
+//         for (int b = 0; b < row.size(); ++b) {
+//             Cell& c = row[b];
+//             if (c.state() == (Cell::Free | Cell::Explored)) {
+//                 p.setPen(c.robot()->color());
+//                 p.drawRect(c.rect());
+//             }
+//         }
+//     }
+//     p.restore();
+
 //     foreach (Cell* c, m_frontierCache) {
 //         p.fillRect(c->rect(), Qt::blue);
 //     }
