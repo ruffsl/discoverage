@@ -51,6 +51,18 @@ const QPointF& Robot::position() const
     return m_position;
 }
 
+qreal Robot::orientation() const
+{
+    const int count = m_trajectory.size();
+    if (count < 2) {
+        return 0.0;
+    } else {
+        const QPointF lastMove = m_trajectory[count - 1] - m_trajectory[count - 2];
+        qreal delta = atan2(lastMove.y(), lastMove.x());
+        return delta;
+    }
+}
+
 void Robot::setSensingRange(qreal sensingRange)
 {
     m_sensingRange = sensingRange;

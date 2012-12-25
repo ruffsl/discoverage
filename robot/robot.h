@@ -48,6 +48,8 @@ class Robot
         void setPosition(const QPointF& position);
         const QPointF& position() const;
 
+        qreal orientation() const;
+
         void setSensingRange(qreal sensingRange);
         qreal sensingRange() const;
 
