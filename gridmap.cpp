@@ -614,12 +614,17 @@ QVector<Cell*> GridMap::visibleCells(const QPointF& robotPos, double radius)
 
 QVector<Cell*> GridMap::visibleCells(Robot* robot)
 {
-    QVector<Cell*> cellVector;
+    // if only one robot exists, just return all visible cells
     QVector<Cell*> visibleList = visibleCells(robot->position(), robot->sensingRange());
+    if (RobotManager::self()->count() == 1) {
+        return visibleList;
+    }
 
+    // make sure the cell is assigned to this robot
+    QVector<Cell*> cellVector;
     for (QVector<Cell*>::const_iterator it = visibleList.begin(); it != visibleList.end(); ++it)
     {
-        if (it->robot() == robot) {
+        if ((*it)->robot() == robot) {
             cellVector.append(*it);
         }
     }
