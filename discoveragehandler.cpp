@@ -66,7 +66,7 @@ QDockWidget* DisCoverageHandler::dockWidget()
         m_ui->gbOptimization->layout()->addWidget(m_plotter);
         m_dock->setWidget(w);
         scene()->mainWindow()->addDockWidget(Qt::RightDockWidgetArea, m_dock);
-        
+
         connect(m_ui->sbTheta, SIGNAL(valueChanged(double)), this, SLOT(updateParameters()));
         connect(m_ui->sbSigma, SIGNAL(valueChanged(double)), this, SLOT(updateParameters()));
         connect(m_ui->chkLocalOptimum, SIGNAL(toggled(bool)), this, SLOT(updateParameters()));
@@ -358,43 +358,40 @@ void OrientationPlotter::updatePlot(Robot* robot)
     }
 
     m_data = deltaPoints;
-    update();
-
 
     // follow local optimum
-//     if (m_ui->chkLocalOptimum->isChecked()) {
-//         int i;
-//         for (i = 0; i < deltaPoints.size(); ++i) {
-//             if (deltaPoints[i].x() == m_delta)
-//                 break;
-//         }
-//
-//         // first time m_delta == 0.0, so no index found
-//         if (deltaPoints.size() == i) {
-//             m_delta = deltaMax;
-//             return;
-//         }
-//
-//         const int n = deltaPoints.size();
-//         int c = 0; // avoid infinite loop
-//         while (deltaPoints[i].y() <= deltaPoints[(i + 1) % n].y() && c < n) {
-//             i = (i + 1) % n;
-//             ++c;
-//         }
-//
-//         c = 0;
-//         while (deltaPoints[i].y() <= deltaPoints[(i - 1 + n) % n].y() && c < n) {
-//             i = (i - 1 + n) % n;
-//             ++c;
-//         }
-//
-//         m_delta = deltaPoints[i].x();
-//         m_plotter->setCurrentOrientation(deltaPoints[i]);
-//     } else
-    {
+    if (m_handler->followLocalOptimum()) {
+        int i;
+        for (i = 0; i < deltaPoints.size(); ++i) {
+            if (deltaPoints[i].x() == robot->orientation())
+                break;
+        }
+
+        // first time m_delta == 0.0, so no index found
+        if (deltaPoints.size() == i) {
+            i = 0;
+        }
+
+        const int n = deltaPoints.size();
+        int c = 0; // avoid infinite loop
+        while (deltaPoints[i].y() <= deltaPoints[(i + 1) % n].y() && c < n) {
+            i = (i + 1) % n;
+            ++c;
+        }
+
+        c = 0;
+        while (deltaPoints[i].y() <= deltaPoints[(i - 1 + n) % n].y() && c < n) {
+            i = (i - 1 + n) % n;
+            ++c;
+        }
+
+        setCurrentOrientation(deltaPoints[i]);
+    } else {
         // always global optimum
         setCurrentOrientation(QPointF(deltaMax, sMax));
     }
+
+    update();
 }
 
 void OrientationPlotter::setCurrentOrientation(const QPointF& currentOrientation)
