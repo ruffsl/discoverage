@@ -43,6 +43,8 @@ class DisCoverageHandler : public QObject, public ToolHandler
         DisCoverageHandler(Scene* scene);
         virtual ~DisCoverageHandler();
 
+        double disCoverage(const QPointF& pos, double delta, const QPointF& q, const Path& path);
+
     public:
         virtual void draw(QPainter& p);
         virtual void mouseMoveEvent(QMouseEvent* event);
@@ -50,17 +52,18 @@ class DisCoverageHandler : public QObject, public ToolHandler
         virtual void toolHandlerActive(bool activated);
         virtual void reset();
         virtual void tick();
+        virtual void postProcess();
+
         virtual void load(QSettings& config);
         virtual void save(QSettings& config);
 
+        virtual QPointF gradient(Robot* robot, bool interpolate);
+
     private Q_SLOTS:
-        void showVectorField(bool show);
+        void updateVectorField();
         void updateParameters();
 
     private:
-        void updateDisCoverage(const QPointF& robotPosition);
-        double disCoverage(const QPointF& pos, double delta, const QPointF& q, const Path& path);
-
         QDockWidget* dockWidget();
 
     private:
@@ -72,27 +75,24 @@ class DisCoverageHandler : public QObject, public ToolHandler
         QDockWidget* m_dock;
         Ui::DisCoverageWidget* m_ui;
         OrientationPlotter* m_plotter;
-
-        QVector<QVector<QLineF> > m_vectorField;
-
-        QPointF m_robotPosition;
-        QVector<QPointF> m_trajectory;
 };
 
 class OrientationPlotter : public QFrame
 {
     Q_OBJECT
-    
+
     public:
-        OrientationPlotter(QWidget* parent = 0);
+        OrientationPlotter(DisCoverageHandler* handler, QWidget* parent = 0);
         virtual ~OrientationPlotter();
-        
-        void setData(const QVector<QPointF>& data);
+
+        void updatePlot(Robot* robot);
         void setCurrentOrientation(const QPointF& currentOrientation);
 
     protected:
         virtual void paintEvent(QPaintEvent* event);
 
+    private:
+        DisCoverageHandler* m_handler;
         QVector<QPointF> m_data;
         QPointF m_currentOrientation;
 };

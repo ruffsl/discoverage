@@ -21,6 +21,9 @@
 #include "scene.h"
 #include "mainwindow.h"
 #include "ui_discoveragewidget.h"
+#include "robot.h"
+#include "robotmanager.h"
+#include "config.h"
 
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
@@ -59,13 +62,11 @@ QDockWidget* DisCoverageHandler::dockWidget()
         m_ui = new Ui::DisCoverageWidget();
         QWidget* w = new QWidget();
         m_ui->setupUi(w);
-        m_plotter = new OrientationPlotter(w);
+        m_plotter = new OrientationPlotter(this, w);
         m_ui->gbOptimization->layout()->addWidget(m_plotter);
         m_dock->setWidget(w);
         scene()->mainWindow()->addDockWidget(Qt::RightDockWidgetArea, m_dock);
         
-        connect(m_ui->chkShowVectorField, SIGNAL(toggled(bool)), this, SLOT(showVectorField(bool)));
-        connect(m_ui->sbVisionRaius, SIGNAL(valueChanged(double)), this, SLOT(updateParameters()));
         connect(m_ui->sbTheta, SIGNAL(valueChanged(double)), this, SLOT(updateParameters()));
         connect(m_ui->sbSigma, SIGNAL(valueChanged(double)), this, SLOT(updateParameters()));
         connect(m_ui->chkLocalOptimum, SIGNAL(toggled(bool)), this, SLOT(updateParameters()));
@@ -80,11 +81,9 @@ void DisCoverageHandler::save(QSettings& config)
     ToolHandler::save(config);
 
     config.beginGroup("dis-coverage");
-    config.setValue("vision-radius", m_visionRadius);
     config.setValue("theta", m_theta);
     config.setValue("sigma", m_sigma);
     config.setValue("delta", m_delta);
-    config.setValue("robot-position", m_robotPosition);
     config.setValue("local-optimum", m_ui->chkLocalOptimum->isChecked());
     config.setValue("auto-dist", m_ui->chkAutoDist->isChecked());
     config.endGroup();
@@ -95,28 +94,22 @@ void DisCoverageHandler::load(QSettings& config)
     ToolHandler::load(config);
 
     config.beginGroup("dis-coverage");
-    m_visionRadius = config.value("vision-radius", 2.0).toDouble();
     m_theta = config.value("theta", 0.5).toDouble();
     m_sigma = config.value("sigma", 2.0).toDouble();
     m_delta = config.value("delta", 0.0).toDouble();
-    m_robotPosition = config.value("robot-position", QPointF(0.0, 0.0)).toPointF();
     const bool localOptimum = config.value("local-optimum", true).toBool();
     const bool autoDist = config.value("auto-dist", false).toBool();
     config.endGroup();
-    
 
-    m_ui->sbVisionRaius->blockSignals(true);
     m_ui->sbTheta->blockSignals(true);
     m_ui->sbSigma->blockSignals(true);
     m_ui->chkLocalOptimum->blockSignals(true);
 
-    m_ui->sbVisionRaius->setValue(m_visionRadius);
     m_ui->sbTheta->setValue(m_theta);
     m_ui->sbSigma->setValue(m_sigma);
     m_ui->chkLocalOptimum->setChecked(localOptimum);
     m_ui->chkAutoDist->setChecked(autoDist);
 
-    m_ui->sbVisionRaius->blockSignals(false);
     m_ui->sbTheta->blockSignals(false);
     m_ui->sbSigma->blockSignals(false);
     m_ui->chkLocalOptimum->blockSignals(false);
@@ -124,61 +117,50 @@ void DisCoverageHandler::load(QSettings& config)
 
 void DisCoverageHandler::updateParameters()
 {
-    m_visionRadius = m_ui->sbVisionRaius->value();
     m_theta = m_ui->sbTheta->value();
     m_sigma = m_ui->sbSigma->value();
 
-    updateDisCoverage(m_robotPosition);
     scene()->update();
 }
 
-void DisCoverageHandler::showVectorField(bool show)
+void DisCoverageHandler::updateVectorField()
 {
-    if (!show) {
-        m_vectorField.clear();
-    } else {
-        GridMap&m = scene()->map();
-        const QSize s = m.size();
-        const qreal resolution = m.resolution();
-        m_vectorField = QVector<QVector<QLineF> >(s.width(), QVector<QLineF>(s.height()));
+    const QSet<Cell*>& frontiers = scene()->map().frontiers();
+    const int dx = scene()->map().size().width();
+    const int dy = scene()->map().size().height();
 
-        const QSet<Cell*>& frontiers = m.frontiers();
-        for (int a = 0; a < s.width(); ++a) {
-            for (int b = 0; b < s.height(); ++b) {
-                if (m.cell(a, b).state() != (Cell::Free | Cell::Explored)) {
-                    continue;
-                }
-                qDebug() << "next one" << a << b;
-                QPointF center(resolution / 2.0 + a * resolution,
-                               resolution / 2.0 + b * resolution);
+    for (int a = 0; a < dx; ++a) {
+        for (int b = 0; b < dy; ++b) {
+            Cell& c = scene()->map().cell(a, b);
+            if (c.state() != (Cell::Explored | Cell::Free))
+                continue;
 
-                QList<Path> allPaths;
-                allPaths = m.frontierPaths(QPoint(a, b));
-                for (int i = 0; i < allPaths.size(); ++i) {
-                    allPaths[i].beautify(m);
-                }
-
-                double delta = -M_PI;
-                double sMax = 0.0;
-                double deltaMax = 0.0;
-                while (delta < M_PI) {
-                    double s = 0;
-                    int i = 0;
-                    foreach (Cell* q, frontiers) {
-                        s += disCoverage(center, delta, q->rect().center(), allPaths[i]);
-                        ++i;
-                    }
-                    
-                    if (s > sMax) {
-                        sMax = s;
-                        deltaMax = delta;
-                    }
-                    delta += 0.1;
-                }
-                m_vectorField[a][b].setP1(center);
-                m_vectorField[a][b].setP2(QPointF(center.x() + resolution, center.y()));
-                m_vectorField[a][b].setAngle(-deltaMax * 180.0 / M_PI);
+            QList<Path> allPaths;
+            allPaths = scene()->map().frontierPaths(QPoint(a, b));
+            for (int i = 0; i < allPaths.size(); ++i) {
+                allPaths[i].beautify(scene()->map());
             }
+
+            double delta = -M_PI;
+            double sMax = 0.0;
+            double deltaMax = 0.0;
+            while (delta < M_PI) {
+                double s = 0;
+                int i = 0;
+                foreach (Cell* q, frontiers) {
+                    s += disCoverage(c.center(), delta, q->rect().center(), allPaths[i]);
+                    ++i;
+                }
+
+                if (s > sMax) {
+                    sMax = s;
+                    deltaMax = delta;
+                }
+                delta += 0.1;
+            }
+
+            QPointF grad(cos(deltaMax), sin(deltaMax));
+            c.setGradient(grad);
         }
     }
 }
@@ -188,43 +170,11 @@ void DisCoverageHandler::draw(QPainter& p)
     ToolHandler::draw(p);
 
     highlightCurrentCell(p);
-
-    GridMap &m = scene()->map();
-    
-    QPainter::RenderHints rh = p.renderHints();
-    p.setRenderHints(QPainter::Antialiasing, true);
-
-    QPen bluePen(QColor(0, 0, 255, 196), m.resolution() * 0.3);
-    p.setPen(bluePen);
-    for (int a = 0; a < m_vectorField.size(); ++a) {
-        const int s = m_vectorField[0].size();
-        for (int b = 0; b < s; ++b) {
-            p.drawLine(m_vectorField[a][b]);
-        }
-    }
-
-
-    p.setOpacity(0.2);
-    p.setBrush(QBrush(Qt::blue));
-    p.drawEllipse(m_robotPosition, m_visionRadius, m_visionRadius);
-    p.setOpacity(1.0);
-
-    if (m_trajectory.size()) p.drawPolyline(&m_trajectory[0], m_trajectory.size());
-
-    p.setPen(QPen(Qt::red, m.resolution() * 0.5));
-    p.drawLine(m_robotPosition, m_robotPosition + QPointF(cos(m_delta), sin(m_delta)) * scene()->map().resolution());
-
-    p.setRenderHints(rh, true);
 }
 
 void DisCoverageHandler::mouseMoveEvent(QMouseEvent* event)
 {
     ToolHandler::mouseMoveEvent(event);
-
-    if (event->buttons() & Qt::LeftButton) {
-        m_robotPosition = scene()->map().mapScreenToMap(event->posF());
-        updateDisCoverage(m_robotPosition);
-    }
 }
 
 void DisCoverageHandler::mousePressEvent(QMouseEvent* event)
@@ -234,44 +184,42 @@ void DisCoverageHandler::mousePressEvent(QMouseEvent* event)
 
 void DisCoverageHandler::reset()
 {
-    m_trajectory.clear();
 }
 
 void DisCoverageHandler::tick()
 {
-    if (m_trajectory.size() == 0) {
-        m_trajectory.append(m_robotPosition);
-    }
-
-    updateDisCoverage(m_robotPosition);
-    m_robotPosition += QPointF(cos(m_delta), sin(m_delta)) * scene()->map().resolution();
-    scene()->map().exploreInRadius(m_robotPosition, m_visionRadius, Cell::Explored);
-
-    m_trajectory.append(m_robotPosition);
 }
 
-void DisCoverageHandler::updateDisCoverage(const QPointF& robotPosition)
+void DisCoverageHandler::postProcess()
+{
+    scene()->map().computeVoronoiPartition();
+
+    if (Config::self()->showVectorField()) {
+        updateVectorField();
+    }
+
+    scene()->map().updateCache();
+
+    if (RobotManager::self()->activeRobot()) {
+        m_plotter->updatePlot(RobotManager::self()->activeRobot());
+    }
+}
+
+QPointF DisCoverageHandler::gradient(Robot* robot, bool /*interpolate*/)
 {
     const QSet<Cell*>& frontiers = scene()->map().frontiers();
-    GridMap& m = scene()->map();
-    QPoint pt = m.mapMapToCell(robotPosition);
-    QList<Path> allPaths = m.frontierPaths(pt);
-    double shortestPath = 1000000000.0;
+
+    QPoint cellIndex = scene()->map().mapMapToCell(robot->position());
+
+    Cell& c = scene()->map().cell(cellIndex);
+    if (c.state() != (Cell::Explored | Cell::Free))
+        return QPointF(0, 0);
+
+    QList<Path> allPaths;
+    allPaths = scene()->map().frontierPaths(cellIndex);
     for (int i = 0; i < allPaths.size(); ++i) {
-        allPaths[i].beautify(m);
-        if (allPaths[i].m_length < shortestPath) {
-            shortestPath = allPaths[i].m_length;
-        }
+        allPaths[i].beautify(scene()->map());
     }
-
-    if (m_ui->chkAutoDist->isChecked()) {
-        m_sigma = shortestPath;
-        m_ui->sbSigma->blockSignals(true);
-        m_ui->sbSigma->setValue(shortestPath);
-        m_ui->sbSigma->blockSignals(false);
-    }
-
-    QVector<QPointF> deltaPoints;
 
     double delta = -M_PI;
     double sMax = 0.0;
@@ -280,11 +228,9 @@ void DisCoverageHandler::updateDisCoverage(const QPointF& robotPosition)
         double s = 0;
         int i = 0;
         foreach (Cell* q, frontiers) {
-            s += disCoverage(robotPosition, delta, q->rect().center(), allPaths[i]);
+            s += disCoverage(c.center(), delta, q->rect().center(), allPaths[i]);
             ++i;
         }
-
-        deltaPoints.append(QPointF(delta, s));
 
         if (s > sMax) {
             sMax = s;
@@ -293,42 +239,7 @@ void DisCoverageHandler::updateDisCoverage(const QPointF& robotPosition)
         delta += 0.1;
     }
 
-    m_plotter->setData(deltaPoints);
-
-    // follow local optimum
-    if (m_ui->chkLocalOptimum->isChecked()) {
-        int i;
-        for (i = 0; i < deltaPoints.size(); ++i) {
-            if (deltaPoints[i].x() == m_delta)
-                break;
-        }
-
-        // first time m_delta == 0.0, so no index found
-        if (deltaPoints.size() == i) {
-            m_delta = deltaMax;
-            return;
-        }
-
-        const int n = deltaPoints.size();
-        int c = 0; // avoid infinite loop
-        while (deltaPoints[i].y() <= deltaPoints[(i + 1) % n].y() && c < n) {
-            i = (i + 1) % n;
-            ++c;
-        }
-
-        c = 0;
-        while (deltaPoints[i].y() <= deltaPoints[(i - 1 + n) % n].y() && c < n) {
-            i = (i - 1 + n) % n;
-            ++c;
-        }
-        
-        m_delta = deltaPoints[i].x();
-        m_plotter->setCurrentOrientation(deltaPoints[i]);
-    } else {
-        // always global optimum
-        m_delta = deltaMax;
-        m_plotter->setCurrentOrientation(QPointF(m_delta, sMax));
-    }
+    return QPointF(cos(deltaMax), sin(deltaMax));
 }
 
 double DisCoverageHandler::disCoverage(const QPointF& pos, double delta, const QPointF& q, const Path& path)
@@ -363,8 +274,9 @@ double DisCoverageHandler::disCoverage(const QPointF& pos, double delta, const Q
 
 
 
-OrientationPlotter::OrientationPlotter(QWidget* parent)
+OrientationPlotter::OrientationPlotter(DisCoverageHandler* handler, QWidget* parent)
     : QFrame(parent)
+    , m_handler(handler)
 {
     setFrameStyle(QFrame::Panel | QFrame::Sunken);
     setFixedHeight(100);
@@ -374,10 +286,88 @@ OrientationPlotter::~OrientationPlotter()
 {
 }
 
-void OrientationPlotter::setData(const QVector<QPointF>& data)
+void OrientationPlotter::updatePlot(Robot* robot)
 {
-    m_data = data;
+    const QSet<Cell*>& frontiers = Scene::self()->map().frontiers();
+    GridMap& m = Scene::self()->map();
+    QPoint pt = m.mapMapToCell(robot->position());
+    QList<Path> allPaths = m.frontierPaths(pt);
+
+    double shortestPath = 1000000000.0;
+    for (int i = 0; i < allPaths.size(); ++i) {
+        allPaths[i].beautify(m);
+        if (allPaths[i].m_length < shortestPath) {
+            shortestPath = allPaths[i].m_length;
+        }
+    }
+
+//     if (m_ui->chkAutoDist->isChecked()) {
+//         m_sigma = shortestPath;
+//         m_ui->sbSigma->blockSignals(true);
+//         m_ui->sbSigma->setValue(shortestPath);
+//         m_ui->sbSigma->blockSignals(false);
+//     }
+
+    QVector<QPointF> deltaPoints;
+
+    double delta = -M_PI;
+    double sMax = 0.0;
+    double deltaMax = 0.0;
+    while (delta < M_PI) {
+        double s = 0;
+        int i = 0;
+        foreach (Cell* q, frontiers) {
+            s += m_handler->disCoverage(robot->position(), delta, q->rect().center(), allPaths[i]);
+            ++i;
+        }
+
+        deltaPoints.append(QPointF(delta, s));
+
+        if (s > sMax) {
+            sMax = s;
+            deltaMax = delta;
+        }
+        delta += 0.1;
+    }
+
+    m_data = deltaPoints;
     update();
+
+
+    // follow local optimum
+//     if (m_ui->chkLocalOptimum->isChecked()) {
+//         int i;
+//         for (i = 0; i < deltaPoints.size(); ++i) {
+//             if (deltaPoints[i].x() == m_delta)
+//                 break;
+//         }
+//
+//         // first time m_delta == 0.0, so no index found
+//         if (deltaPoints.size() == i) {
+//             m_delta = deltaMax;
+//             return;
+//         }
+//
+//         const int n = deltaPoints.size();
+//         int c = 0; // avoid infinite loop
+//         while (deltaPoints[i].y() <= deltaPoints[(i + 1) % n].y() && c < n) {
+//             i = (i + 1) % n;
+//             ++c;
+//         }
+//
+//         c = 0;
+//         while (deltaPoints[i].y() <= deltaPoints[(i - 1 + n) % n].y() && c < n) {
+//             i = (i - 1 + n) % n;
+//             ++c;
+//         }
+//
+//         m_delta = deltaPoints[i].x();
+//         m_plotter->setCurrentOrientation(deltaPoints[i]);
+//     } else
+    {
+        // always global optimum
+        setCurrentOrientation(QPointF(deltaMax, sMax));
+    }
 }
 
 void OrientationPlotter::setCurrentOrientation(const QPointF& currentOrientation)
@@ -397,7 +387,9 @@ void OrientationPlotter::paintEvent(QPaintEvent* event)
 
     QPainter p(this);
     p.fillRect(rect(), Qt::white);
+    p.end();
     QFrame::paintEvent(event);
+    p.begin(this);
 
     if (maxY == 0.0) {
         return;
