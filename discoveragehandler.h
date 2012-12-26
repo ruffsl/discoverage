@@ -46,7 +46,7 @@ class DisCoverageHandler : public QObject, public ToolHandler
         double disCoverage(const QPointF& pos, double delta, const QPointF& q, const Path& path);
 
         void setOpeningAngleStdDeviation(double theta);
-        bool openingAngleStdDeviation() const;
+        double openingAngleStdDeviation() const;
 
         void setAutoAdaptDistanceStdDeviation(bool autoAdapt);
         bool autoAdaptDistanceStdDeviation() const;
@@ -92,8 +92,10 @@ class OrientationPlotter : public QFrame
         OrientationPlotter(DisCoverageHandler* handler, QWidget* parent = 0);
         virtual ~OrientationPlotter();
 
-        void updatePlot(Robot* robot);
         void setCurrentOrientation(const QPointF& currentOrientation);
+
+    public slots:
+        void updatePlot(Robot* robot);
 
     protected:
         virtual void paintEvent(QPaintEvent* event);

@@ -52,6 +52,11 @@ DisCoverageHandler::~DisCoverageHandler()
 void DisCoverageHandler::toolHandlerActive(bool activated)
 {
     dockWidget()->setVisible(activated);
+    if (activated) {
+        connect(RobotManager::self(), SIGNAL(activeRobotChanged(Robot*)), m_plotter, SLOT(updatePlot(Robot*)));
+    } else {
+        disconnect(RobotManager::self(), 0, m_plotter, 0);
+    }
 }
 
 QDockWidget* DisCoverageHandler::dockWidget()
@@ -83,7 +88,7 @@ void DisCoverageHandler::setOpeningAngleStdDeviation(double theta)
     m_ui->sbTheta->blockSignals(false);
 }
 
-bool DisCoverageHandler::openingAngleStdDeviation() const
+double DisCoverageHandler::openingAngleStdDeviation() const
 {
     return m_ui->sbTheta->value();
 }
@@ -150,6 +155,7 @@ void DisCoverageHandler::load(QSettings& config)
 
 void DisCoverageHandler::updateParameters()
 {
+    postProcess();
     scene()->update();
 }
 
@@ -230,9 +236,7 @@ void DisCoverageHandler::postProcess()
 
     scene()->map().updateCache();
 
-    if (RobotManager::self()->activeRobot()) {
-        m_plotter->updatePlot(RobotManager::self()->activeRobot());
-    }
+    m_plotter->updatePlot(RobotManager::self()->activeRobot());
 }
 
 QPointF DisCoverageHandler::gradient(Robot* robot, bool /*interpolate*/)
@@ -293,7 +297,7 @@ double DisCoverageHandler::disCoverage(const QPointF& pos, double delta, const Q
     if (alpha > M_PI) alpha -= 2 * M_PI;
     else if (alpha < -M_PI) alpha += 2 * M_PI;
 
-    double len = path.m_length;
+    const double len = path.m_length;
 
     return exp(- alpha*alpha/(2.0*theta*theta)
                - len*len/(2.0*sigma*sigma));
@@ -318,6 +322,8 @@ OrientationPlotter::~OrientationPlotter()
 
 void OrientationPlotter::updatePlot(Robot* robot)
 {
+    if (!robot) return;
+
     const QSet<Cell*>& frontiers = Scene::self()->map().frontiers();
     GridMap& m = Scene::self()->map();
     QPoint pt = m.mapMapToCell(robot->position());
