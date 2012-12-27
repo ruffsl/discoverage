@@ -110,11 +110,11 @@ class GridMap : public QObject
         }
 
 
-        inline qreal mapMapToScreen(qreal mapPos) const {
+        inline qreal worldToScreen(qreal mapPos) const {
             return mapPos * scaleFactor();
         }
 
-        inline QPointF mapMapToScreen(const QPointF& mapPos) const {
+        inline QPointF worldToScreen(const QPointF& mapPos) const {
             return mapPos * scaleFactor();
         }
 

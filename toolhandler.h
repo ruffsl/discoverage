@@ -53,7 +53,6 @@ class ToolHandler
 
         int mapToCell(qreal screenPos) const;
         qreal mapToMap(qreal screenPos) const;
-        qreal mapToScreen(qreal mapPos) const;
 
         void drawOperationRadius(QPainter& p);
         void highlightCurrentCell(QPainter& p);

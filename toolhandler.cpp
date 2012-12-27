@@ -101,11 +101,6 @@ int ToolHandler::mapToCell(qreal screenPos) const
     return scene()->map().mapScreenToCell(screenPos);
 }
 
-qreal ToolHandler::mapToScreen(qreal mapPos) const
-{
-    return scene()->map().mapMapToScreen(mapPos);
-}
-
 void ToolHandler::draw(QPainter& p)
 {
 }
