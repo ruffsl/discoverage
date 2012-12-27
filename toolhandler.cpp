@@ -93,7 +93,7 @@ double ToolHandler::operationRadius()
 
 qreal ToolHandler::mapToMap(qreal screenPos) const
 {
-    return scene()->map().mapScreenToMap(screenPos);
+    return scene()->map().screenToWorld(screenPos);
 }
 
 int ToolHandler::mapToCell(qreal screenPos) const
@@ -109,7 +109,7 @@ void ToolHandler::mousePressEvent(QMouseEvent* event)
 {
     if (event->buttons() & Qt::LeftButton) {
         if (Robot* robot = RobotManager::self()->activeRobot()) {
-            QPointF pos = scene()->map().mapScreenToMap(event->posF());
+            QPointF pos = scene()->map().screenToWorld(event->posF());
             robot->setPosition(pos);
         }
     }
@@ -119,7 +119,7 @@ void ToolHandler::mouseMoveEvent(QMouseEvent* event)
 {
     if (event->buttons() & Qt::LeftButton) {
         if (Robot* robot = RobotManager::self()->activeRobot()) {
-            QPointF pos = scene()->map().mapScreenToMap(event->posF());
+            QPointF pos = scene()->map().screenToWorld(event->posF());
             robot->setPosition(pos);
         }
     }
@@ -182,7 +182,7 @@ void ToolHandler::drawOperationRadius(QPainter& p)
     QPainter::RenderHints rh = p.renderHints();
     p.setRenderHints(QPainter::Antialiasing, true);
     p.setBrush(QBrush(Qt::blue));
-    p.drawEllipse(scene()->map().mapScreenToMap(mousePosition()), operationRadius(), operationRadius());
+    p.drawEllipse(scene()->map().screenToWorld(mousePosition()), operationRadius(), operationRadius());
     p.setRenderHints(rh, true);
     p.setOpacity(1.0);
 }
@@ -271,7 +271,7 @@ void ObstacleHandler::draw(QPainter& p)
     ToolHandler::draw(p);
 
     p.setOpacity(0.2);
-    QRectF rect(scene()->map().mapScreenToMap(mousePosition()), 2 * QSizeF(1, 1) * scene()->map().resolution());
+    QRectF rect(scene()->map().screenToWorld(mousePosition()), 2 * QSizeF(1, 1) * scene()->map().resolution());
     rect.moveTo(rect.topLeft() - scene()->map().resolution() * QPointF(1, 1));
     p.fillRect(rect, Qt::black);
     p.setOpacity(1.0);
@@ -361,7 +361,7 @@ void ExplorationHandler::updateExploredState()
 {
     const bool markAsExplored = !(QApplication::keyboardModifiers() & Qt::ControlModifier);
 
-    QPointF pos = scene()->map().mapScreenToMap(mousePosition());
+    QPointF pos = scene()->map().screenToWorld(mousePosition());
     if (scene()->map().isValidField(pos.x(), pos.y())) {
         scene()->map().exploreInRadius(pos, operationRadius(), markAsExplored);
     }

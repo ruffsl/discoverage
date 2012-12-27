@@ -93,11 +93,11 @@ class GridMap : public QObject
             return QPoint(pt.x(), pt.y());
         }
 
-        inline qreal mapScreenToMap(qreal screenPos) const {
+        inline qreal screenToWorld(qreal screenPos) const {
             return screenPos / scaleFactor();
         }
 
-        inline QPointF mapScreenToMap(const QPointF& screenPos) const {
+        inline QPointF screenToWorld(const QPointF& screenPos) const {
             return screenPos / scaleFactor();
         }
 
