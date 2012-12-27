@@ -211,6 +211,11 @@ void DisCoverageHandler::draw(QPainter& p)
 void DisCoverageHandler::mouseMoveEvent(QMouseEvent* event)
 {
     ToolHandler::mouseMoveEvent(event);
+
+    // update plot, if a robot is being moved
+    if (event->buttons() & Qt::LeftButton) {
+        m_plotter->updatePlot(RobotManager::self()->activeRobot());
+    }
 }
 
 void DisCoverageHandler::mousePressEvent(QMouseEvent* event)
