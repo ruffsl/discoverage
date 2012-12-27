@@ -1230,6 +1230,20 @@ void GridMap::computeVoronoiPartition()
     QTime time;
     time.start();
 
+    // take shortcut: if only one robot, assign it to all cells
+    if (RobotManager::self()->count() == 1) {
+        Robot* robot = RobotManager::self()->robot(0);
+        for (int a = 0; a < m_map.size(); ++a) {
+            for (int b = 0; b < m_map[a].size(); ++b) {
+                Cell& c = m_map[a][b];
+                c.setRobot(robot);
+            }
+        }
+        qDebug() << "computeVoronoiPartition took " << time.elapsed() << "milli seconds";
+        return;
+    }
+
+    // flooding algorithm with robots as seeds
     QList<Cell*> queue;
 
     // queue all robots
