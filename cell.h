@@ -55,7 +55,8 @@ class Cell
         void draw(QPainter& p, bool showDensity, bool showGradient);
 
         const QRectF& rect() const;
-        const QPointF center() const;
+        inline const QPointF& center() const
+        { return m_center; }
 
         inline bool isObstacle() const
         { return m_state & Obstacle; }
@@ -166,6 +167,8 @@ class Cell
 
     private:
         QRectF m_rect;
+        QPointF m_center;
+
         State m_state;
         QPoint m_index;
         QPointF m_gradient;

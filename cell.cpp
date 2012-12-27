@@ -70,11 +70,7 @@ Cell::Cell(const QRectF& rect)
 void Cell::setRect(const QRectF& rect)
 {
     m_rect = rect;
-}
-
-const QPointF Cell::center() const
-{
-    return m_rect.center();
+    m_center = rect.center();
 }
 
 void Cell::setIndex(const QPoint& index)
