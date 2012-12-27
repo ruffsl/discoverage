@@ -84,11 +84,11 @@ class GridMap : public QObject
         QSize size() const;             // amount of cells in the grid map in
         QPointF center() const;         // returns the center of the map in physical coordinates
 
-        inline int mapScreenToCell(qreal screenPos) const {
+        inline int screenToIndex(qreal screenPos) const {
             return screenPos / (scaleFactor() * resolution());
         }
 
-        inline QPoint mapScreenToCell(const QPointF& screenPos) const {
+        inline QPoint screenToIndex(const QPointF& screenPos) const {
             QPointF pt(screenPos / (scaleFactor() * resolution()));
             return QPoint(pt.x(), pt.y());
         }

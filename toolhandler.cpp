@@ -53,7 +53,7 @@ Scene* ToolHandler::scene() const
 
 QPoint ToolHandler::cellForMousePosition(const QPoint& mousePosition)
 {
-    return Scene::self()->map().mapScreenToCell(mousePosition);
+    return Scene::self()->map().screenToIndex(mousePosition);
 }
 
 void ToolHandler::setCurrentCell(const QPoint& cellIndex)
@@ -98,7 +98,7 @@ qreal ToolHandler::mapToMap(qreal screenPos) const
 
 int ToolHandler::mapToCell(qreal screenPos) const
 {
-    return scene()->map().mapScreenToCell(screenPos);
+    return scene()->map().screenToIndex(screenPos);
 }
 
 void ToolHandler::draw(QPainter& p)
