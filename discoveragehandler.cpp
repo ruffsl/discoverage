@@ -246,7 +246,7 @@ QPointF DisCoverageHandler::gradient(Robot* robot, bool /*interpolate*/)
     QPoint cellIndex = scene()->map().worldToIndex(robot->position());
 
     Cell& c = scene()->map().cell(cellIndex);
-    if (c.state() != (Cell::Explored | Cell::Free))
+    if (c.state() != (Cell::Explored | Cell::Free) || frontiers.count() == 0)
         return QPointF(0, 0);
 
     QList<Path> allPaths;
