@@ -51,9 +51,6 @@ class ToolHandler
         QPoint currentCell() const;
         QPoint mousePosition() const;
 
-        int mapToCell(qreal screenPos) const;
-        qreal mapToMap(qreal screenPos) const;
-
         void drawOperationRadius(QPainter& p);
         void highlightCurrentCell(QPainter& p);
 

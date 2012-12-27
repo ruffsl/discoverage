@@ -91,16 +91,6 @@ double ToolHandler::operationRadius()
     return s_operationRadius;
 }
 
-qreal ToolHandler::mapToMap(qreal screenPos) const
-{
-    return scene()->map().screenToWorld(screenPos);
-}
-
-int ToolHandler::mapToCell(qreal screenPos) const
-{
-    return scene()->map().screenToIndex(screenPos);
-}
-
 void ToolHandler::draw(QPainter& p)
 {
 }
@@ -295,8 +285,8 @@ void ObstacleHandler::updateObstacles()
         destState = Cell::Free;
     }
 
-    qreal x = mapToMap(mousePosition().x());
-    qreal y = mapToMap(mousePosition().y());
+    qreal x = scene()->map().screenToWorld(mousePosition().x());
+    qreal y = scene()->map().screenToWorld(mousePosition().y());
 
     const qreal res = scene()->map().resolution();
     QRectF rect(QPointF(x - res, y - res), 2 * res * QSizeF(1, 1));
