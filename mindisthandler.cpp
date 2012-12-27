@@ -134,7 +134,7 @@ void MinDistHandler::updateVectorField()
 QPointF MinDistHandler::gradient(Robot* robot, bool /*interpolate*/)
 {
     GridMap& m = scene()->map();
-    QPoint pt = m.mapMapToCell(robot->position());
+    QPoint pt = m.worldToIndex(robot->position());
     QList<Path> allPaths = m.frontierPaths(pt);
     double shortestPath = 1000000000.0;
     int shortestPathIndex = -1;

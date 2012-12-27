@@ -208,7 +208,7 @@ QPointF DisCoverageBulloHandler::gradient(const QPointF& robotPos)
 QPointF DisCoverageBulloHandler::interpolatedGradient(const QPointF& robotPos)
 {
     GridMap& m = scene()->map();
-    QPoint cellIndex(m.mapMapToCell(robotPos));
+    QPoint cellIndex(m.worldToIndex(robotPos));
 
     const double diffx = 1.0 - fabs(robotPos.x() - m.cell(cellIndex).center().x()) / scene()->map().resolution();
     const double diffy = 1.0 - fabs(robotPos.y() - m.cell(cellIndex).center().y()) / scene()->map().resolution();
@@ -284,7 +284,7 @@ void DisCoverageBulloHandler::updatePreviewTrajectory(const QPointF& robotPos)
         const QPointF& cmpPos = m_previewPath[qMax(0, m_previewPath.size() - 5)];
         length = (nextPos - cmpPos).manhattanLength();
     } while (length >= scene()->map().resolution() &&
-        !(scene()->map().cell(scene()->map().mapMapToCell(m_previewPath.last())).state() & Cell::Frontier)
+        !(scene()->map().cell(scene()->map().worldToIndex(m_previewPath.last())).state() & Cell::Frontier)
     );
 }
 

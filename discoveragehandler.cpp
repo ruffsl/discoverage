@@ -243,7 +243,7 @@ QPointF DisCoverageHandler::gradient(Robot* robot, bool /*interpolate*/)
 {
     const QSet<Cell*>& frontiers = scene()->map().frontiers();
 
-    QPoint cellIndex = scene()->map().mapMapToCell(robot->position());
+    QPoint cellIndex = scene()->map().worldToIndex(robot->position());
 
     Cell& c = scene()->map().cell(cellIndex);
     if (c.state() != (Cell::Explored | Cell::Free))
@@ -272,6 +272,38 @@ QPointF DisCoverageHandler::gradient(Robot* robot, bool /*interpolate*/)
         }
         delta += 0.1;
     }
+
+    // follow local optimum
+//     if (m_handler->followLocalOptimum()) {
+//         int i;
+//         for (i = 0; i < deltaPoints.size(); ++i) {
+//             if (deltaPoints[i].x() == robot->orientation())
+//                 break;
+//         }
+//
+//         // first time m_delta == 0.0, so no index found
+//         if (deltaPoints.size() == i) {
+//             i = 0;
+//         }
+//
+//         const int n = deltaPoints.size();
+//         int c = 0; // avoid infinite loop
+//         while (deltaPoints[i].y() <= deltaPoints[(i + 1) % n].y() && c < n) {
+//             i = (i + 1) % n;
+//             ++c;
+//         }
+//
+//         c = 0;
+//         while (deltaPoints[i].y() <= deltaPoints[(i - 1 + n) % n].y() && c < n) {
+//             i = (i - 1 + n) % n;
+//             ++c;
+//         }
+//
+//         setCurrentOrientation(deltaPoints[i]);
+//     } else {
+//         // always global optimum
+//         setCurrentOrientation(QPointF(deltaMax, sMax));
+//     }
 
     return QPointF(cos(deltaMax), sin(deltaMax));
 }
@@ -326,7 +358,7 @@ void OrientationPlotter::updatePlot(Robot* robot)
 
     const QSet<Cell*>& frontiers = Scene::self()->map().frontiers();
     GridMap& m = Scene::self()->map();
-    QPoint pt = m.mapMapToCell(robot->position());
+    QPoint pt = m.worldToIndex(robot->position());
     QList<Path> allPaths = m.frontierPaths(pt);
 
     double shortestPath = 1000000000.0;
@@ -439,9 +471,14 @@ void OrientationPlotter::paintEvent(QPaintEvent* event)
     for (int i = 0; i < m_data.size() - 1; ++i) {
         p.drawLine(m_data[i], m_data[i+1]);
     }
-    
-    p.setPen(Qt::red);
-    p.setBrush(QBrush(QColor(255, 0, 0, 128)));
+
+    // mark chosen orientation with a circle, filled by the robot color
+    p.setPen(Qt::black);
+    if (Robot* robot = RobotManager::self()->activeRobot()) {
+        p.setBrush(robot->color());
+    } else {
+        p.setBrush(QColor(255, 0, 0, 128));
+    }
     p.drawEllipse(m_currentOrientation, 3.0 / scaleX, 3.0 / scaleY);
 }
 

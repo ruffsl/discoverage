@@ -1235,7 +1235,7 @@ void GridMap::computeVoronoiPartition()
     // queue all robots
     for (int i = 0; i < RobotManager::self()->count(); ++i) {
         Robot* robot = RobotManager::self()->robot(i);
-        QPoint cellIndex = mapMapToCell(robot->position());
+        QPoint cellIndex = worldToIndex(robot->position());
         if (isValidField(cellIndex)) {
             Cell* cell = &m_map[cellIndex.x()][cellIndex.y()];
             cell->setRobot(robot);

@@ -101,11 +101,11 @@ class GridMap : public QObject
             return screenPos / scaleFactor();
         }
 
-        inline int mapMapToCell(qreal mapPos) const {
+        inline int worldToIndex(qreal mapPos) const {
             return mapPos / resolution();
         }
 
-        inline QPoint mapMapToCell(const QPointF& mapPos) const {
+        inline QPoint worldToIndex(const QPointF& mapPos) const {
             return QPoint(mapPos.x() / resolution(), mapPos.y() / resolution());
         }
 
