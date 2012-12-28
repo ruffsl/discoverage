@@ -24,6 +24,7 @@
 #include "robot.h"
 #include "robotmanager.h"
 #include "config.h"
+#include <qglobal.h> // qFuzzyCompare
 
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
@@ -246,19 +247,24 @@ void DisCoverageHandler::postProcess()
 
 QPointF DisCoverageHandler::gradient(Robot* robot, bool /*interpolate*/)
 {
-    const QSet<Cell*>& frontiers = scene()->map().frontiers();
+    const QSet<Cell*>& frontiers = Scene::self()->map().frontiers();
+    GridMap& m = Scene::self()->map();
+    QPoint pt = m.worldToIndex(robot->position());
+    QList<Path> allPaths = m.frontierPaths(pt);
 
-    QPoint cellIndex = scene()->map().worldToIndex(robot->position());
-
-    Cell& c = scene()->map().cell(cellIndex);
-    if (c.state() != (Cell::Explored | Cell::Free) || frontiers.count() == 0)
-        return QPointF(0, 0);
-
-    QList<Path> allPaths;
-    allPaths = scene()->map().frontierPaths(cellIndex);
+    double shortestPath = 1000000000.0;
     for (int i = 0; i < allPaths.size(); ++i) {
-        allPaths[i].beautify(scene()->map());
+        allPaths[i].beautify(m);
+        if (allPaths[i].m_length < shortestPath) {
+            shortestPath = allPaths[i].m_length;
+        }
     }
+
+    if (autoAdaptDistanceStdDeviation()) {
+        setDistanceStdDeviation(shortestPath);
+    }
+
+    QVector<QPointF> deltaPoints;
 
     double delta = -M_PI;
     double sMax = 0.0;
@@ -267,9 +273,11 @@ QPointF DisCoverageHandler::gradient(Robot* robot, bool /*interpolate*/)
         double s = 0;
         int i = 0;
         foreach (Cell* q, frontiers) {
-            s += disCoverage(c.center(), delta, q->rect().center(), allPaths[i]);
+            s += disCoverage(robot->position(), delta, q->rect().center(), allPaths[i]);
             ++i;
         }
+
+        deltaPoints.append(QPointF(delta, s));
 
         if (s > sMax) {
             sMax = s;
@@ -279,36 +287,35 @@ QPointF DisCoverageHandler::gradient(Robot* robot, bool /*interpolate*/)
     }
 
     // follow local optimum
-//     if (m_handler->followLocalOptimum()) {
-//         int i;
-//         for (i = 0; i < deltaPoints.size(); ++i) {
-//             if (deltaPoints[i].x() == robot->orientation())
-//                 break;
-//         }
-//
-//         // first time m_delta == 0.0, so no index found
-//         if (deltaPoints.size() == i) {
-//             i = 0;
-//         }
-//
-//         const int n = deltaPoints.size();
-//         int c = 0; // avoid infinite loop
-//         while (deltaPoints[i].y() <= deltaPoints[(i + 1) % n].y() && c < n) {
-//             i = (i + 1) % n;
-//             ++c;
-//         }
-//
-//         c = 0;
-//         while (deltaPoints[i].y() <= deltaPoints[(i - 1 + n) % n].y() && c < n) {
-//             i = (i - 1 + n) % n;
-//             ++c;
-//         }
-//
-//         setCurrentOrientation(deltaPoints[i]);
-//     } else {
-//         // always global optimum
-//         setCurrentOrientation(QPointF(deltaMax, sMax));
-//     }
+    if (followLocalOptimum()) {
+        int i;
+        double robotOrientation = robot->orientation();
+        for (i = 0; i < deltaPoints.size(); ++i) {
+            if (qFuzzyCompare(deltaPoints[i].x(), robotOrientation))
+                break;
+        }
+
+        // first time m_delta == 0.0, so no index found
+        if (deltaPoints.size() == i) {
+//             qDebug() << "found no correct orientation!";
+            i = 0;
+        }
+
+        const int n = deltaPoints.size();
+        int c = 0; // avoid infinite loop
+        while (deltaPoints[i].y() <= deltaPoints[(i + 1) % n].y() && c < n) {
+            i = (i + 1) % n;
+            ++c;
+        }
+
+        c = 0;
+        while (deltaPoints[i].y() <= deltaPoints[(i - 1 + n) % n].y() && c < n) {
+            i = (i - 1 + n) % n;
+            ++c;
+        }
+
+        deltaMax = deltaPoints[i].x();
+    }
 
     return QPointF(cos(deltaMax), sin(deltaMax));
 }
@@ -405,8 +412,9 @@ void OrientationPlotter::updatePlot(Robot* robot)
     // follow local optimum
     if (m_handler->followLocalOptimum()) {
         int i;
+        double robotOrientation = robot->orientation();
         for (i = 0; i < deltaPoints.size(); ++i) {
-            if (deltaPoints[i].x() == robot->orientation())
+            if (qFuzzyCompare(deltaPoints[i].x(), robotOrientation))
                 break;
         }
 
