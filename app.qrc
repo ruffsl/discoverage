@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="icons">
+    <file>icons/record.png</file>
     <file>icons/partition.png</file>
     <file>icons/add.png</file>
     <file>icons/remove.png</file>

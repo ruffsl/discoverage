@@ -126,6 +126,7 @@
    <addaction name="separator"/>
    <addaction name="actionDummy"/>
    <addaction name="separator"/>
+   <addaction name="actionRecord"/>
    <addaction name="actionReset"/>
    <addaction name="actionStep"/>
    <addaction name="separator"/>
@@ -383,6 +384,21 @@
    </property>
    <property name="toolTip">
     <string>Show Partition</string>
+   </property>
+  </action>
+  <action name="actionRecord">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="app.qrc">
+     <normaloff>:/icons/icons/record.png</normaloff>:/icons/icons/record.png</iconset>
+   </property>
+   <property name="text">
+    <string>Record</string>
+   </property>
+   <property name="toolTip">
+    <string>Create snapshot of each iteration</string>
    </property>
   </action>
  </widget>
