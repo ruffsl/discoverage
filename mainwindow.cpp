@@ -80,6 +80,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     connect(actionNew, SIGNAL(triggered()), this, SLOT(newScene()));
     connect(actionOpen, SIGNAL(triggered()), this, SLOT(loadScene()));
     connect(actionSave, SIGNAL(triggered()), this, SLOT(saveScene()));
+    connect(actionPartition, SIGNAL(triggered(bool)), Config::self(), SLOT(setShowPartition(bool)));
     connect(actionDensity, SIGNAL(triggered(bool)), Config::self(), SLOT(setShowDensity(bool)));
     connect(actionVectorField, SIGNAL(triggered(bool)), Config::self(), SLOT(setShowVectorField(bool)));
     connect(actionStatistics, SIGNAL(triggered(bool)), dwStatistics, SLOT(setVisible(bool)));
