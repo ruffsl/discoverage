@@ -321,31 +321,51 @@ void GridMap::updateCache()
             row[b].draw(p, Config::self()->showDensity(), Config::self()->showVectorField());
         }
     }
+
+    m_partitionMap.clear();
+    if (Config::self()->showPartition() && RobotManager::self()->count() > 1) {
+        // create a QPainterPath for each robot
+        for (int a = 0; a < m_map.size(); ++a) {
+            QVector<Cell>& row = m_map[a];
+            for (int b = 0; b < row.size(); ++b) {
+                Robot* robot = row[b].robot();
+                if (robot)
+                    m_partitionMap[robot].addRect(row[b].rect());
+            }
+        }
+
+        // simplify each painter path
+        QMapIterator<Robot*, QPainterPath> it(m_partitionMap);
+        while (it.hasNext()) {
+            it.next();
+            m_partitionMap[it.key()] = it.value().simplified();
+        }
+    }
 }
 
 void GridMap::draw(QPainter& p)
 {
     p.drawPixmap(0, 0, m_pixmapCache);
 
-//     p.save();
-//     p.scale(scaleFactor(), scaleFactor());
-//
-//     for (int a = 0; a < m_map.size(); ++a) {
-//         QVector<Cell>& row = m_map[a];
-//         for (int b = 0; b < row.size(); ++b) {
-//             Cell& c = row[b];
-//             if (c.state() == (Cell::Free | Cell::Explored)) {
-//                 p.setPen(c.robot()->color());
-//                 p.drawRect(c.rect());
-//             }
-//         }
-//     }
-//     p.restore();
+    p.save();
+    p.scale(scaleFactor(), scaleFactor());
+
+    QMapIterator<Robot*, QPainterPath> it(m_partitionMap);
+    while (it.hasNext()) {
+        it.next();
+        QColor col(it.key()->color());
+        p.setPen(QPen(col, m_resolution * 0.3));
+        col.setAlpha(96);
+        p.setBrush(col);
+        p.drawPath(it.value());
+    }
 
 //     foreach (Cell* c, m_frontierCache) {
 //         p.fillRect(c->rect(), Qt::blue);
 //     }
 //     qDebug() << m_frontierCache.size();
+
+    p.restore();
 }
 
 void GridMap::updateCell(int xIndex, int yIndex)
@@ -1269,7 +1289,7 @@ void GridMap::computeVoronoiPartition()
         const int xBase = baseCell->index().x();
         const int yBase = baseCell->index().y();
 
-        // 8-neighborhood
+        // 16-neighborhood
         for (int i = 0; i < 16; ++i) {
             const int x = xBase + directionMap[i][0];
             const int y = yBase + directionMap[i][1];

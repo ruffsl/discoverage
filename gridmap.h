@@ -27,6 +27,7 @@
 #include <QtCore/QPoint>
 #include <QtCore/QSet>
 #include <QtCore/QSize>
+#include <QtCore/QMap>
 
 class QSettings;
 class GridMap;
@@ -163,6 +164,7 @@ class GridMap : public QObject
 
         QVector<QVector<Cell> > m_map;
         QPixmap m_pixmapCache;
+        QMap<Robot*, QPainterPath> m_partitionMap;
 
         qreal m_resolution;
 
