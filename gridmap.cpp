@@ -1253,6 +1253,7 @@ void GridMap::computeVoronoiPartition()
         if (isValidField(cellIndex)) {
             Cell* cell = &m_map[cellIndex.x()][cellIndex.y()];
             cell->setRobot(robot);
+            cell->setRobotDist(0);
             queue.append(cell);
         }
     }
