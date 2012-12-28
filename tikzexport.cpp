@@ -48,9 +48,9 @@ void path(QTextStream& ts, const QPainterPath& path, const QString& options)
             if (i > 0) {
                 ts << " -- cycle;\n";
             }
-            ts << QString("\\draw[" + options + "] (%1, %2)").arg(element.x, 0, 'f').arg(element.y, 0, 'f');
+            ts << "\\draw[" << options << "] (" << element.x << ", " << element.y << ")";
         } else if (element.type == QPainterPath::LineToElement) {
-            ts << QString(" -- (%1, %2)").arg(element.x, 0, 'f').arg(element.y, 0, 'f');
+            ts << " -- (" << element.x << ", " << element.y << ")";
         }
     }
     if (i > 0) {
@@ -66,11 +66,8 @@ void path(QTextStream& ts, const QRectF& rect, const QString& options)
         ts << "\\path[" << options << "] ";
     }
 
-    ts << QString("(%1, %2) rectangle (%3, %4);\n")
-        .arg(rect.left(), 0, 'f')
-        .arg(rect.top(), 0, 'f')
-        .arg(rect.right(), 0, 'f')
-        .arg(rect.bottom(), 0, 'f');
+    ts << "(" << rect.left() << ", " << rect.top()
+       << ") rectangle (" << rect.right() << ", " << rect.bottom() << ");\n";
 }
 
 void lines(QTextStream& ts, const QPolygonF& polygon)
@@ -86,7 +83,7 @@ void lines(QTextStream& ts, const QPolygonF& polygon)
             ts << " -- ";
         }
         const QPointF& p = polygon[i];
-        ts << QString("(%1, %2)").arg(p.x(), 0, 'f').arg(p.y(), 0, 'f');
+        ts << "(" << p.x() << ", " << p.y() << ")";
     }
 
     ts << ";\n";
@@ -112,7 +109,7 @@ void clip(QTextStream& ts, const QPainterPath& path)
         } else {
             qDebug() << "tikz::clip: uknown QPainterPath segment type";
         }
-        ts << QString("(%1, %2)").arg(element.x, 0, 'f').arg(element.y, 0, 'f');
+        ts << "(" << element.x << ", " << element.y << ")";
     }
 
     ts << " -- cycle;\n";
@@ -120,30 +117,27 @@ void clip(QTextStream& ts, const QPainterPath& path)
 
 void clip(QTextStream& ts, const QRectF& rect)
 {
-    ts << QString("\\clip (%1, %2) rectangle (%3, %4);")
-        .arg(rect.left(), 0, 'f')
-        .arg(rect.top(), 0, 'f')
-        .arg(rect.right(), 0, 'f')
-        .arg(rect.bottom(), 0, 'f');
+    ts << "\\clip (" << rect.left() << ", " << rect.top()
+       << ") rectangle (" << rect.right() << ", " << rect.bottom() << ");";
 }
 
 void circle(QTextStream& ts, const QPointF& center, qreal radius, const QString& options)
 {
     if (options.isEmpty()) {
-        ts << QString("\\draw (%1, %2) circle (%3cm);\n").arg(center.x()).arg(center.y()).arg(radius);
+        ts << "\\draw (" << center.x() << ", " << center.y() << ") circle (" << radius << "cm);\n";
     } else {
-        ts << QString("\\draw[" + options + "] (%1, %2) circle (%3cm);\n").arg(center.x()).arg(center.y()).arg(radius);
+        ts << "\\draw[" << options << "] (" << center.x() << ", " << center.y() << ") circle (" << radius << "cm);\n";
     }
 }
 
 void line(QTextStream& ts, const QPointF& p, const QPointF& q)
 {
-    ts << QString("\\draw (%1, %2) -- (%3, %4);\n").arg(p.x()).arg(p.y()).arg(q.x()).arg(q.y());
+    ts << "\\draw (" << p.x() << ", " << p.y() << ") -- (" << q.x() << ", " << q.y() << ");\n";
 }
 
 void arrow(QTextStream& ts, const QPointF& p, const QPointF& q)
 {
-    ts << QString("\\draw[->] (%1, %2) -- (%3, %4);\n").arg(p.x()).arg(p.y()).arg(q.x()).arg(q.y());
+    ts << "\\draw[->] (" << p.x() << ", " << p.y() << ") -- (" << q.x() << ", " << q.y() << ");\n";
 }
 
 QString uniqColorString()
@@ -164,7 +158,7 @@ void fill(QTextStream& ts, const QRectF& rect, const QColor& brush)
     const QString uniqBrushColor = uniqColorString();
 
     QString brushColor = QString("\\definecolor{col%1}{rgb}{%2, %3, %4}\n").arg(uniqBrushColor)
-        .arg(brush.redF()).arg(brush.greenF()).arg(brush.blueF());
+        .arg(brush.redF(), 0, 'f').arg(brush.greenF(), 0, 'f').arg(brush.blueF(), 0, 'f');
 
     ts << brushColor;
 
@@ -177,10 +171,10 @@ void filldraw(QTextStream& ts, const QRectF& rect, const QColor& brush, const QC
     const QString uniqPenColor = uniqColorString();
 
     QString brushColor = QString("\\definecolor{col%1}{rgb}{%2, %3, %4}\n").arg(uniqBrushColor)
-        .arg(brush.redF()).arg(brush.greenF()).arg(brush.blueF());
+        .arg(brush.redF(), 0, 'f').arg(brush.greenF(), 0, 'f').arg(brush.blueF(), 0, 'f');
 
     QString penColor = QString("\\definecolor{col%1}{rgb}{%2, %3, %4}\n").arg(uniqPenColor)
-        .arg(pen.redF()).arg(pen.greenF()).arg(pen.blueF());
+        .arg(pen.redF(), 0, 'f').arg(pen.greenF(), 0, 'f').arg(pen.blueF(), 0, 'f');
 
     ts << brushColor << penColor;
 
@@ -192,7 +186,7 @@ void drawRect(QTextStream& ts, const QRectF& rect, const QColor& pen)
     const QString uniqPenColor = uniqColorString();
 
     QString penColor = QString("\\definecolor{col%1}{rgb}{%2, %3, %4}\n").arg(uniqPenColor)
-        .arg(pen.redF()).arg(pen.greenF()).arg(pen.blueF());
+        .arg(pen.redF(), 0, 'f').arg(pen.greenF(), 0, 'f').arg(pen.blueF(), 0, 'f');
 
     ts << penColor;
 
@@ -201,24 +195,22 @@ void drawRect(QTextStream& ts, const QRectF& rect, const QColor& pen)
 
 void fill(QTextStream& ts, const QRectF& rect, const QString& brush)
 {
-    ts << QString("\\filldraw[fill=%1, draw=%1] (%2, %3) rectangle (%4, %5);\n")
-        .arg(brush)
-        .arg(rect.left()).arg(rect.bottom()).arg(rect.right()).arg(rect.top());
+    ts << "\\filldraw[fill=" << brush << ", draw=" << brush
+       << "] (" << rect.left() << ", " << rect.bottom() << ") rectangle ("
+       << rect.right() << ", " << rect.top() << ");\n";
 }
 
 void filldraw(QTextStream& ts, const QRectF& rect, const QString& brush, const QString& pen)
 {
-    ts << QString("\\filldraw[fill=%1, draw=%2] (%3, %4) rectangle (%5, %6);\n")
-        .arg(brush)
-        .arg(pen)
-        .arg(rect.left()).arg(rect.bottom()).arg(rect.right()).arg(rect.top());
+    ts << "\\filldraw[fill=" << brush << ", draw=" << pen
+       << "] (" << rect.left() << ", " << rect.bottom() << ") rectangle ("
+       << rect.right() << ", " << rect.top() << ");\n";
 }
 
 void drawRect(QTextStream& ts, const QRectF& rect, const QString& pen)
 {
-    ts << QString("\\draw[%1] (%2, %3) rectangle (%4, %5);\n")
-        .arg(pen)
-        .arg(rect.left()).arg(rect.bottom()).arg(rect.right()).arg(rect.top());
+    ts << "\\draw[" << pen << "] (" << rect.left() << ", " << rect.bottom()
+       << ") rectangle (" << rect.right() << ", " << rect.top() << ");\n";
 }
 
 }
