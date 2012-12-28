@@ -32,24 +32,6 @@
 
 #include <math.h>
 
-static QPainterPath circularPath(const QPointF& center, qreal radius)
-{
-    int segmentCount = static_cast<int>((radius + 1.0) * 10);
-
-    QPainterPath path;
-    path.moveTo(center + QPointF(radius, 0));
-
-    for (int i = 1; i < segmentCount; ++i) {
-        QPointF p(radius * cos(i * 2.0 * M_PI / segmentCount), radius * sin(i * 2.0 * M_PI / segmentCount));
-        path.lineTo(center + p);
-    }
-
-    path.closeSubpath();
-    return path;
-}
-
-
-
 //BEGIN DisCoverageBulloHandler
 DisCoverageBulloHandler::DisCoverageBulloHandler(Scene* scene)
     : QObject()
