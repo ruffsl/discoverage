@@ -1263,6 +1263,13 @@ void GridMap::computeVoronoiPartition()
         return;
     }
 
+    // set robot of all cells to 0
+    for (int a = 0; a < m_map.size(); ++a) {
+        for (int b = 0; b < m_map[a].size(); ++b) {
+            m_map[a][b].setRobot(0);
+        }
+    }
+
     // flooding algorithm with robots as seeds
     QList<Cell*> queue;
 
