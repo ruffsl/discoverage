@@ -1308,8 +1308,11 @@ void GridMap::computeVoronoiPartition()
             Cell* cell = &m_map[x][y];
 
             // obstacle or not explored
-            if (!(cell->state() == (Cell::Free | Cell::Explored)))
+//             if (!(cell->state() == (Cell::Free | Cell::Explored)))
+            if (cell->state() == (Cell::Obstacle | Cell::Explored)) {
+                cell->setRobot(0);
                 continue;
+            }
 
             // chess horse jumps: make sure cells inbetween are free and explored
             if (i >= 8 && i < 12) {
