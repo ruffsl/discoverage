@@ -1422,6 +1422,21 @@ void GridMap::exportToTikz(QTextStream& ts)
 #else
     exportToTikzOpt(ts);
 #endif
+
+    // export partition
+    if (Config::self()->showPartition() && RobotManager::self()->count() > 1) {
+        for (int i = 0; i < RobotManager::self()->count(); ++i) {
+            Robot* robot = RobotManager::self()->robot(i);
+            if (!m_partitionMap.contains(robot))
+                continue;
+
+            const QPainterPath& path = m_partitionMap[robot];
+            tikz::beginScope(ts);
+            tikz::clip(ts, path);
+            tikz::path(ts, path, "ultra thick, draw=blue");
+            tikz::endScope(ts);
+        }
+    }
 }
 
 void GridMap::exportToTikzOpt(QTextStream& ts)
