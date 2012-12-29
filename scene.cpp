@@ -310,7 +310,11 @@ void Scene::tick()
 void Scene::exportToTikz(QTikzPicture& tp)
 {
     tp.begin("yscale=-1");
+
+    tp.comment("export grid map");
     m_map->exportToTikz(tp);
+
+    tp.comment("export tool handler");
     m_toolHandler->exportToTikz(tp);
 
     for (int i = 0; i < RobotManager::self()->count(); ++i) {

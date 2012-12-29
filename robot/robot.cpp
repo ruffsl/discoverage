@@ -208,6 +208,7 @@ void Robot::drawRobot(QPainter& p)
 void Robot::exportToTikz(QTikzPicture& tp)
 {
     const QString c = tp.registerColor(color());
+    tp.comment("robot trajectory");
     tp.line(m_trajectory, "thick, draw=" + c);
 
     // construct path of visibility region
@@ -218,6 +219,7 @@ void Robot::exportToTikz(QTikzPicture& tp)
     }
     visiblePath = visiblePath.simplified();
     visiblePath = visiblePath.intersected(circularPath(m_position, m_sensingRange));
+    tp.comment("robot sensed area");
     tp.path(visiblePath, "thick, draw=" + c + ", fill=black, fill opacity=0.2");
 
     tp.circle(m_position, 0.5, "dashed, thick");
