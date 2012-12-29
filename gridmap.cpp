@@ -1168,7 +1168,7 @@ static inline int sgn(int val) {
     return (0 < val) - (val < 0);
 }
 
-void GridMap::computeDistanceTransform()
+void GridMap::computeDistanceTransform(Robot* robot)
 {
     QTime time;
     time.start();
@@ -1176,7 +1176,7 @@ void GridMap::computeDistanceTransform()
     QList<Cell*> queue;
 
     // queue all frontier cells
-    foreach (Cell* frontierCell, frontiers()) {
+    foreach (Cell* frontierCell, frontiers(robot)) {
         frontierCell->setFrontierDist(0);
         queue.append(frontierCell);
     }
@@ -1202,6 +1202,10 @@ void GridMap::computeDistanceTransform()
                 continue;
 
             Cell* cell = &m_map[x][y];
+
+            // if not in correct voronoi cell, ignore
+            if (robot != 0 && cell->robot() != robot)
+                continue;
 
             // obstacle or not explored
             if (!(cell->state() == (Cell::Free | Cell::Explored)))
