@@ -162,7 +162,7 @@ void DisCoverageHandler::updateParameters()
 
 void DisCoverageHandler::updateVectorField()
 {
-    const QSet<Cell*>& frontiers = scene()->map().frontiers();
+    const QList<Cell*>& frontiers = scene()->map().frontiers();
     const int dx = scene()->map().size().width();
     const int dy = scene()->map().size().height();
 
@@ -247,7 +247,7 @@ void DisCoverageHandler::postProcess()
 
 QPointF DisCoverageHandler::gradient(Robot* robot, bool /*interpolate*/)
 {
-    const QSet<Cell*>& frontiers = Scene::self()->map().frontiers();
+    const QList<Cell*>& frontiers = Scene::self()->map().frontiers();
     GridMap& m = Scene::self()->map();
     QPoint pt = m.worldToIndex(robot->position());
     QList<Path> allPaths = m.frontierPaths(pt);
@@ -368,7 +368,7 @@ void OrientationPlotter::updatePlot(Robot* robot)
 {
     if (!robot) return;
 
-    const QSet<Cell*>& frontiers = Scene::self()->map().frontiers();
+    const QList<Cell*>& frontiers = Scene::self()->map().frontiers();
     GridMap& m = Scene::self()->map();
     QPoint pt = m.worldToIndex(robot->position());
     QList<Path> allPaths = m.frontierPaths(pt);

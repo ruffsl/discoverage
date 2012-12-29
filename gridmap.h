@@ -129,7 +129,8 @@ class GridMap : public QObject
         inline bool isValidField(const QPoint& cellIndex) const;// index check for
 
         bool setState(Cell& cell, Cell::State newState);        // modify cell state
-        const QSet<Cell*>& frontiers() const;                   // cached list of all frontiers
+        const QList<Cell*>& frontiers() const;                  // cached list of all frontiers
+        QList<Cell*> frontiers(Robot* robot) const;             // frontiers for robot
 
     //
     // Exploration & Density
@@ -169,7 +170,7 @@ class GridMap : public QObject
         qreal m_resolution;
 
         // track a list of frontiers for fast lookup/iteration
-        QSet<Cell*> m_frontierCache;
+        QList<Cell*> m_frontierCache;
         int m_freeCellCount;
         int m_exploredCellCount;
 };

@@ -186,7 +186,7 @@ void GridMap::load(QSettings& config)
             cell.load(ds);
             cell.setIndex(QPoint(a, b));
             if (cell.state() & Cell::Frontier) {
-                m_frontierCache.insert(&cell);
+                m_frontierCache.append(&cell);
             }
             if (cell.state() & Cell::Free) {
                 if (cell.state() & Cell::Explored) {
@@ -380,9 +380,24 @@ void GridMap::updateCell(Cell& cell)
     cell.draw(p, Config::self()->showDensity(), Config::self()->showVectorField());
 }
 
-const QSet<Cell*>& GridMap::frontiers() const
+const QList<Cell*>& GridMap::frontiers() const
 {
     return m_frontierCache;
+}
+
+QList<Cell*> GridMap::frontiers(Robot* robot) const
+{
+    if (!robot || RobotManager::self()->count() == 1) {
+        return m_frontierCache;
+    }
+
+    QList<Cell*> cells;
+    for (QList<Cell*>::const_iterator it = m_frontierCache.constBegin(); it != m_frontierCache.constEnd(); ++it) {
+        if ((*it)->robot() == robot) {
+            cells.append(*it);
+        }
+    }
+    return cells;
 }
 
 bool GridMap::setState(Cell& cell, Cell::State state)
@@ -402,9 +417,9 @@ bool GridMap::setState(Cell& cell, Cell::State state)
 
     // update frontier cache
     if (wasFrontier && !isFrontier) {
-        m_frontierCache.remove(&cell);
+        m_frontierCache.removeOne(&cell);
     } else if (!wasFrontier && isFrontier) {
-        m_frontierCache.insert(&cell);
+        m_frontierCache.append(&cell);
     }
 
     // update free cell count
