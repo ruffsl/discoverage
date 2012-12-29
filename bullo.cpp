@@ -22,6 +22,7 @@
 #include "mainwindow.h"
 #include "tikzexport.h"
 #include "robot.h"
+#include "robotmanager.h"
 #include "config.h"
 
 #include <QtGui/QPainter>
@@ -225,7 +226,8 @@ void DisCoverageBulloHandler::tick()
 void DisCoverageBulloHandler::postProcess()
 {
     scene()->map().computeVoronoiPartition();
-    scene()->map().computeDistanceTransform();
+    for (int i = 0; i < RobotManager::self()->count(); ++i)
+        scene()->map().computeDistanceTransform(RobotManager::self()->robot(i));
     scene()->map().updateDensity();
 
     if (Config::self()->showVectorField()) {

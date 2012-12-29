@@ -22,6 +22,7 @@
 #include "mainwindow.h"
 #include "ui_discoveragewidget.h"
 #include "robot.h"
+#include "robotmanager.h"
 #include "config.h"
 
 #include <QtGui/QPainter>
@@ -87,7 +88,8 @@ void MinDistHandler::postProcess()
     scene()->map().computeVoronoiPartition();
 
     if (Config::self()->showDensity()) {
-        scene()->map().computeDistanceTransform();
+        for (int i = 0; i < RobotManager::self()->count(); ++i)
+            scene()->map().computeDistanceTransform(RobotManager::self()->robot(i));
         scene()->map().updateDensity();
     }
 
