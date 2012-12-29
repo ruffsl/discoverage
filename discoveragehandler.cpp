@@ -162,42 +162,45 @@ void DisCoverageHandler::updateParameters()
 
 void DisCoverageHandler::updateVectorField()
 {
-    const QList<Cell*>& frontiers = scene()->map().frontiers();
     const int dx = scene()->map().size().width();
     const int dy = scene()->map().size().height();
 
-    for (int a = 0; a < dx; ++a) {
-        for (int b = 0; b < dy; ++b) {
-            Cell& c = scene()->map().cell(a, b);
-            if (c.state() != (Cell::Explored | Cell::Free))
-                continue;
+    for (int i = 0; i < RobotManager::self()->count(); ++i) {
+        const QList<Cell*> frontiers = scene()->map().frontiers(RobotManager::self()->robot(i));
 
-            QList<Path> allPaths;
-            allPaths = scene()->map().frontierPaths(QPoint(a, b));
-            for (int i = 0; i < allPaths.size(); ++i) {
-                allPaths[i].beautify(scene()->map());
-            }
+        for (int a = 0; a < dx; ++a) {
+            for (int b = 0; b < dy; ++b) {
+                Cell& c = scene()->map().cell(a, b);
+                if (c.state() != (Cell::Explored | Cell::Free))
+                    continue;
 
-            double delta = -M_PI;
-            double sMax = 0.0;
-            double deltaMax = 0.0;
-            while (delta < M_PI) {
-                double s = 0;
-                int i = 0;
-                foreach (Cell* q, frontiers) {
-                    s += disCoverage(c.center(), delta, q->rect().center(), allPaths[i]);
-                    ++i;
+                QList<Path> allPaths;
+                allPaths = scene()->map().frontierPaths(QPoint(a, b), frontiers);
+                for (int i = 0; i < allPaths.size(); ++i) {
+                    allPaths[i].beautify(scene()->map());
                 }
 
-                if (s > sMax) {
-                    sMax = s;
-                    deltaMax = delta;
-                }
-                delta += 0.1;
-            }
+                double delta = -M_PI;
+                double sMax = 0.0;
+                double deltaMax = 0.0;
+                while (delta < M_PI) {
+                    double s = 0;
+                    int i = 0;
+                    foreach (Cell* q, frontiers) {
+                        s += disCoverage(c.center(), delta, q->rect().center(), allPaths[i]);
+                        ++i;
+                    }
 
-            QPointF grad(cos(deltaMax), sin(deltaMax));
-            c.setGradient(grad);
+                    if (s > sMax) {
+                        sMax = s;
+                        deltaMax = delta;
+                    }
+                    delta += 0.1;
+                }
+
+                QPointF grad(cos(deltaMax), sin(deltaMax));
+                c.setGradient(grad);
+            }
         }
     }
 }
@@ -247,10 +250,10 @@ void DisCoverageHandler::postProcess()
 
 QPointF DisCoverageHandler::gradient(Robot* robot, bool /*interpolate*/)
 {
-    const QList<Cell*>& frontiers = Scene::self()->map().frontiers();
+    const QList<Cell*> frontiers = Scene::self()->map().frontiers(robot);
     GridMap& m = Scene::self()->map();
     QPoint pt = m.worldToIndex(robot->position());
-    QList<Path> allPaths = m.frontierPaths(pt);
+    QList<Path> allPaths = m.frontierPaths(pt, frontiers);
 
     double shortestPath = 1000000000.0;
     for (int i = 0; i < allPaths.size(); ++i) {
@@ -368,10 +371,10 @@ void OrientationPlotter::updatePlot(Robot* robot)
 {
     if (!robot) return;
 
-    const QList<Cell*>& frontiers = Scene::self()->map().frontiers();
+    const QList<Cell*> frontiers = Scene::self()->map().frontiers(robot);
     GridMap& m = Scene::self()->map();
     QPoint pt = m.worldToIndex(robot->position());
-    QList<Path> allPaths = m.frontierPaths(pt);
+    QList<Path> allPaths = m.frontierPaths(pt, frontiers);
 
     double shortestPath = 1000000000.0;
     for (int i = 0; i < allPaths.size(); ++i) {

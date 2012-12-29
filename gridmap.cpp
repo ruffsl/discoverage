@@ -694,9 +694,9 @@ public:
 };
 
 
-QList<Path> GridMap::frontierPaths(const QPoint& start)
+QList<Path> GridMap::frontierPaths(const QPoint& start, const QList<Cell*>& frontiers)
 {
-    if (m_frontierCache.isEmpty()) {
+    if (frontiers.isEmpty()) {
         return QList<Path>();
     }
 
@@ -714,9 +714,7 @@ QList<Path> GridMap::frontierPaths(const QPoint& start)
     pCell->setPathState(Cell::PathOpen);
     queue.insert(PathField(start, pCell));
 
-    int frontierCount = 0;
-
-    while ((!queue.empty()) && frontierCount != m_frontierCache.size())
+    while (!queue.empty())
     {
         // Knoten mit den niedrigsten Kosten aus der Liste holen
         PathField f = *queue.begin();
@@ -724,11 +722,6 @@ QList<Path> GridMap::frontierPaths(const QPoint& start)
 
         f.cell->setPathState(Cell::PathClose);  // Jetzt geschlossen
         int x = f.x, y = f.y;
-
-        // speed up: if amount of frontier cells is already reached, terminate
-        if (f.cell->state() & Cell::Frontier) {
-            ++frontierCount;
-        }
 
         // Alle angrenzenden Felder bearbeiten
         for (int i = 0; i < 8; ++i) {
@@ -774,14 +767,14 @@ QList<Path> GridMap::frontierPaths(const QPoint& start)
             pCell->m_costF  = G + 0;
             pCell->m_pathParent = i;
 
-            // Zu OPEN hinzuf�gen
+            // Zu OPEN hinzufuegen
             pCell->setPathState(Cell::PathOpen);
             queue.insert(PathField( QPoint( ax, ay ), pCell));
         }
     }
 
-    QList<Path> m_frontierPaths;
-    foreach (Cell* frontier, m_frontierCache) {
+    QList<Path> frontierPaths;
+    foreach (Cell* frontier, frontiers) {
         // den Weg vom Ziel zum Start zurueckverfolgen und markieren
         int x = frontier->index().x();
         int y = frontier->index().y();
@@ -804,7 +797,7 @@ QList<Path> GridMap::frontierPaths(const QPoint& start)
             path.m_length += nParent < 4 ? 1.0f : 1.41421356f;
         }
         path.m_length *= resolution();
-        m_frontierPaths.append(path);
+        frontierPaths.append(path);
     }
 
 //     qDebug() << "reconstruction" << time.elapsed();
@@ -820,7 +813,7 @@ QList<Path> GridMap::frontierPaths(const QPoint& start)
     }
 //     qDebug() << "cleanup" << time.elapsed();
 
-    return m_frontierPaths;
+    return frontierPaths;
 }
 
 

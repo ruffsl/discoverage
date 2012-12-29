@@ -154,7 +154,7 @@ class GridMap : public QObject
     public:
         bool pathVisible(const QPoint& from, const QPoint& to);
         bool aaPathVisible(const QPoint& from, const QPoint& to);
-        QList<Path> frontierPaths(const QPoint& start);
+        QList<Path> frontierPaths(const QPoint& start, const QList<Cell*>& frontiers);
         Path aStar(const QPoint& from, const QPoint& to);
         float heuristic(const QPoint& start, const QPoint& end);
 
