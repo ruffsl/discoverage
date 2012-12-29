@@ -1192,7 +1192,7 @@ void GridMap::computeDistanceTransform()
         const int xBase = baseCell->index().x();
         const int yBase = baseCell->index().y();
 
-        // 8-neighborhood
+        // 16-neighborhood
         for (int i = 0; i < 16; ++i) {
             const int x = xBase + directionMap[i][0];
             const int y = yBase + directionMap[i][1];
