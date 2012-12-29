@@ -48,6 +48,16 @@ void QTikzPicture::setStream(QTextStream* textStream)
 
 QString QTikzPicture::registerColor(const QColor& color)
 {
+    // some predefined colors
+    if (color == Qt::red) return "red";
+    if (color == Qt::green) return "green";
+    if (color == Qt::blue) return "blue";
+    if (color == Qt::black) return "black";
+    if (color == Qt::white) return "white";
+    if (color == Qt::cyan) return "cyan";
+    if (color == Qt::magenta) return "magenta";
+    if (color == Qt::yellow) return "yellow";
+
     QString name = color.name();
     if (name.startsWith('#')) name.remove(0, 1);
 
