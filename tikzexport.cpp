@@ -2,6 +2,188 @@
 
 #include <QDebug>
 
+QTikzPicture::QTikzPicture()
+    : ts(0)
+{
+}
+
+void QTikzPicture::setStream(QTextStream* textStream)
+{
+    ts = textStream;
+}
+
+QString QTikzPicture::registerColor(const QColor& color)
+{
+    QString name = color.name();
+    if (name.startsWith('#')) name.remove(0, 1);
+
+    name.replace("0", "P", Qt::CaseInsensitive);
+    name.replace("1", "Q", Qt::CaseInsensitive);
+    name.replace("2", "W", Qt::CaseInsensitive);
+    name.replace("3", "E", Qt::CaseInsensitive);
+    name.replace("4", "R", Qt::CaseInsensitive);
+    name.replace("5", "T", Qt::CaseInsensitive);
+    name.replace("6", "Z", Qt::CaseInsensitive);
+    name.replace("7", "U", Qt::CaseInsensitive);
+    name.replace("8", "I", Qt::CaseInsensitive);
+    name.replace("9", "O", Qt::CaseInsensitive);
+
+    name = 'c' + name;
+
+    if (!m_colors.contains(name)) {
+        if (ts) {
+            (*ts) << "\\definecolor{" << name << "}{rgb}{"
+                  << color.redF() << ", " << color.greenF() << ", " << color.blueF() << "}\n";
+        }
+        m_colors[name] = true;
+    }
+
+    return name;
+}
+
+void QTikzPicture::begin(const QString& options)
+{
+    if (!ts) return;
+
+    if (options.isEmpty()) {
+        (*ts) << "\\begin{tikzpicture}\n";
+    } else {
+        (*ts) << "\\begin{tikzpicture}[" << options << "]\n";
+    }
+}
+
+void QTikzPicture::end()
+{
+    if (!ts) return;
+
+    (*ts) << "\\end{tikzpicture}\n";
+}
+
+void QTikzPicture::beginScope(const QString& options)
+{
+    if (!ts) return;
+
+    if (options.isEmpty()) {
+        (*ts) << "\\begin{scope}\n";
+    } else {
+        (*ts) << "\\begin{scope}[" << options << "]\n";
+    }
+}
+
+void QTikzPicture::endScope()
+{
+    if (!ts) return;
+
+    (*ts) << "\\end{scope}\n";
+}
+
+void QTikzPicture::newline()
+{
+    if (!ts) return;
+
+    (*ts) << "\n";
+}
+
+void QTikzPicture::comment(const QString& text)
+{
+    if (!ts) return;
+
+    (*ts) << "% " << text << "\n";
+}
+
+void QTikzPicture::path(const QPainterPath& path, const QString& options)
+{
+    if (!ts || path.isEmpty()) return;
+
+    int i = 0;
+    for (i = 0; i < path.elementCount(); ++i) {
+        const QPainterPath::Element& element = path.elementAt(i);
+
+        if (element.type == QPainterPath::MoveToElement) {
+            if (i > 0) {
+                (*ts) << " -- cycle;\n";
+            }
+            (*ts) << "\\draw[" << options << "] (" << element.x << ", " << element.y << ")";
+        } else if (element.type == QPainterPath::LineToElement) {
+            (*ts) << " -- (" << element.x << ", " << element.y << ")";
+        }
+    }
+    if (i > 0) {
+        (*ts) << " -- cycle;\n";
+    }
+}
+
+void QTikzPicture::path(const QRectF& rect, const QString& options)
+{
+    if (!ts || rect.isEmpty()) return;
+
+    (*ts) << "\\path";
+    if (!options.isEmpty()) {
+        (*ts) << "[" << options << "]";
+    }
+    (*ts) << " (" << rect.left() << ", " << rect.top()
+          << ") rectangle (" << rect.right() << ", " << rect.bottom() << ");\n";
+}
+
+void QTikzPicture::clip(const QPainterPath& path)
+{
+    if (!ts || path.isEmpty()) return;
+
+    (*ts) << "\\clip ";
+
+    for (int i = 0; i < path.elementCount(); ++i) {
+        const QPainterPath::Element& element = path.elementAt(i);
+
+        if (element.type == QPainterPath::MoveToElement) {
+            if (i > 0) {
+                (*ts) << " -- cycle";
+                (*ts) << "\n      ";
+            }
+        } else if (element.type == QPainterPath::LineToElement) {
+            (*ts) << " -- ";
+        } else {
+            qWarning() << "QTikzPicture::clip: uknown QPainterPath segment type";
+        }
+        (*ts) << "(" << element.x << ", " << element.y << ")";
+    }
+
+    (*ts) << " -- cycle;\n";
+}
+
+void QTikzPicture::clip(const QRectF& rect)
+{
+    if (!ts || rect.isEmpty()) return;
+
+    (*ts) << "\\clip (" << rect.left() << ", " << rect.top()
+          << ") rectangle (" << rect.right() << ", " << rect.bottom() << ");";
+}
+
+void QTikzPicture::circle(const QPointF& center, qreal radius, const QString& options)
+{
+    if (!ts || radius <= 0) return;
+
+    (*ts) << "\\draw";
+    if (!options.isEmpty()) {
+        (*ts) << "[" << options << "]";
+    }
+    (*ts) << " (" << center.x() << ", " << center.y() << ") circle (" << radius << "cm);\n";
+}
+
+void QTikzPicture::line(const QPointF& p, const QPointF& q, const QString& options)
+{
+    if (!ts) return;
+
+    (*ts) << "\\draw";
+    if (!options.isEmpty()) {
+        (*ts) << "[" << options << "]";
+    }
+    (*ts) << " (" << p.x() << ", " << p.y() << ") -- (" << q.x() << ", " << q.y() << ");\n";
+}
+
+
+
+
+
 namespace tikz
 {
 

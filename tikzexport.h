@@ -2,12 +2,46 @@
 #define TIKZ_EXPORT_H
 
 #include <QtCore/QVector>
+#include <QtCore/QHash>
 #include <QtGui/QPainterPath>
 #include <QtCore/QTextStream>
 #include <QtCore/QPointF>
 #include <QtCore/QRectF>
 #include <QtGui/QPolygonF>
 #include <QtGui/QColor>
+
+class QTikzPicture
+{
+    public:
+        QTikzPicture();
+
+        void setStream(QTextStream* textStream);
+
+        QString registerColor(const QColor& color);
+
+        void begin(const QString& options = QString());
+        void end();
+
+        void beginScope(const QString& options = QString());
+        void endScope();
+
+        void newline();
+        void comment(const QString& text);
+
+        void path(const QPainterPath& path, const QString& options = QString());
+        void path(const QRectF& rect, const QString& options = QString());
+
+        void clip(const QPainterPath& path);
+        void clip(const QRectF& rect);
+
+        void circle(const QPointF& center, qreal radius, const QString& options = QString());
+
+        void line(const QPointF& p, const QPointF& q, const QString& options = QString());
+
+    private:
+        QTextStream* ts;
+        QHash<QString, bool> m_colors;
+};
 
 /**
  * Helper namespace to export as tikz picture.
