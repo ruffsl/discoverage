@@ -30,6 +30,7 @@
 
 #include <QtCore/QHash>
 #include <QtCore/QString>
+#include <QtCore/QVector>
 
 class QTextStream;
 class QColor;
@@ -64,6 +65,7 @@ class QTikzPicture
         void circle(const QPointF& center, qreal radius, const QString& options = QString());
 
         void line(const QPointF& p, const QPointF& q, const QString& options = QString());
+        void line(const QVector<QPointF>& points, const QString& options = QString());
 
         QTikzPicture& operator<< (const QString& text);
         QTikzPicture& operator<< (const char* text);

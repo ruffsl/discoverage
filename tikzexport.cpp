@@ -224,6 +224,21 @@ void QTikzPicture::line(const QPointF& p, const QPointF& q, const QString& optio
     (*ts) << " (" << p.x() << ", " << p.y() << ") -- (" << q.x() << ", " << q.y() << ");\n";
 }
 
+void QTikzPicture::line(const QVector<QPointF>& points, const QString& options)
+{
+    if (!ts || points.size() < 2) return;
+
+    (*ts) << "\\draw";
+    if (!options.isEmpty()) {
+        (*ts) << "[" << options << "]";
+    }
+    const int size = points.size();
+    for (int i = 0; i < size - 1; ++i) {
+        (*ts) << " (" << points[i].x() << ", " << points[i].y() << ") --";
+    }
+    (*ts) << " (" << points[size-1].x() << ", " << points[size-1].y() << ");\n";
+}
+
 QTikzPicture& QTikzPicture::operator<< (const QString& text)
 {
     if (!ts || text.isEmpty()) return *this;
