@@ -128,6 +128,7 @@ void Path::beautify(GridMap& gridMap, bool computeExactLength)
     }
 }
 
+static const int border = 2;
 
 GridMap::GridMap(Scene* scene, double width, double height, double resolution)
     : QObject(scene)
@@ -145,9 +146,13 @@ GridMap::GridMap(Scene* scene, double width, double height, double resolution)
             row[b].setRect(QRectF(a * m_resolution, b * m_resolution, m_resolution, m_resolution));
             row[b].setIndex(QPoint(a, b));
 
-            if (a < 2 || a > xCellCount - 3 ||
-                b < 2 || b > yCellCount - 3)
+            if (a == border || a == xCellCount - border - 1||
+                b == border || b == yCellCount - border - 1)
                 row[b].setState(Cell::Unknown | Cell::Obstacle);
+
+            if (a < border || a > xCellCount - border - 1||
+                b < border || b > yCellCount - border - 1)
+                row[b].setState(Cell::Explored | Cell::Obstacle);
         }
     }
 
@@ -1385,9 +1390,10 @@ void GridMap::exportToTikz(QTikzPicture& tp)
     const bool showVectorField = Config::self()->showVectorField();
     const bool showDensity = Config::self()->showDensity();
 
-    QSize mapSize(size());
+    QSizeF mapSize(size());
     mapSize *= m_resolution;
-    tp.clip(QRectF(QPointF(0, 0), mapSize));
+    QRectF clipRect(QPointF(border*m_resolution, border*m_resolution), mapSize - QSizeF(2*border*m_resolution, 2*border*m_resolution));
+    tp.clip(clipRect);
 
     // 1st round: export all explored free cells
     tp.newline();
@@ -1427,6 +1433,7 @@ void GridMap::exportToTikz(QTikzPicture& tp)
 #endif
 
     // export partition
+    tp.comment("Voronoi partition");
     if (Config::self()->showPartition() && RobotManager::self()->count() > 1) {
         for (int i = 0; i < RobotManager::self()->count(); ++i) {
             Robot* robot = RobotManager::self()->robot(i);
