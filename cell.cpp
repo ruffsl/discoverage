@@ -186,23 +186,24 @@ QDataStream& Cell::save(QDataStream& ds)
     return ds;
 }
 
-void Cell::exportToTikz(QTextStream& ts, bool fillDensity, bool exportGradient)
+void Cell::exportToTikz(QTikzPicture& tp, bool fillDensity, bool exportGradient)
 {
     if (m_state & Frontier) { // frontiers
-        tikz::filldraw(ts, m_rect, QString("colFrontier"), QString("colBorder"));
+        tp.path(m_rect, "fill=colFrontier, draw=colBorder");
     } else if (m_state & Obstacle) {
         if (m_state & Explored) {
-            tikz::filldraw(ts, m_rect, QString("colExploredObstacle"), QString("colBorder"));
+            tp.path(m_rect, "fill=colExploredObstacle, draw=colBorder");
         } else {
-            tikz::filldraw(ts, m_rect, QString("colUnexploredObstacle"), QString("colBorder"));
+            tp.path(m_rect, "fill=colUnexploredObstacle, draw=colBorder");
         }
     } else {
         if (m_state & Unknown) {
-            tikz::drawRect(ts, m_rect, QString("colBorder"));
+            tp.path(m_rect, "draw=colBorder");
         } else {
             if (fillDensity) {
                 QColor color = densityToColor(m_density);
-                tikz::fill(ts, m_rect, color);
+                QString strColor = tp.registerColor(color);
+                tp.path(m_rect, "fill=" + strColor + ", draw=" + strColor);
             }
         }
     }
@@ -210,7 +211,7 @@ void Cell::exportToTikz(QTextStream& ts, bool fillDensity, bool exportGradient)
     if (exportGradient && !m_gradient.isNull()) {
         QPointF src = center() - m_gradient * m_rect.width() / 4.0;
         QPointF dst = center() + m_gradient * m_rect.width() / 4.0;
-        tikz::arrow(ts, src, dst);
+        tp.line(src, dst, "->");
     }
 }
 

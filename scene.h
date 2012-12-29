@@ -37,6 +37,7 @@ class QEvent;
 class QWheelEvent;
 class QSettings;
 class QTextStream;
+class QTikzPicture;
 
 class Scene : public QFrame
 {
@@ -68,7 +69,7 @@ class Scene : public QFrame
         void save(QSettings& config);
 
         /** export as tikz code to the text stream ts */
-        void exportToTikz(QTextStream& ts);
+        void exportToTikz(QTikzPicture& tp);
 
     public slots:
         void newScene();

@@ -84,7 +84,7 @@ void DisCoverageBulloHandler::load(QSettings& config)
     ToolHandler::load(config);
 }
 
-void DisCoverageBulloHandler::exportToTikz(QTextStream& ts)
+void DisCoverageBulloHandler::exportToTikz(QTikzPicture& tp)
 {
 }
 

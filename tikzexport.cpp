@@ -1,4 +1,38 @@
+/*  Copyright (c) 2012-2013, Dominik Haumann <dhaumann@kde.org>
+    All rights reserved.
+
+    License: FreeBSD License
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    1. Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+    2. Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+
+    THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+    IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+    OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+    IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+    NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+    DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+    THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+    THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
 #include "tikzexport.h"
+
+#include <QtCore/QTextStream>
+#include <QtCore/QPointF>
+#include <QtCore/QRectF>
+
+#include <QtGui/QPainterPath>
+#include <QtGui/QColor>
 
 #include <QDebug>
 
@@ -180,221 +214,28 @@ void QTikzPicture::line(const QPointF& p, const QPointF& q, const QString& optio
     (*ts) << " (" << p.x() << ", " << p.y() << ") -- (" << q.x() << ", " << q.y() << ");\n";
 }
 
-
-
-
-
-namespace tikz
+QTikzPicture& QTikzPicture::operator<< (const QString& text)
 {
-
-void begin(QTextStream& ts, const QString& options)
-{
-    if (options.isEmpty()) {
-        ts << "\\begin{tikzpicture}\n";
-    } else {
-        ts << "\\begin{tikzpicture}[" << options << "]\n";
-    }
+    if (!ts || text.isEmpty()) return *this;
+    (*ts) << text;
+    return *this;
 }
 
-void end(QTextStream& ts)
+QTikzPicture& QTikzPicture::operator<< (const char* text)
 {
-    ts << "\\end{tikzpicture}\n";
+    return operator<<(QString(text));
 }
 
-void beginScope(QTextStream& ts, const QString& options)
+QTikzPicture& QTikzPicture::operator<< (double number)
 {
-    if (options.isEmpty()) {
-        ts << "\\begin{scope}\n";
-    } else {
-        ts << "\\begin{scope}[" << options << "]\n";
-    }
+    if (ts) (*ts) << number;
+    return *this;
 }
 
-void endScope(QTextStream& ts)
+QTikzPicture& QTikzPicture::operator<< (int number)
 {
-    ts << "\\end{scope}\n";
-}
-
-void newline(QTextStream& ts)
-{
-    ts << "\n";
-}
-
-void path(QTextStream& ts, const QPainterPath& path, const QString& options)
-{
-    int i = 0;
-    for (i = 0; i < path.elementCount(); ++i) {
-        const QPainterPath::Element& element = path.elementAt(i);
-
-        if (element.type == QPainterPath::MoveToElement) {
-            if (i > 0) {
-                ts << " -- cycle;\n";
-            }
-            ts << "\\draw[" << options << "] (" << element.x << ", " << element.y << ")";
-        } else if (element.type == QPainterPath::LineToElement) {
-            ts << " -- (" << element.x << ", " << element.y << ")";
-        }
-    }
-    if (i > 0) {
-        ts << " -- cycle;\n";
-    }
-}
-
-void path(QTextStream& ts, const QRectF& rect, const QString& options)
-{
-    if (options.isEmpty()) {
-        ts << "\\path ";
-    } else {
-        ts << "\\path[" << options << "] ";
-    }
-
-    ts << "(" << rect.left() << ", " << rect.top()
-       << ") rectangle (" << rect.right() << ", " << rect.bottom() << ");\n";
-}
-
-void lines(QTextStream& ts, const QPolygonF& polygon)
-{
-    if (polygon.size() == 0) {
-        return;
-    }
-
-    ts << "\\draw ";
-
-    for (int i = 0; i < polygon.size(); ++i) {
-        if (i > 0) {
-            ts << " -- ";
-        }
-        const QPointF& p = polygon[i];
-        ts << "(" << p.x() << ", " << p.y() << ")";
-    }
-
-    ts << ";\n";
-}
-
-void clip(QTextStream& ts, const QPainterPath& path)
-{
-    if (path.elementCount() == 0)
-        return;
-
-    ts << "\\clip ";
-
-    for (int i = 0; i < path.elementCount(); ++i) {
-        const QPainterPath::Element& element = path.elementAt(i);
-
-        if (element.type == QPainterPath::MoveToElement) {
-            if (i > 0) {
-                ts << " -- cycle";
-                ts << "\n      ";
-            }
-        } else if (element.type == QPainterPath::LineToElement) {
-            ts << " -- ";
-        } else {
-            qDebug() << "tikz::clip: uknown QPainterPath segment type";
-        }
-        ts << "(" << element.x << ", " << element.y << ")";
-    }
-
-    ts << " -- cycle;\n";
-}
-
-void clip(QTextStream& ts, const QRectF& rect)
-{
-    ts << "\\clip (" << rect.left() << ", " << rect.top()
-       << ") rectangle (" << rect.right() << ", " << rect.bottom() << ");";
-}
-
-void circle(QTextStream& ts, const QPointF& center, qreal radius, const QString& options)
-{
-    if (options.isEmpty()) {
-        ts << "\\draw (" << center.x() << ", " << center.y() << ") circle (" << radius << "cm);\n";
-    } else {
-        ts << "\\draw[" << options << "] (" << center.x() << ", " << center.y() << ") circle (" << radius << "cm);\n";
-    }
-}
-
-void line(QTextStream& ts, const QPointF& p, const QPointF& q)
-{
-    ts << "\\draw (" << p.x() << ", " << p.y() << ") -- (" << q.x() << ", " << q.y() << ");\n";
-}
-
-void arrow(QTextStream& ts, const QPointF& p, const QPointF& q)
-{
-    ts << "\\draw[->] (" << p.x() << ", " << p.y() << ") -- (" << q.x() << ", " << q.y() << ");\n";
-}
-
-QString uniqColorString()
-{
-    // lame: construct unique string without numbers for the color
-    static int i = 0;
-    ++i;
-    QString colorName = QString::number(i);
-    for (int i = 0; i < colorName.length(); ++i) {
-        colorName[i] = colorName[i].toAscii() + (char)('A' - '0');
-    }
-
-    return colorName;
-}
-
-void fill(QTextStream& ts, const QRectF& rect, const QColor& brush)
-{
-    const QString uniqBrushColor = uniqColorString();
-
-    QString brushColor = QString("\\definecolor{col%1}{rgb}{%2, %3, %4}\n").arg(uniqBrushColor)
-        .arg(brush.redF(), 0, 'f').arg(brush.greenF(), 0, 'f').arg(brush.blueF(), 0, 'f');
-
-    ts << brushColor;
-
-    fill(ts, rect, "col" + uniqBrushColor);
-}
-
-void filldraw(QTextStream& ts, const QRectF& rect, const QColor& brush, const QColor& pen)
-{
-    const QString uniqBrushColor = uniqColorString();
-    const QString uniqPenColor = uniqColorString();
-
-    QString brushColor = QString("\\definecolor{col%1}{rgb}{%2, %3, %4}\n").arg(uniqBrushColor)
-        .arg(brush.redF(), 0, 'f').arg(brush.greenF(), 0, 'f').arg(brush.blueF(), 0, 'f');
-
-    QString penColor = QString("\\definecolor{col%1}{rgb}{%2, %3, %4}\n").arg(uniqPenColor)
-        .arg(pen.redF(), 0, 'f').arg(pen.greenF(), 0, 'f').arg(pen.blueF(), 0, 'f');
-
-    ts << brushColor << penColor;
-
-    filldraw(ts, rect, "col" + uniqBrushColor, "col" + uniqPenColor);
-}
-
-void drawRect(QTextStream& ts, const QRectF& rect, const QColor& pen)
-{
-    const QString uniqPenColor = uniqColorString();
-
-    QString penColor = QString("\\definecolor{col%1}{rgb}{%2, %3, %4}\n").arg(uniqPenColor)
-        .arg(pen.redF(), 0, 'f').arg(pen.greenF(), 0, 'f').arg(pen.blueF(), 0, 'f');
-
-    ts << penColor;
-
-    drawRect(ts, rect, "col" + uniqPenColor);
-}
-
-void fill(QTextStream& ts, const QRectF& rect, const QString& brush)
-{
-    ts << "\\filldraw[fill=" << brush << ", draw=" << brush
-       << "] (" << rect.left() << ", " << rect.bottom() << ") rectangle ("
-       << rect.right() << ", " << rect.top() << ");\n";
-}
-
-void filldraw(QTextStream& ts, const QRectF& rect, const QString& brush, const QString& pen)
-{
-    ts << "\\filldraw[fill=" << brush << ", draw=" << pen
-       << "] (" << rect.left() << ", " << rect.bottom() << ") rectangle ("
-       << rect.right() << ", " << rect.top() << ");\n";
-}
-
-void drawRect(QTextStream& ts, const QRectF& rect, const QString& pen)
-{
-    ts << "\\draw[" << pen << "] (" << rect.left() << ", " << rect.bottom()
-       << ") rectangle (" << rect.right() << ", " << rect.top() << ");\n";
-}
-
+    if (ts) (*ts) << number;
+    return *this;
 }
 
 // kate: replace-tabs on; indent-width 4;

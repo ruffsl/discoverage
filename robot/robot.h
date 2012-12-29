@@ -26,7 +26,7 @@
 
 class Scene;
 class GridMap;
-class QTextStream;
+class QTikzPicture;
 class QPainter;
 class QSettings;
 
@@ -83,7 +83,7 @@ class Robot
         void load(QSettings& config);
         void save(QSettings& config);
 
-        void exportToTikz(QTextStream& ts);
+        void exportToTikz(QTikzPicture& tp);
 
     private:
         Scene* m_scene;

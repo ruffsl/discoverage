@@ -131,10 +131,10 @@ void RobotManager::draw(QPainter& p)
     }
 }
 
-void RobotManager::exportToTikz(QTextStream& ts)
+void RobotManager::exportToTikz(QTikzPicture& tp)
 {
     foreach (Robot* robot, m_robots) {
-        robot->exportToTikz(ts);
+        robot->exportToTikz(tp);
     }
 }
 

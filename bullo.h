@@ -57,7 +57,7 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
         // serialization
         virtual void load(QSettings& config);
         virtual void save(QSettings& config);
-        virtual void exportToTikz(QTextStream& ts);
+        virtual void exportToTikz(QTikzPicture& tp);
 
     protected:
         // update vector field for all explored cells

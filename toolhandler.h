@@ -106,7 +106,7 @@ class ToolHandler
         virtual void save(QSettings& config);
         virtual void load(QSettings& config);
 
-        virtual void exportToTikz(QTextStream& ts);
+        virtual void exportToTikz(QTikzPicture& tp);
 
     private:
         Scene* m_scene;

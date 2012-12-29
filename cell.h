@@ -26,7 +26,7 @@
 
 class QDataStream;
 class QPainter;
-class QTextStream;
+class QTikzPicture;
 class Robot;
 
 class Cell
@@ -105,7 +105,7 @@ class Cell
         QDataStream& load(QDataStream& ds);
         QDataStream& save(QDataStream& ds);
 
-        void exportToTikz(QTextStream& ts, bool fillDensity, bool exportGradient);
+        void exportToTikz(QTikzPicture& tp, bool fillDensity, bool exportGradient);
 
     //
     // path planning

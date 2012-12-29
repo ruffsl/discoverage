@@ -27,7 +27,7 @@
 class QSettings;
 class QPainter;
 class Robot;
-class QTextStream;
+class QTikzPicture;
 
 class RobotManager : public QObject
 {
@@ -78,7 +78,7 @@ class RobotManager : public QObject
         void load(QSettings& config);
         void save(QSettings& config);
 
-        void exportToTikz(QTextStream& ts);
+        void exportToTikz(QTikzPicture& tp);
 
     private:
         QVector<Robot*> m_robots;

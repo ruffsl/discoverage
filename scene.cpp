@@ -307,17 +307,17 @@ void Scene::tick()
     update();
 }
 
-void Scene::exportToTikz(QTextStream& ts)
+void Scene::exportToTikz(QTikzPicture& tp)
 {
-    tikz::begin(ts, "yscale=-1");
-    m_map->exportToTikz(ts);
-    m_toolHandler->exportToTikz(ts);
+    tp.begin("yscale=-1");
+    m_map->exportToTikz(tp);
+    m_toolHandler->exportToTikz(tp);
 
     for (int i = 0; i < RobotManager::self()->count(); ++i) {
-        RobotManager::self()->robot(i)->exportToTikz(ts);
+        RobotManager::self()->robot(i)->exportToTikz(tp);
     }
 
-    tikz::end(ts);
+    tp.end();
 }
 
 // kate: replace-tabs on; indent-width 4;

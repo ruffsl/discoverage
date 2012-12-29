@@ -205,7 +205,7 @@ void Robot::drawRobot(QPainter& p)
     p.drawEllipse(m_position, 0.05, 0.05);
 }
 
-void Robot::exportToTikz(QTextStream& ts)
+void Robot::exportToTikz(QTikzPicture& tp)
 {
     // construct path of visibility region
     QVector<Cell*> visibleCells = scene()->map().visibleCells(m_position, m_sensingRange);
@@ -215,11 +215,10 @@ void Robot::exportToTikz(QTextStream& ts)
     }
     visiblePath = visiblePath.simplified();
     visiblePath = visiblePath.intersected(circularPath(m_position, m_sensingRange));
-    tikz::path(ts, visiblePath, "thick, blue, fill=black, fill opacity=0.2");
+    tp.path(visiblePath, "thick, blue, fill=black, fill opacity=0.2");
 
-    tikz::circle(ts, m_position, 0.5, "dashed, thick");
-    tikz::circle(ts, m_position, 0.05, "draw=black, fill=white");
-//     tikz::circle(ts, m_robotPosition, operationRadius());
+    tp.circle(m_position, 0.5, "dashed, thick");
+    tp.circle(m_position, 0.05, "draw=black, fill=white");
 }
 
 void Robot::load(QSettings& config)

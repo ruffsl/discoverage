@@ -162,7 +162,7 @@ void ToolHandler::load(QSettings& config)
     config.endGroup();
 }
 
-void ToolHandler::exportToTikz(QTextStream& ts)
+void ToolHandler::exportToTikz(QTikzPicture& tp)
 {
 }
 

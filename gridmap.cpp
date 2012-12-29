@@ -1380,47 +1380,50 @@ void GridMap::computeVoronoiPartition()
     qDebug() << "computeVoronoiPartition took " << time.elapsed() << "milli seconds";
 }
 
-void GridMap::exportToTikz(QTextStream& ts)
+void GridMap::exportToTikz(QTikzPicture& tp)
 {
     const bool showVectorField = Config::self()->showVectorField();
     const bool showDensity = Config::self()->showDensity();
 
     QSize mapSize(size());
     mapSize *= m_resolution;
-    tikz::clip(ts, QRectF(QPointF(0, 0), mapSize));
+    tp.clip(QRectF(QPointF(0, 0), mapSize));
 
     // 1st round: export all explored free cells
-    ts << "\n%\n% explored cells\n%\n";
+    tp.newline();
+    tp.comment("explored cells");
     for (int a = 0; a < m_map.size(); ++a) {
         for (int b = 0; b < m_map[a].size(); ++b) {
             Cell& c = m_map[a][b];
             if (c.state() == (Cell::Explored | Cell::Free))
-                c.exportToTikz(ts, showDensity, showVectorField);
+                c.exportToTikz(tp, showDensity, showVectorField);
         }
     }
 
 #if 0
     // 2nd round: all unexplored cells (not frontiers)
-    ts << "\n%\n% all unexplored cells and obstacles except frontiers\n%\n";
+    tp.newline();
+    tp.comment("all unexplored cells and obstacles except frontiers");
     for (int a = 0; a < m_map.size(); ++a) {
         for (int b = 0; b < m_map[a].size(); ++b) {
             Cell& c = m_map[a][b];
             if (c.state() & Cell::Unknown)
-                c.exportToTikz(ts, showDensity, showVectorField);
+                c.exportToTikz(tp, showDensity, showVectorField);
         }
     }
 
     // 3nd round: all frontiers
-    ts << "\n%\n% all frontiers\n%\n";
+    tp.newline();
+    tp.comment("all frontiers");
     for (int a = 0; a < m_map.size(); ++a) {
         for (int b = 0; b < m_map[a].size(); ++b) {
             Cell& c = m_map[a][b];
             if (c.state() & Cell::Frontier)
-                c.exportToTikz(ts, showDensity, showVectorField);
+                c.exportToTikz(tp, showDensity, showVectorField);
         }
     }
 #else
-    exportToTikzOpt(ts);
+    exportToTikzOpt(tp);
 #endif
 
     // export partition
@@ -1431,15 +1434,15 @@ void GridMap::exportToTikz(QTextStream& ts)
                 continue;
 
             const QPainterPath& path = m_partitionMap[robot];
-            tikz::beginScope(ts);
-            tikz::clip(ts, path);
-            tikz::path(ts, path, "ultra thick, draw=blue");
-            tikz::endScope(ts);
+            tp.beginScope();
+            tp.clip(path);
+            tp.path(path, "ultra thick, draw=blue");
+            tp.endScope();
         }
     }
 }
 
-void GridMap::exportToTikzOpt(QTextStream& ts)
+void GridMap::exportToTikzOpt(QTikzPicture& tp)
 {
     // collect connecting regions
     QPainterPath unexploredRegion;
@@ -1472,31 +1475,31 @@ void GridMap::exportToTikzOpt(QTextStream& ts)
     const QRectF sceneRect(0, 0, m_resolution * size().width(), m_resolution * size().height());
 
     // draw frontiers
-    tikz::beginScope(ts);
-        tikz::clip(ts, frontiers);
-        tikz::path(ts, sceneRect, "fill=colFrontier");
-    tikz::endScope(ts);
+    tp.beginScope();
+        tp.clip(frontiers);
+        tp.path(sceneRect, "fill=colFrontier");
+    tp.endScope();
 
     // draw unexplored obstacles
-    tikz::beginScope(ts);
-        tikz::clip(ts, unexploredObstacles);
-        tikz::path(ts, sceneRect, "fill=colUnexploredObstacle");
-    tikz::endScope(ts);
+    tp.beginScope();
+        tp.clip(unexploredObstacles);
+        tp.path(sceneRect, "fill=colUnexploredObstacle");
+    tp.endScope();
 
     // draw explored obstacles
-    tikz::beginScope(ts);
-        tikz::clip(ts, exploredObstacles);
-        tikz::path(ts, sceneRect, "fill=colExploredObstacle");
-    tikz::endScope(ts);
+    tp.beginScope();
+        tp.clip(exploredObstacles);
+        tp.path(sceneRect, "fill=colExploredObstacle");
+    tp.endScope();
 
     // draw grid for unexplored cells
-    tikz::beginScope(ts);
-        tikz::path(ts, unexploredRegion, "draw=colBorder");
-        tikz::clip(ts, unexploredRegion);
-        ts << "\\draw[draw=colBorder] (0, 0) grid [step=" << m_resolution << "] ("
+    tp.beginScope();
+        tp.path(unexploredRegion, "draw=colBorder");
+        tp.clip(unexploredRegion);
+        tp << "\\draw[draw=colBorder] (0, 0) grid [step=" << m_resolution << "] ("
            << m_resolution * size().width() << ", "
            << m_resolution * size().height() << ");\n";
-    tikz::endScope(ts);
+    tp.endScope();
 }
 
 // kate: replace-tabs on; indent-width 4;

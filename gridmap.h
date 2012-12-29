@@ -32,7 +32,7 @@
 class QSettings;
 class GridMap;
 class Scene;
-class QTextStream;
+class QTikzPicture;
 
 class Path
 {
@@ -60,8 +60,8 @@ class GridMap : public QObject
         void load(QSettings& config);
         void save(QSettings& config);
 
-        void exportToTikz(QTextStream& ts);
-        void exportToTikzOpt(QTextStream& ts);
+        void exportToTikz(QTikzPicture& tp);
+        void exportToTikzOpt(QTikzPicture& tp);
 
     //
     // drawing

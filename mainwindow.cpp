@@ -24,6 +24,7 @@
 #include "statistics.h"
 #include "robotmanager.h"
 #include "robotlistview.h"
+#include "tikzexport.h"
 
 #include <QDebug>
 #include <QtGui/QLabel>
@@ -188,7 +189,9 @@ void MainWindow::exportToTikz()
         QTextStream ts(&file);
         ts.setRealNumberPrecision(2);
         ts.setRealNumberNotation(QTextStream::FixedNotation);
-        m_scene->exportToTikz(ts);
+        QTikzPicture tikzPicture;
+        tikzPicture.setStream(&ts);
+        m_scene->exportToTikz(tikzPicture);
     }
 }
 

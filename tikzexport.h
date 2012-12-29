@@ -1,14 +1,41 @@
-#ifndef TIKZ_EXPORT_H
-#define TIKZ_EXPORT_H
+/*  Copyright (c) 2012-2013, Dominik Haumann <dhaumann@kde.org>
+    All rights reserved.
 
-#include <QtCore/QVector>
+    License: FreeBSD License
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions
+    are met:
+
+    1. Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+    2. Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+
+    THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+    IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+    OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+    IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+    INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+    NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+    DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+    THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+    THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+*/
+
+#ifndef QT_TIKZ_PICTURE_H
+#define QT_TIKZ_PICTURE_H
+
 #include <QtCore/QHash>
-#include <QtGui/QPainterPath>
-#include <QtCore/QTextStream>
-#include <QtCore/QPointF>
-#include <QtCore/QRectF>
-#include <QtGui/QPolygonF>
-#include <QtGui/QColor>
+#include <QtCore/QString>
+
+class QTextStream;
+class QColor;
+class QPointF;
+class QRectF;
+class QPainterPath;
 
 class QTikzPicture
 {
@@ -38,67 +65,16 @@ class QTikzPicture
 
         void line(const QPointF& p, const QPointF& q, const QString& options = QString());
 
+        QTikzPicture& operator<< (const QString& text);
+        QTikzPicture& operator<< (const char* text);
+        QTikzPicture& operator<< (double number);
+        QTikzPicture& operator<< (int number);
+
     private:
         QTextStream* ts;
         QHash<QString, bool> m_colors;
 };
 
-/**
- * Helper namespace to export as tikz picture.
- */
-namespace tikz
-{
-    /** begin tikz picture */
-    extern void begin(QTextStream& ts, const QString& options = QString());
-
-    /** end tikz picture */
-    extern void end(QTextStream& ts);
-
-    /** begin a own tikz scope */
-    extern void beginScope(QTextStream& ts, const QString& options = QString());
-
-    /** end a tikz scope */
-    extern void endScope(QTextStream& ts);
-
-    /** insert a blank line */
-    extern void newline(QTextStream& ts);
-
-    /** Export QPainterPath. */
-    extern void path(QTextStream& ts, const QPainterPath& path, const QString& options = QString());
-    extern void path(QTextStream& ts, const QRectF& rect, const QString& options = QString());
-
-    /** Export QPolygon lines. */
-    extern void lines(QTextStream& ts, const QPolygonF& polygon);
-
-    /** Set clip path. */
-    extern void clip(QTextStream& ts, const QPainterPath& path);
-
-    /** Set clip rect. */
-    extern void clip(QTextStream& ts, const QRectF& rect);
-
-    /** Export Circle. */
-    extern void circle(QTextStream& ts, const QPointF& center, qreal radius, const QString& options = QString());
-
-    /** Export Line. */
-    extern void line(QTextStream& ts, const QPointF& p, const QPointF& q);
-
-    /** Export arrow. */
-    extern void arrow(QTextStream& ts, const QPointF& p, const QPointF& q);
-
-    /** Fill rectangle. */
-    extern void fill(QTextStream& ts, const QRectF& rect, const QColor& brush);
-    extern void filldraw(QTextStream& ts, const QRectF& rect, const QColor& brush, const QColor& pen);
-    extern void drawRect(QTextStream& ts, const QRectF& rect, const QColor& pen);
-
-    /** QString pendents (named colors) */
-    extern void fill(QTextStream& ts, const QRectF& rect, const QString& brush);
-    extern void filldraw(QTextStream& ts, const QRectF& rect, const QString& brush, const QString& pen);
-    extern void drawRect(QTextStream& ts, const QRectF& rect, const QString& pen);
-
-    /** generate a uniq color identifier*/
-    extern QString uniqColorString();
-};
-
-#endif // TIKZ_EXPORT_H
+#endif // QT_TIKZ_PICTURE_H
 
 // kate: replace-tabs on; indent-width 4;
