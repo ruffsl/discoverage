@@ -51,16 +51,16 @@ QString QTikzPicture::registerColor(const QColor& color)
     QString name = color.name();
     if (name.startsWith('#')) name.remove(0, 1);
 
-    name.replace("0", "P", Qt::CaseInsensitive);
-    name.replace("1", "Q", Qt::CaseInsensitive);
-    name.replace("2", "W", Qt::CaseInsensitive);
-    name.replace("3", "E", Qt::CaseInsensitive);
-    name.replace("4", "R", Qt::CaseInsensitive);
-    name.replace("5", "T", Qt::CaseInsensitive);
-    name.replace("6", "Z", Qt::CaseInsensitive);
-    name.replace("7", "U", Qt::CaseInsensitive);
-    name.replace("8", "I", Qt::CaseInsensitive);
-    name.replace("9", "O", Qt::CaseInsensitive);
+    name.replace("0", "q", Qt::CaseInsensitive);
+    name.replace("1", "r", Qt::CaseInsensitive);
+    name.replace("2", "s", Qt::CaseInsensitive);
+    name.replace("3", "t", Qt::CaseInsensitive);
+    name.replace("4", "u", Qt::CaseInsensitive);
+    name.replace("5", "v", Qt::CaseInsensitive);
+    name.replace("6", "w", Qt::CaseInsensitive);
+    name.replace("7", "x", Qt::CaseInsensitive);
+    name.replace("8", "y", Qt::CaseInsensitive);
+    name.replace("9", "z", Qt::CaseInsensitive);
 
     name = 'c' + name;
 
