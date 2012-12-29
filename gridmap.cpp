@@ -1436,7 +1436,8 @@ void GridMap::exportToTikz(QTikzPicture& tp)
             const QPainterPath& path = m_partitionMap[robot];
             tp.beginScope();
             tp.clip(path);
-            tp.path(path, "ultra thick, draw=blue");
+            QString col = tp.registerColor(robot->color());
+            tp.path(path, "ultra thick, draw=" + col);
             tp.endScope();
         }
     }
