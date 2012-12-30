@@ -125,6 +125,11 @@ void DisCoverageBulloHandler::draw(QPainter& p)
     p.setPen(Qt::blue);
     if (m_previewPath.size()) p.drawPolyline(&m_previewPath[0], m_previewPath.size());
 
+    p.setPen(QPen(QColor(0, 0, 0, 196), map()->resolution() * 0.3, Qt::DotLine));
+    p.setBrush(Qt::NoBrush);
+    p.drawEllipse(m_position, 0.5, 0.5);
+
+
     // debug: show gradient interpolation nodes
     p.drawEllipse(g00, 0.05, 0.05);
     p.drawEllipse(g01, 0.05, 0.05);

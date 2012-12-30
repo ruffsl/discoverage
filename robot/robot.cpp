@@ -182,11 +182,6 @@ void Robot::draw(QPainter& p)
     p.setRenderHints(QPainter::Antialiasing, true);
 
     drawRobot(p);
-
-    p.setPen(QPen(QColor(0, 0, 0, 196), map()->resolution() * 0.3, Qt::DotLine));
-    p.setBrush(Qt::NoBrush);
-    p.drawEllipse(m_position, 0.5, 0.5);
-
     drawSensedArea(p);
 
     // draw trajectory
