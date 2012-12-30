@@ -71,7 +71,7 @@ QDockWidget* DisCoverageHandler::dockWidget()
         m_plotter = new OrientationPlotter(this, w);
         m_ui->gbOptimization->layout()->addWidget(m_plotter);
         m_dock->setWidget(w);
-        scene()->mainWindow()->addDockWidget(Qt::RightDockWidgetArea, m_dock);
+        scene()->mainWindow()->addDockWidget(Qt::LeftDockWidgetArea, m_dock);
 
         connect(m_ui->sbTheta, SIGNAL(valueChanged(double)), this, SLOT(updateParameters()));
         connect(m_ui->sbSigma, SIGNAL(valueChanged(double)), this, SLOT(updateParameters()));

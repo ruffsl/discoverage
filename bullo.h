@@ -32,7 +32,7 @@ class QPainter;
 class Scene;
 class QDockWidget;
 
-namespace Ui { class DisCoverageBulloWidget; }
+namespace Ui { class DisCoverageFrontierWidget; }
 
 class DisCoverageBulloHandler : public QObject, public ToolHandler
 {
@@ -63,6 +63,9 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
         // update vector field for all explored cells
         void updateVectorField();
 
+        void setIntegrationRange(double range);
+        bool integrationRange() const;
+
     private Q_SLOTS:
         void updateParameters();
 
@@ -78,7 +81,7 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
 
     private:
         QDockWidget* m_dock;
-        Ui::DisCoverageBulloWidget* m_ui;
+        Ui::DisCoverageFrontierWidget* m_ui;
  
         QPointF g00;
         QPointF g01;

@@ -43,6 +43,7 @@ set(discoverage_UIS
   toolwidget.ui
   newscenedialog.ui
   discoveragewidget.ui
+  discoveragefrontierwidget.ui
 
   robot/robotwidget.ui
 )

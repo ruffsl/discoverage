@@ -25,6 +25,8 @@
 #include "robotmanager.h"
 #include "config.h"
 
+#include "ui_discoveragefrontierwidget.h"
+
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
 #include <QtCore/QDebug>
@@ -45,43 +47,61 @@ DisCoverageBulloHandler::DisCoverageBulloHandler(Scene* scene)
 
 DisCoverageBulloHandler::~DisCoverageBulloHandler()
 {
-//     delete m_ui;
+    delete m_ui;
 }
 
 void DisCoverageBulloHandler::toolHandlerActive(bool activated)
 {
-//     dockWidget()->setVisible(activated);
+    dockWidget()->setVisible(activated);
 }
 
 QDockWidget* DisCoverageBulloHandler::dockWidget()
 {
     if (!m_dock) {
-//         m_dock = new QDockWidget("DisCoverage", scene()->mainWindow());
-//         m_dock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
+        m_dock = new QDockWidget("DisCoverage (Frontier)", scene()->mainWindow());
+        m_dock->setFeatures(QDockWidget::DockWidgetMovable | QDockWidget::DockWidgetFloatable);
 
-//         m_ui = new Ui::DisCoverageWidget();
-//         QWidget* w = new QWidget();
-//         m_ui->setupUi(w);
-//         m_plotter = new OrientationPlotter(w);
-//         m_ui->gbOptimization->layout()->addWidget(m_plotter);
-//         m_dock->setWidget(w);
-//         scene()->mainWindow()->addDockWidget(Qt::RightDockWidgetArea, m_dock);
+        m_ui = new Ui::DisCoverageFrontierWidget();
+        QWidget* w = new QWidget();
+        m_ui->setupUi(w);
+        m_dock->setWidget(w);
+        scene()->mainWindow()->addDockWidget(Qt::LeftDockWidgetArea, m_dock);
 
-//         connect(m_ui->sbVisionRaius, SIGNAL(valueChanged(double)), this, SLOT(updateParameters()));
+        connect(m_ui->sbIntegrationRange, SIGNAL(valueChanged(double)), this, SLOT(updateParameters()));
 
-//         updateParameters();
+        updateParameters();
     }
     return m_dock;
+}
+
+void DisCoverageBulloHandler::setIntegrationRange(double range)
+{
+    m_ui->sbIntegrationRange->blockSignals(true);
+    m_ui->sbIntegrationRange->setValue(range);
+    m_ui->sbIntegrationRange->blockSignals(false);
+}
+
+bool DisCoverageBulloHandler::integrationRange() const
+{
+    return m_ui->sbIntegrationRange->value();
 }
 
 void DisCoverageBulloHandler::save(QSettings& config)
 {
     ToolHandler::save(config);
+
+    config.beginGroup("dis-coverage-frontier-weights");
+    config.setValue("integration-range", integrationRange());
+    config.endGroup();
 }
 
 void DisCoverageBulloHandler::load(QSettings& config)
 {
     ToolHandler::load(config);
+
+    config.beginGroup("dis-coverage-frontier-weights");
+    setIntegrationRange(config.value("integration-range", 0.5).toDouble());
+    config.endGroup();
 }
 
 void DisCoverageBulloHandler::exportToTikz(QTikzPicture& tp)
@@ -90,8 +110,7 @@ void DisCoverageBulloHandler::exportToTikz(QTikzPicture& tp)
 
 void DisCoverageBulloHandler::updateParameters()
 {
-//     m_visionRadius = m_ui->sbVisionRaius->value();
-
+    postProcess();
     scene()->update();
 }
 
@@ -171,7 +190,7 @@ QPointF DisCoverageBulloHandler::gradient(Robot* robot, bool interpolate)
 
 QPointF DisCoverageBulloHandler::gradient(const QPointF& robotPos)
 {
-    QVector<Cell*> visibleCells = scene()->map().visibleCells(robotPos, 0.5);
+    QVector<Cell*> visibleCells = scene()->map().visibleCells(robotPos, integrationRange()); // FIXME: wrong visibleCells
 
     const qreal dx = 0.005;
     const qreal dy = 0.005;
