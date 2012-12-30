@@ -81,7 +81,7 @@ void DisCoverageBulloHandler::setIntegrationRange(double range)
     m_ui->sbIntegrationRange->blockSignals(false);
 }
 
-bool DisCoverageBulloHandler::integrationRange() const
+double DisCoverageBulloHandler::integrationRange() const
 {
     return m_ui->sbIntegrationRange->value();
 }
@@ -125,9 +125,10 @@ void DisCoverageBulloHandler::draw(QPainter& p)
     p.setPen(Qt::blue);
     if (m_previewPath.size()) p.drawPolyline(&m_previewPath[0], m_previewPath.size());
 
-    p.setPen(QPen(QColor(0, 0, 0, 196), map()->resolution() * 0.3, Qt::DotLine));
+    p.setPen(QPen(QColor(0, 0, 0, 196), scene()->map().resolution() * 0.3, Qt::DotLine));
     p.setBrush(Qt::NoBrush);
-    p.drawEllipse(m_position, 0.5, 0.5);
+    for (int i = 0; i < RobotManager::self()->count(); ++i)
+        p.drawEllipse(RobotManager::self()->robot(i)->position(), integrationRange(), integrationRange());
 
 
     // debug: show gradient interpolation nodes

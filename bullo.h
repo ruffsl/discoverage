@@ -64,7 +64,7 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
         void updateVectorField();
 
         void setIntegrationRange(double range);
-        bool integrationRange() const;
+        double integrationRange() const;
 
     private Q_SLOTS:
         void updateParameters();
