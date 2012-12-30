@@ -106,6 +106,8 @@ void DisCoverageBulloHandler::load(QSettings& config)
 
 void DisCoverageBulloHandler::exportToTikz(QTikzPicture& tp)
 {
+    for (int i = 0; i < RobotManager::self()->count(); ++i)
+        tp.circle(RobotManager::self()->robot(i)->position(), integrationRange(), "dashed, thick");
 }
 
 void DisCoverageBulloHandler::updateParameters()

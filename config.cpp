@@ -38,7 +38,7 @@ Config::Config()
     , m_showPartition(false)
     , m_showDensity(false)
     , m_showVectorField(false)
-    , m_zoomFactor(4.0)
+    , m_zoomFactor(8.0)
 {
     s_self = this;
 }
@@ -71,7 +71,7 @@ void Config::load(QSettings& config)
     setShowPartition(config.value("show-partition",  false).toBool());
     setShowDensity(config.value("show-density",  false).toBool());
     setShowVectorField(config.value("show-vector-field",  false).toBool());
-    m_zoomFactor = config.value("map-zoom-factor",  4.0).toDouble();
+    m_zoomFactor = config.value("map-zoom-factor",  8.0).toDouble();
 
     config.endGroup();
     end();

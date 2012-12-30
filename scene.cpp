@@ -41,7 +41,7 @@ Scene* Scene::self()
 
 Scene::Scene(MainWindow* mainWindow, QWidget* parent)
     : QFrame(parent)
-    , m_map(new GridMap(this, 30, 22.5, 0.2))
+    , m_map(new GridMap(this, 15, 10, 0.2))
     , m_mainWindow(mainWindow)
     , m_robotHandler(this)
     , m_obstacleHandler(this)
@@ -314,12 +314,12 @@ void Scene::exportToTikz(QTikzPicture& tp)
     tp.comment("export grid map");
     m_map->exportToTikz(tp);
 
-    tp.comment("export tool handler");
-    m_toolHandler->exportToTikz(tp);
-
     for (int i = 0; i < RobotManager::self()->count(); ++i) {
         RobotManager::self()->robot(i)->exportToTikz(tp);
     }
+
+    tp.comment("export tool handler");
+    m_toolHandler->exportToTikz(tp);
 
     tp.end();
 }

@@ -166,7 +166,7 @@ void Robot::drawSensedArea(QPainter& p)
     visiblePath = visiblePath.intersected(circularPath(m_position, m_sensingRange));
 
     QColor col(color());
-    QPen pen(color(), map()->resolution() * 0.3);
+    QPen pen(col, map()->resolution() * 0.3);
     p.setPen(pen);
     if (fillSensingRange()) {
         col.setAlpha(50);
@@ -181,11 +181,13 @@ void Robot::draw(QPainter& p)
 {
     p.setRenderHints(QPainter::Antialiasing, true);
 
-    drawRobot(p);
-    drawSensedArea(p);
+    p.setPen(QPen(color(), map()->resolution() * 0.3, Qt::SolidLine));
 
     // draw trajectory
     if (m_trajectory.size()) p.drawPolyline(&m_trajectory[0], m_trajectory.size());
+
+    drawRobot(p);
+    drawSensedArea(p);
 
     p.setRenderHints(QPainter::Antialiasing, false);
 }
@@ -217,7 +219,6 @@ void Robot::exportToTikz(QTikzPicture& tp)
     tp.comment("robot sensed area");
     tp.path(visiblePath, "thick, draw=" + c + ", fill=black, fill opacity=0.2");
 
-    tp.circle(m_position, 0.5, "dashed, thick");
     tp.circle(m_position, 0.05, "draw=black, fill=" + c);
 }
 
