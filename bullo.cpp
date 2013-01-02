@@ -129,8 +129,10 @@ void DisCoverageBulloHandler::draw(QPainter& p)
 
     p.setPen(QPen(QColor(0, 0, 0, 196), scene()->map().resolution() * 0.3, Qt::DotLine));
     p.setBrush(Qt::NoBrush);
-    for (int i = 0; i < RobotManager::self()->count(); ++i)
-        p.drawEllipse(RobotManager::self()->robot(i)->position(), integrationRange(), integrationRange());
+    for (int i = 0; i < RobotManager::self()->count(); ++i) {
+        QPainterPath visibleArea = RobotManager::self()->robot(i)->visibleArea(integrationRange());
+        p.drawPath(visibleArea);
+    }
 
 
     // debug: show gradient interpolation nodes
