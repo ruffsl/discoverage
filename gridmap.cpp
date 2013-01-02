@@ -514,12 +514,12 @@ bool GridMap::exploreCell(const QPoint& center, const QPoint& target, qreal radi
     return changed;
 }
 
-bool GridMap::exploreInRadius(const QPointF& robotPos, double radius, bool markAsExplored)
+bool GridMap::exploreInRadius(const QPointF& worldPos, double radius, bool markAsExplored)
 {
     const Cell::State targetState = markAsExplored ? Cell::Explored : Cell::Unknown;
 
-    const qreal xCenter = robotPos.x();
-    const qreal yCenter = robotPos.y();
+    const qreal xCenter = worldPos.x();
+    const qreal yCenter = worldPos.y();
 
     const int cellRadius = ceil(radius / resolution());
 
@@ -598,10 +598,10 @@ bool GridMap::exploreInRadius(const QPointF& robotPos, double radius, bool markA
     return changed;
 }
 
-QVector<Cell*> GridMap::visibleCells(const QPointF& robotPos, double radius)
+QVector<Cell*> GridMap::visibleCells(const QPointF& worldPos, double radius)
 {
-    const qreal x = robotPos.x();
-    const qreal y = robotPos.y();
+    const qreal x = worldPos.x();
+    const qreal y = worldPos.y();
 
     int cellX = x / resolution();
     int cellY = y / resolution();
@@ -645,10 +645,12 @@ QVector<Cell*> GridMap::visibleCells(const QPointF& robotPos, double radius)
     return cellVector;
 }
 
-QVector<Cell*> GridMap::visibleCells(Robot* robot)
+QVector<Cell*> GridMap::visibleCells(Robot* robot, double radius)
 {
+    Q_ASSERT(robot);
+
     // if only one robot exists, just return all visible cells
-    QVector<Cell*> visibleList = visibleCells(robot->position(), robot->sensingRange());
+    QVector<Cell*> visibleList = visibleCells(robot->position(), radius);
     if (RobotManager::self()->count() == 1) {
         return visibleList;
     }
@@ -663,6 +665,19 @@ QVector<Cell*> GridMap::visibleCells(Robot* robot)
     }
 
     return cellVector;
+}
+
+void GridMap::filterCells(QVector<Cell*> & cells, Robot* robot)
+{
+    for (int i = 0; i < cells.size(); ) {
+        Cell* c = cells[i];
+        if (c->robot() != robot) {
+            qSwap(cells[i], cells[cells.size()]);
+            cells.pop_back();
+        } else {
+            ++i;
+        }
+    }
 }
 
 double GridMap::explorationProgress() const

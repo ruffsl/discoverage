@@ -139,11 +139,12 @@ class GridMap : public QObject
         void computeDistanceTransform(Robot* robot = 0);
         void computeVoronoiPartition();
         void updateDensity();
-        bool exploreInRadius(const QPointF& robotPos, double radius, bool markAsExplored);
+        bool exploreInRadius(const QPointF& worldPos, double radius, bool markAsExplored);
 
         double explorationProgress() const;
-        QVector<Cell*> visibleCells(const QPointF& robotPos, double radius);
-        QVector<Cell*> visibleCells(Robot* robot);
+        QVector<Cell*> visibleCells(const QPointF& worldPos, double radius);
+        QVector<Cell*> visibleCells(Robot* robot, double radius);
+        void filterCells(QVector<Cell*> & cells, Robot* robot);
 
     private:
         bool exploreCell(const QPoint& center, const QPoint& target, qreal radius, Cell::State targetState);
