@@ -124,7 +124,7 @@ void DisCoverageBulloHandler::draw(QPainter& p)
 
     // draw trajectories
     p.setRenderHints(QPainter::Antialiasing, true);
-    p.setPen(Qt::blue);
+    p.setPen(QPen(Qt::blue, scene()->map().resolution() * 0.3));
     if (m_previewPath.size()) p.drawPolyline(&m_previewPath[0], m_previewPath.size());
 
     p.setPen(QPen(QColor(0, 0, 0, 196), scene()->map().resolution() * 0.3, Qt::DotLine));
