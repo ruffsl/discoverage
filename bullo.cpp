@@ -303,8 +303,9 @@ void DisCoverageBulloHandler::updatePreviewTrajectory(const QPointF& robotPos)
     m_previewPath.append(robotPos);
 
     const QPoint index = scene()->map().worldToIndex(robotPos);
+    if (!scene()->map().isValidField(index)) return;
+
     Robot* robot = RobotManager::self()->count() > 1 ? scene()->map().cell(index).robot() : 0;
-    
     double length = 0;
 
     do {
