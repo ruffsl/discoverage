@@ -106,7 +106,7 @@ MainWindow::~MainWindow()
 void MainWindow::updateExplorationProgress()
 {
     double progress = m_scene->map().explorationProgress() * 100.0;
-    m_statusProgress->setText(QString("Explored: %1 %").arg((int)progress));
+    m_statusProgress->setText(QString("Explored: %1 %").arg(qRound(progress)));
 }
 
 void MainWindow::setStatusPosition(const QPoint& pos)
