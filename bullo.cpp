@@ -106,8 +106,10 @@ void DisCoverageBulloHandler::load(QSettings& config)
 
 void DisCoverageBulloHandler::exportToTikz(QTikzPicture& tp)
 {
-    for (int i = 0; i < RobotManager::self()->count(); ++i)
-        tp.circle(RobotManager::self()->robot(i)->position(), integrationRange(), "dashed, thick");
+    for (int i = 0; i < RobotManager::self()->count(); ++i) {
+        QPainterPath visibleArea = RobotManager::self()->robot(i)->visibleArea(integrationRange());
+        tp.path(visibleArea, "dashed, thick");
+    }
 }
 
 void DisCoverageBulloHandler::updateParameters()

@@ -216,14 +216,8 @@ void Robot::exportToTikz(QTikzPicture& tp)
     tp.line(m_trajectory, "thick, draw=" + c);
 
     // construct path of visibility region
-    QVector<Cell*> visibleCells = scene()->map().visibleCells(m_position, m_sensingRange);
-    QPainterPath visiblePath;
-    foreach (Cell* cell, visibleCells) {
-        visiblePath.addRect(cell->rect());
-    }
-    visiblePath = visiblePath.simplified();
-    visiblePath = visiblePath.intersected(circularPath(m_position, m_sensingRange));
     tp.comment("robot sensed area");
+    QPainterPath visiblePath = visibleArea(m_sensingRange);
     tp.path(visiblePath, "thick, draw=" + c + ", fill=black, fill opacity=0.2");
 
     tp.circle(m_position, 0.05, "draw=black, fill=" + c);
