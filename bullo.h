@@ -70,8 +70,9 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
         void updateParameters();
 
     private:
-        QPointF gradient(const QPointF& robotPos);
-        QPointF interpolatedGradient(const QPointF& robotPos);
+        QPointF gradient(const QPointF& robotPos, const QVector<Cell*>& visibleCells);
+        QPointF interpolatedGradient(const QPointF& robotPos, Robot* robot);
+
         qreal performance(const QPointF& p, const QPointF& q);
         qreal fitness(const QPointF& robotPos, const QVector<Cell*>& cells);
 

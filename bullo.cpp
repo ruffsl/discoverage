@@ -183,25 +183,23 @@ qreal DisCoverageBulloHandler::fitness(const QPointF& robotPos, const QVector<Ce
     foreach (Cell* cell, cells) {
         sum += performance(robotPos, cell->center()) * cell->density();
     }
-//     qDebug() << sum;
     return sum;
 }
 
 QPointF DisCoverageBulloHandler::gradient(Robot* robot, bool interpolate)
 {
     if (interpolate) {
-        return interpolatedGradient(robot->position());
+        return interpolatedGradient(robot->position(), robot);
     } else {
-        return gradient(robot->position());
+        QVector<Cell*> visibleCells = scene()->map().visibleCells(robot, integrationRange());
+        return gradient(robot->position(), visibleCells);
     }
 }
 
-QPointF DisCoverageBulloHandler::gradient(const QPointF& robotPos)
+QPointF DisCoverageBulloHandler::gradient(const QPointF& robotPos, const QVector<Cell*>& visibleCells)
 {
-    QVector<Cell*> visibleCells = scene()->map().visibleCells(robotPos, integrationRange()); // FIXME: wrong visibleCells
-
-    const qreal dx = 0.005;
-    const qreal dy = 0.005;
+    static const qreal dx = 0.005;
+    static const qreal dy = 0.005;
     const qreal x1 = fitness(robotPos - QPointF(dx, 0.0), visibleCells);
     const qreal x2 = fitness(robotPos + QPointF(dx, 0.0), visibleCells);
     const qreal y1 = fitness(robotPos - QPointF(0.0, dy), visibleCells);
@@ -215,7 +213,7 @@ QPointF DisCoverageBulloHandler::gradient(const QPointF& robotPos)
     return grad;
 }
 
-QPointF DisCoverageBulloHandler::interpolatedGradient(const QPointF& robotPos)
+QPointF DisCoverageBulloHandler::interpolatedGradient(const QPointF& robotPos, Robot* robot)
 {
     GridMap& m = scene()->map();
     QPoint cellIndex(m.worldToIndex(robotPos));
@@ -226,17 +224,26 @@ QPointF DisCoverageBulloHandler::interpolatedGradient(const QPointF& robotPos)
     const int dx = (robotPos.x() < m.cell(cellIndex).center().x()) ? -1 : 1;
     const int dy = (robotPos.y() < m.cell(cellIndex).center().y()) ? -1 : 1;
 
-//     if (cellIndex.x() == 0 || cellIndex.y() == 0 ||
-    
     g00 = (m.cell(cellIndex).center());
     g01 = (m.cell(cellIndex + QPoint(dx, 0)).center());
     g10 = (m.cell(cellIndex + QPoint(0, dy)).center());
     g11 = (m.cell(cellIndex + QPoint(dx, dy)).center());
 
-    QPointF grad00(gradient(g00));
-    QPointF grad01(gradient(g01));
-    QPointF grad10(gradient(g10));
-    QPointF grad11(gradient(g11));
+    QVector<Cell*> c00 = m.visibleCells(g00, integrationRange());
+    QVector<Cell*> c01 = m.visibleCells(g01, integrationRange());
+    QVector<Cell*> c10 = m.visibleCells(g10, integrationRange());
+    QVector<Cell*> c11 = m.visibleCells(g11, integrationRange());
+    if (robot) {
+        m.filterCells(c00, robot);
+        m.filterCells(c01, robot);
+        m.filterCells(c10, robot);
+        m.filterCells(c11, robot);
+    }
+
+    QPointF grad00(gradient(g00, c00));
+    QPointF grad01(gradient(g01, c01));
+    QPointF grad10(gradient(g10, c10));
+    QPointF grad11(gradient(g11, c11));
 
     QPointF gradX0(diffx * grad00 + (1 - diffx) * grad01);
     QPointF gradX1(diffx * grad10 + (1 - diffx) * grad11);
@@ -269,11 +276,21 @@ void DisCoverageBulloHandler::updateVectorField()
     const int dx = scene()->map().size().width();
     const int dy = scene()->map().size().height();
 
+    const bool hasPartition = RobotManager::self()->count() > 1;
+
+    QVector<Cell*> visibleCells;
+    QPointF grad;
+
     for (int a = 0; a < dx; ++a) {
         for (int b = 0; b < dy; ++b) {
             Cell& c = scene()->map().cell(a, b);
             if (c.state() == (Cell::Explored | Cell::Free)) {
-                QPointF grad(gradient(c.center()));
+                visibleCells = scene()->map().visibleCells(c.center(), integrationRange());
+                if (hasPartition && c.robot() != 0) {
+                    // honor Voronoi partition
+                    scene()->map().filterCells(visibleCells, c.robot());
+                }
+                grad = gradient(c.center(), visibleCells);
                 c.setGradient(grad);
             }
         }
@@ -283,14 +300,16 @@ void DisCoverageBulloHandler::updateVectorField()
 void DisCoverageBulloHandler::updatePreviewTrajectory(const QPointF& robotPos)
 {
     m_previewPath.clear();
-
     m_previewPath.append(robotPos);
+
+    const QPoint index = scene()->map().worldToIndex(robotPos);
+    Robot* robot = RobotManager::self()->count() > 1 ? scene()->map().cell(index).robot() : 0;
     
     double length = 0;
 
     do {
         const QPointF& lastPos = m_previewPath.last();
-        const QPointF& nextPos = lastPos + interpolatedGradient(lastPos) * scene()->map().resolution();
+        const QPointF& nextPos = lastPos + interpolatedGradient(lastPos, robot) * scene()->map().resolution();
         m_previewPath.append(nextPos);
         const QPointF& cmpPos = m_previewPath[qMax(0, m_previewPath.size() - 5)];
         length = (nextPos - cmpPos).manhattanLength();
