@@ -672,7 +672,8 @@ void GridMap::filterCells(QVector<Cell*> & cells, Robot* robot)
     for (int i = 0; i < cells.size(); ) {
         Cell* c = cells[i];
         if (c->robot() != robot) {
-            qSwap(cells[i], cells[cells.size()]);
+            // swap with last element, then delete last
+            qSwap(cells[i], cells.last());
             cells.pop_back();
         } else {
             ++i;
