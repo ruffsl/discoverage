@@ -238,6 +238,9 @@
    <property name="text">
     <string>Export</string>
    </property>
+   <property name="toolTip">
+    <string>Export as TeX/TikZ picture</string>
+   </property>
   </action>
   <action name="actionZoomIn">
    <property name="icon">
