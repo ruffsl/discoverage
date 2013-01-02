@@ -257,6 +257,8 @@ void Scene::mouseMoveEvent(QMouseEvent* event)
     QMouseEvent constrainedEvent(constrainEvent(event));
     ToolHandler::updateCurrentCell(constrainedEvent.pos());
     m_toolHandler->mouseMoveEvent(&constrainedEvent);
+
+    m_mainWindow->updateExplorationProgress();
     update();
 }
 
@@ -269,6 +271,8 @@ void Scene::mousePressEvent(QMouseEvent* event)
     QMouseEvent constrainedEvent(constrainEvent(event));
     ToolHandler::updateCurrentCell(constrainedEvent.pos());
     m_toolHandler->mousePressEvent(&constrainedEvent);
+
+    m_mainWindow->updateExplorationProgress();
     update();
 }
 
@@ -293,6 +297,8 @@ void Scene::reset()
     for (int i = 0; i < RobotManager::self()->count(); ++i) {
         RobotManager::self()->robot(i)->reset();
     }
+
+    m_mainWindow->updateExplorationProgress();
     update();
 }
 
@@ -304,6 +310,7 @@ void Scene::tick()
 
     m_toolHandler->postProcess();
 
+    m_mainWindow->updateExplorationProgress();
     update();
 }
 

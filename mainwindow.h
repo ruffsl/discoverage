@@ -26,6 +26,7 @@
 class QPoint;
 class QLabel;
 class Scene;
+class Statistics;
 
 namespace Ui {
     class ToolWidget;
@@ -40,6 +41,7 @@ class MainWindow : public QMainWindow, protected Ui::MainWindow
 
         void setStatusPosition(const QPoint& pos);
         void setStatusResolution(qreal resolution);
+        void updateExplorationProgress();
 
         Scene* scene() const;
 
@@ -54,11 +56,14 @@ class MainWindow : public QMainWindow, protected Ui::MainWindow
 
     private:
         Ui::ToolWidget* m_toolsUi;
+
+        QLabel* m_statusProgress;
         QLabel* m_statusPosition;
         QLabel* m_statusResolution;
+
         Scene* m_scene;
         QString m_sceneFile;
-
+        Statistics* m_stats;
 };
 
 #endif // MAINWINDOW_H

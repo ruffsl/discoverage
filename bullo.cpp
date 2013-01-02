@@ -134,10 +134,10 @@ void DisCoverageBulloHandler::draw(QPainter& p)
 
 
     // debug: show gradient interpolation nodes
-    p.drawEllipse(g00, 0.05, 0.05);
-    p.drawEllipse(g01, 0.05, 0.05);
-    p.drawEllipse(g10, 0.05, 0.05);
-    p.drawEllipse(g11, 0.05, 0.05);
+//     p.drawEllipse(g00, 0.05, 0.05);
+//     p.drawEllipse(g01, 0.05, 0.05);
+//     p.drawEllipse(g10, 0.05, 0.05);
+//     p.drawEllipse(g11, 0.05, 0.05);
 
     p.setRenderHints(QPainter::Antialiasing, false);
 }

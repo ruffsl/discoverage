@@ -55,9 +55,13 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     toolBar->insertWidget(actionDummy, toolsWidget);
     toolBar->removeAction(actionDummy);
 
-    Statistics* statistics = new Statistics(this);
-    dwStatistics->setWidget(statistics);
+    m_stats = new Statistics(this);
+    dwStatistics->setWidget(m_stats);
     dwStatistics->setVisible(false);
+
+    m_statusProgress = new QLabel("Explored: 0 %", statusBar());
+    statusBar()->addPermanentWidget(m_statusProgress);
+//     updateExplorationProgress();
 
     m_statusResolution = new QLabel(statusBar());
     statusBar()->addPermanentWidget(m_statusResolution);
@@ -90,13 +94,19 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     connect(actionStep, SIGNAL(triggered()), m_scene, SLOT(tick()));
     connect(m_toolsUi->cmbTool, SIGNAL(currentIndexChanged(int)), m_scene, SLOT(selectTool(int)));
     connect(m_toolsUi->sbRadius, SIGNAL(valueChanged(double)), m_scene, SLOT(setOperationRadius(double)));
-    connect(actionStep, SIGNAL(triggered()), statistics, SLOT(tick()));
-    connect(actionReset, SIGNAL(triggered()), statistics, SLOT(reset()));
+    connect(actionStep, SIGNAL(triggered()), m_stats, SLOT(tick()));
+    connect(actionReset, SIGNAL(triggered()), m_stats, SLOT(reset()));
 }
 
 MainWindow::~MainWindow()
 {
     delete m_toolsUi;
+}
+
+void MainWindow::updateExplorationProgress()
+{
+    double progress = m_scene->map().explorationProgress() * 100.0;
+    m_statusProgress->setText(QString("Explored: %1 %").arg((int)progress));
 }
 
 void MainWindow::setStatusPosition(const QPoint& pos)
