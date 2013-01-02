@@ -155,16 +155,21 @@ static QPainterPath circularPath(const QPointF& center, qreal radius)
     return path;
 }
 
-void Robot::drawSensedArea(QPainter& p)
+QPainterPath Robot::visibleArea(double radius)
 {
-    QVector<Cell*> visibleCells = scene()->map().visibleCells(m_position, m_sensingRange);
+    QVector<Cell*> visibleCells = scene()->map().visibleCells(m_position, radius);
     QPainterPath visiblePath;
     foreach (Cell* cell, visibleCells) {
         visiblePath.addRect(cell->rect());
     }
     visiblePath = visiblePath.simplified();
-    visiblePath = visiblePath.intersected(circularPath(m_position, m_sensingRange));
+    visiblePath = visiblePath.intersected(circularPath(m_position, radius));
 
+    return visiblePath;
+}
+
+void Robot::drawSensedArea(QPainter& p)
+{
     QColor col(color());
     QPen pen(col, map()->resolution() * 0.3);
     p.setPen(pen);
@@ -174,6 +179,8 @@ void Robot::drawSensedArea(QPainter& p)
     } else {
         p.setBrush(Qt::NoBrush);
     }
+
+    QPainterPath visiblePath = visibleArea(m_sensingRange);
     p.drawPath(visiblePath);
 }
 

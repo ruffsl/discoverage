@@ -23,6 +23,7 @@
 #include <QPointF>
 #include <QtCore/QVector>
 #include <QtGui/QColor>
+#include <QPainterPath>
 
 class Scene;
 class GridMap;
@@ -71,6 +72,7 @@ class Robot
 
         QColor color();
         virtual void draw(QPainter& p);
+        QPainterPath visibleArea(double radius);
 
     private:
         void drawRobot(QPainter& p);
