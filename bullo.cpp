@@ -225,9 +225,12 @@ QPointF DisCoverageBulloHandler::interpolatedGradient(const QPointF& robotPos, R
     const int dy = (robotPos.y() < m.cell(cellIndex).center().y()) ? -1 : 1;
 
     g00 = (m.cell(cellIndex).center());
-    g01 = (m.cell(cellIndex + QPoint(dx, 0)).center());
-    g10 = (m.cell(cellIndex + QPoint(0, dy)).center());
-    g11 = (m.cell(cellIndex + QPoint(dx, dy)).center());
+    g01 = g00;
+    g10 = g00;
+    g11 = g00;
+    if (m.isValidField(cellIndex + QPoint(dx, 0))) g01 = (m.cell(cellIndex + QPoint(dx, 0)).center());
+    if (m.isValidField(cellIndex + QPoint(0, dy))) g10 = (m.cell(cellIndex + QPoint(0, dy)).center());
+    if (m.isValidField(cellIndex + QPoint(dx,dy))) g11 = (m.cell(cellIndex + QPoint(dx, dy)).center());
 
     QVector<Cell*> c00 = m.visibleCells(g00, integrationRange());
     QVector<Cell*> c01 = m.visibleCells(g01, integrationRange());
