@@ -36,6 +36,15 @@ IntegratorDynamicsConfigWidget::IntegratorDynamicsConfigWidget(IntegratorDynamic
     QWidget* top = new QWidget();
     m_ui->setupUi(top);
     setConfigWidget(top);
+
+    m_ui->sbSensingRange->setValue(robot->sensingRange());
+    m_ui->chkFillSensingRange->setChecked(robot->fillSensingRange());
+
+    connect(m_ui->sbSensingRange, SIGNAL(valueChanged(double)), this, SLOT(setSensingRange(double)));
+    connect(m_ui->chkFillSensingRange, SIGNAL(toggled(bool)), this, SLOT(setFillSensingRange(bool)));
+
+    connect(m_ui->sbSensingRange, SIGNAL(valueChanged(double)), this, SLOT(setRobotActive()));
+    connect(m_ui->chkFillSensingRange, SIGNAL(toggled(bool)), this, SLOT(setRobotActive()));
 }
 
 IntegratorDynamicsConfigWidget::~IntegratorDynamicsConfigWidget()
