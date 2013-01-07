@@ -73,6 +73,7 @@ class DisCoverageHandler : public QObject, public ToolHandler
 
     private Q_SLOTS:
         void updateVectorField();
+        void updateVectorField(Robot* robot);
         void updateParameters();
 
     private:
