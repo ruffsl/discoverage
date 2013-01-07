@@ -32,8 +32,6 @@
 Robot::Robot(Scene* scene)
     : m_scene(scene)
     , m_position(scene->map().center())
-    , m_sensingRange(3.0)
-    , m_fillSensingRange(false)
 {
 }
 
@@ -51,60 +49,24 @@ const QPointF& Robot::position() const
     return m_position;
 }
 
+bool Robot::hasOrientation() const
+{
+    return false;
+}
+
 qreal Robot::orientation() const
 {
-    const int count = m_trajectory.size();
-    if (count < 2) {
-        return 0.0;
-    } else {
-        const QPointF lastMove = m_trajectory[count - 1] - m_trajectory[count - 2];
-        qreal delta = atan2(lastMove.y(), lastMove.x());
-        return delta;
-    }
+    return 0.0;
 }
 
 QPointF Robot::orientationVector() const
 {
-    const int count = m_trajectory.size();
-    if (count < 2) {
-        return QPointF(0, 0);
-    } else {
-        QPointF lastMove = m_trajectory[count - 1] - m_trajectory[count - 2];
-        if (!lastMove.isNull()) {
-            lastMove /= sqrt(lastMove.x()*lastMove.x() + lastMove.y()*lastMove.y());
-        }
-        return lastMove;
-    }
-}
-
-void Robot::setSensingRange(qreal sensingRange)
-{
-    m_sensingRange = sensingRange;
-}
-
-qreal Robot::sensingRange() const
-{
-    return m_sensingRange;
-}
-
-void Robot::clearTrajectory()
-{
-    m_trajectory.clear();
+    return QPointF(0, 0);
 }
 
 bool Robot::isActive() const
 {
     return RobotManager::self()->activeRobot() == this;
-}
-
-void Robot::setFillSensingRange(bool fill)
-{
-    m_fillSensingRange = fill;
-}
-
-bool Robot::fillSensingRange() const
-{
-    return m_fillSensingRange;
 }
 
 Scene* Robot::scene() const
@@ -168,91 +130,20 @@ QPainterPath Robot::visibleArea(double radius)
     return visiblePath;
 }
 
-void Robot::drawSensedArea(QPainter& p)
-{
-    QColor col(color());
-    QPen pen(col, map()->resolution() * 0.3);
-    p.setPen(pen);
-    if (fillSensingRange()) {
-        col.setAlpha(50);
-        p.setBrush(col);
-    } else {
-        p.setBrush(Qt::NoBrush);
-    }
-
-    QPainterPath visiblePath = visibleArea(m_sensingRange);
-    p.drawPath(visiblePath);
-}
-
 void Robot::draw(QPainter& p)
 {
-    p.setRenderHints(QPainter::Antialiasing, true);
-
-    p.setPen(QPen(color(), map()->resolution() * 0.3, Qt::SolidLine));
-
-    // draw trajectory
-    if (m_trajectory.size()) p.drawPolyline(&m_trajectory[0], m_trajectory.size());
-
-    drawRobot(p);
-    drawSensedArea(p);
-
-    p.setRenderHints(QPainter::Antialiasing, false);
-}
-
-void Robot::drawRobot(QPainter& p)
-{
-    static QPen blackPen(Qt::black);
-    blackPen.setWidthF(map()->resolution() * 0.1);
-    p.setOpacity(1.0);
-    p.setPen(blackPen);
-    p.setBrush(color());
-    p.drawEllipse(m_position, 0.05, 0.05);
 }
 
 void Robot::exportToTikz(QTikzPicture& tp)
 {
-    const QString c = tp.registerColor(color());
-    tp.comment("robot trajectory");
-    tp.line(m_trajectory, "thick, draw=" + c);
-
-    // construct path of visibility region
-    tp.comment("robot sensed area");
-    QPainterPath visiblePath = visibleArea(m_sensingRange);
-    tp.path(visiblePath, "thick, draw=" + c + ", fill=black, fill opacity=0.2");
-
-    tp.circle(m_position, 0.05, "draw=black, fill=" + c);
-}
-
-void Robot::load(QSettings& config)
-{
-    setPosition(config.value("position", QPointF(0.0, 0.0)).toPointF());
-    setSensingRange(config.value("sensing-range", 3.0).toDouble());
-    setSensingRange(config.value("fill-sensing-range", false).toBool());
-}
-
-void Robot::save(QSettings& config)
-{
-    config.setValue("position", position());
-    config.setValue("sensing-range", sensingRange());
-    config.setValue("fill-sensing-range", fillSensingRange());
 }
 
 void Robot::tick()
 {
-    if (m_trajectory.size() == 0) {
-        m_trajectory.append(m_position);
-    }
-
-    m_position += scene()->toolHandler()->gradient(this, true) * scene()->map().resolution();
-
-    bool changed = scene()->map().exploreInRadius(m_position, m_sensingRange, Cell::Explored);
-
-    m_trajectory.append(m_position);
 }
 
 void Robot::reset()
 {
-    clearTrajectory();
 }
 
 // kate: replace-tabs on; indent-width 4;

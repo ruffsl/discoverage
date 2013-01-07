@@ -20,13 +20,14 @@
 #ifndef DISCOVERAGE_ROBOT_MANAGER_H
 #define DISCOVERAGE_ROBOT_MANAGER_H
 
+#include "robot.h"
+
 #include <QPointF>
 #include <QtCore/QVector>
 #include <QtCore/QObject>
 
 class QSettings;
 class QPainter;
-class Robot;
 class QTikzPicture;
 
 class RobotManager : public QObject
@@ -47,7 +48,7 @@ class RobotManager : public QObject
     // manage robots
     //
     public slots:
-        void addRobot();
+        void addRobot(Robot::Dynamics dynamics);
 
         void removeRobot();
         bool removeRobot(Robot* robot);
@@ -67,13 +68,6 @@ class RobotManager : public QObject
 
         // emitted, whenever the active robot changes
         void activeRobotChanged(Robot* robot);
-
-    //
-    // convenience functions for all robots
-    //
-    public:
-        void setSensingRange(qreal sensingRange);
-        void clearTrajectory();
 
     //
     // load/save & export functions

@@ -18,7 +18,7 @@
 */
 
 #include "robotmanager.h"
-#include "robot.h"
+#include "integratordynamics.h"
 #include "scene.h"
 
 #include <QtCore/QDebug>
@@ -44,9 +44,25 @@ RobotManager::~RobotManager()
     s_self = 0;
 }
 
-void RobotManager::addRobot()
+static Robot* createRobot(Robot::Dynamics dynamics)
 {
-    Robot* robot = new Robot(Scene::self());
+    Robot* robot = 0;
+    if (dynamics == Robot::IntegratorDynamics) {
+        robot = new IntegratorDynamics(Scene::self());
+    } else if (dynamics == Robot::Unicycle) {
+        // FIXME / TODO
+    }
+    return robot;
+}
+
+void RobotManager::addRobot(Robot::Dynamics dynamics)
+{
+    Robot* robot = createRobot(dynamics);
+
+    // abort, if robit is unknown
+    if (robot == 0)
+        return;
+
     m_robots.append(robot);
 
     if (m_robots.size() == 1)
@@ -117,20 +133,6 @@ void RobotManager::reset()
     }
 }
 
-void RobotManager::setSensingRange(qreal sensingRange)
-{
-    foreach (Robot* robot, m_robots) {
-        robot->setSensingRange(sensingRange);
-    }
-}
-
-void RobotManager::clearTrajectory()
-{
-    foreach (Robot* robot, m_robots) {
-        robot->clearTrajectory();
-    }
-}
-
 void RobotManager::draw(QPainter& p)
 {
     foreach (Robot* robot, m_robots) {
@@ -154,12 +156,17 @@ void RobotManager::load(QSettings& config)
     m_robots.clear();
 
     for (int i = 0; i < robotCount; ++i) {
-        config.beginGroup(QString("robot-%1").arg(i));
+        config.beginGroup("robots");
+        Robot::Dynamics dynamics = static_cast<Robot::Dynamics>(config.value(QString("robot-dynamics-%1").arg(i), 0).toInt());
+        config.endGroup();
 
-        Robot* robot = new Robot(Scene::self());
+        Robot* robot = createRobot(dynamics);
+        if (!robot)
+            continue;
+
+        config.beginGroup(QString("robot-%1").arg(i));
         robot->load(config);
         m_robots.append(robot);
-
         config.endGroup();
     }
 }

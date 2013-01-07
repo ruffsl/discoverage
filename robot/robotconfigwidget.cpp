@@ -71,6 +71,7 @@ RobotConfigWidget::RobotConfigWidget(Robot* robot, const QString& robotName)
     header->addWidget(btnRemoveRobot);
 
     connect(btnRemoveRobot, SIGNAL(clicked()), this, SLOT(removeRobot()));
+    connect(this, SIGNAL(removeRobot(Robot*)), RobotManager::self(), SLOT(removeRobot(Robot*)), Qt::QueuedConnection);
 }
 
 RobotConfigWidget::~RobotConfigWidget()

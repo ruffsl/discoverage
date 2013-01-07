@@ -19,12 +19,13 @@
 
 #include "robotlistview.h"
 #include "robotmanager.h"
-#include "robotwidget.h"
+#include "robotconfigwidget.h"
 #include "robot.h"
 
 #include <QtCore/QDebug>
 #include <QtGui/QPushButton>
 #include <QtGui/QMenu>
+#include <QtGui/QVBoxLayout>
 
 RobotListView::RobotListView(QWidget* parent)
     : QScrollArea(parent)
@@ -60,39 +61,30 @@ RobotListView::~RobotListView()
 
 void RobotListView::addSingleIntegrator()
 {
-    RobotManager::self()->addRobot();
+    RobotManager::self()->addRobot(Robot::IntegratorDynamics);
 }
 
 void RobotListView::addUnicycle()
 {
-    // todo
+    RobotManager::self()->addRobot(Robot::Unicycle);
 }
 
 void RobotListView::updateList()
 {
     for (int i = 0; i < RobotManager::self()->count(); ++i) {
-        if (i < m_robotItems.count()) {
-            m_robotItems[i]->setRobot(RobotManager::self()->robot(i));
-        } else {
-            RobotWidget* rw = new RobotWidget(RobotManager::self()->robot(i), widget());
-            m_robotLayout->addWidget(rw);
-            m_robotItems.append(rw);
+        Robot* robot = RobotManager::self()->robot(i);
+        RobotConfigWidget* cw = robot->configWidget();
+        int index = m_robotLayout->indexOf(cw);
+        if (index == -1) {
+            m_robotLayout->insertWidget(i, cw);
         }
 
-        m_robotItems[i]->setBackgroundRole((i % 2) ? QPalette::AlternateBase : QPalette::Base);
+        cw->setBackgroundRole((i % 2) ? QPalette::AlternateBase : QPalette::Base);
 
         // see updateActiveRobot()
-        if (m_robotItems[i]->robot()->isActive()) {
-            m_robotItems[i]->setBackgroundRole(QPalette::Highlight);
+        if (robot->isActive()) {
+            cw->setBackgroundRole(QPalette::Highlight);
         }
-
-    }
-
-    int diff = m_robotItems.count() > RobotManager::self()->count();
-    while (diff > 0) {
-        delete m_robotItems.last();
-        m_robotItems.pop_back();
-        --diff;
     }
 }
 
@@ -100,10 +92,11 @@ void RobotListView::updateActiveRobot(Robot* robot)
 {
     // highlight the active robot with a selection color
     for (int i = 0; i < RobotManager::self()->count(); ++i) {
-        m_robotItems[i]->setBackgroundRole((i % 2) ? QPalette::AlternateBase : QPalette::Base);
+        Robot* robot = RobotManager::self()->robot(i);
+        robot->configWidget()->setBackgroundRole((i % 2) ? QPalette::AlternateBase : QPalette::Base);
 
-        if (m_robotItems[i]->robot()->isActive()) {
-            m_robotItems[i]->setBackgroundRole(QPalette::Highlight);
+        if (robot->isActive()) {
+            robot->configWidget()->setBackgroundRole(QPalette::Highlight);
         }
     }
 }

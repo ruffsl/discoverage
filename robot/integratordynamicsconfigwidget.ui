@@ -1,41 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>RobotWidget</class>
- <widget class="QWidget" name="RobotWidget">
+ <class>IntegratorDynamicsConfigWidget</class>
+ <widget class="QWidget" name="IntegratorDynamicsConfigWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>170</width>
-    <height>75</height>
+    <height>57</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <widget class="QLabel" name="lblPixmap">
-       <property name="text">
-        <string/>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="lblRobot">
-       <property name="text">
-        <string>Robot</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="btnRemoveRobot">
-       <property name="autoRaise">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>

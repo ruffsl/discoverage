@@ -17,39 +17,33 @@
    Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef DISCOVERAGE_ROBOT_WIDGET_H
-#define DISCOVERAGE_ROBOT_WIDGET_H
+#ifndef DISCOVERAGE_INTEGRATOR_DYNAMICS_CONFIG_WIDGET_H
+#define DISCOVERAGE_INTEGRATOR_DYNAMICS_CONFIG_WIDGET_H
 
-#include <QtGui/QWidget>
+#include "robotconfigwidget.h"
 
-#include "ui_robotwidget.h"
+class IntegratorDynamics;
 
-class Robot;
+namespace Ui {
+    class IntegratorDynamicsConfigWidget;
+}
 
-class RobotWidget : public QWidget, private Ui::RobotWidget
+class IntegratorDynamicsConfigWidget : public RobotConfigWidget
 {
     Q_OBJECT
 
     public:
-        RobotWidget(Robot* robot, QWidget* parent = 0);
-        virtual ~RobotWidget();
-
-        Robot* robot() const;
+        IntegratorDynamicsConfigWidget(IntegratorDynamics* robot);
+        virtual ~IntegratorDynamicsConfigWidget();
 
     public slots:
-        void removeRobot();
-        void setRobot(Robot* robot);
         void setSensingRange(double range);
         void setFillSensingRange(bool fill);
-        void setRobotActive();
-
-    protected:
-        virtual void mousePressEvent(QMouseEvent * event);
 
     private:
-        Robot *m_robot;
+        Ui::IntegratorDynamicsConfigWidget *m_ui;
 };
 
-#endif // DISCOVERAGE_ROBOT_WIDGET_H
+#endif // DISCOVERAGE_INTEGRATOR_DYNAMICS_CONFIG_WIDGET_H
 
 // kate: replace-tabs on; indent-width 4;

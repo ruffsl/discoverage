@@ -17,78 +17,79 @@
    Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef DISCOVERAGE_ROBOT_H
-#define DISCOVERAGE_ROBOT_H
+#ifndef DISCOVERAGE_INTEGRATOR_DYNAMICS_H
+#define DISCOVERAGE_INTEGRATOR_DYNAMICS_H
 
-#include <QPointF>
-#include <QtGui/QColor>
-#include <QPainterPath>
+#include "robot.h"
 
-class Scene;
-class GridMap;
-class QTikzPicture;
-class QPainter;
-class QSettings;
-class RobotConfigWidget;
+#include <QtCore/QVector>
+#include <QtCore/QPointer>
 
-class Robot
+class IntegratorDynamics : public Robot
 {
     public:
-        enum Dynamics {
-            IntegratorDynamics = 0,
-            Unicycle
-        };
-
-    public:
-        Robot(Scene *scene);
-        virtual ~Robot();
+        IntegratorDynamics(Scene *scene);
+        virtual ~IntegratorDynamics();
 
         bool isActive() const;
 
         virtual void tick();
         virtual void reset();
 
-        virtual RobotConfigWidget* configWidget() = 0;
+        virtual RobotConfigWidget* configWidget();
 
     //
-    // Robot properties
+    // IntegratorDynamics properties
     //
     public:
-        virtual void setPosition(const QPointF& position);
-        virtual const QPointF& position() const;
-
         virtual bool hasOrientation() const;
 
         // orientation of last move in [-pi; pi]
         virtual qreal orientation() const;
+
         // orientation of last move as unit vector
         virtual QPointF orientationVector() const;
+
+        
+        
+        void setSensingRange(qreal sensingRange);
+        qreal sensingRange() const;
+
+        void clearTrajectory();
+
+        void setFillSensingRange(bool fill);
+        bool fillSensingRange() const;
 
     //
     // environment information
     //
     public:
-        Scene* scene() const;
-        GridMap* map() const;
-
-        QColor color();
         virtual void draw(QPainter& p);
-        virtual QPainterPath visibleArea(double radius);
+        void drawRobot(QPainter& p);
+
+    private:
+        void drawIntegratorDynamics(QPainter& p);
+        void drawSensedArea(QPainter& p);
 
     //
     // load/save & export functions
     //
     public:
-        virtual void load(QSettings& config) = 0;
-        virtual void save(QSettings& config) = 0;
+        virtual void load(QSettings& config);
+        virtual void save(QSettings& config);
 
         virtual void exportToTikz(QTikzPicture& tp);
 
     private:
-        Scene* m_scene;
+        QPointer<RobotConfigWidget> m_configWidget;
+
         QPointF m_position;
+        qreal m_sensingRange;
+        QVector<QPointF> m_trajectory;
+
+        bool m_fillSensingRange;
 };
 
-#endif // DISCOVERAGE_ROBOT_H
+#endif // DISCOVERAGE_INTEGRATOR_DYNAMICS_H
 
 // kate: replace-tabs on; indent-width 4;

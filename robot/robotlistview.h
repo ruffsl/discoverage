@@ -23,7 +23,7 @@
 #include <QtGui/QScrollArea>
 #include <QtCore/QVector>
 
-class RobotWidget;
+class RobotConfigWidget;
 class QBoxLayout;
 class Robot;
 
@@ -45,7 +45,6 @@ class RobotListView : public QScrollArea
 
     private:
         QBoxLayout* m_robotLayout;
-        QVector<RobotWidget*> m_robotItems;
 };
 
 #endif // DISCOVERAGE_ROBOT_LIST_VIEW_H
