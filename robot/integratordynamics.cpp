@@ -51,13 +51,11 @@ RobotConfigWidget* IntegratorDynamics::configWidget()
     return m_configWidget;
 }
 
-
 bool IntegratorDynamics::hasOrientation() const
 {
-    return true;
+    return (m_trajectory.size() > 1);
 }
 
-    
 qreal IntegratorDynamics::orientation() const
 {
     const int count = m_trajectory.size();
