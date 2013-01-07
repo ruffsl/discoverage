@@ -147,7 +147,7 @@ void IntegratorDynamics::drawRobot(QPainter& p)
     p.setOpacity(1.0);
     p.setPen(blackPen);
     p.setBrush(color());
-    p.drawEllipse(m_position, 0.05, 0.05);
+    p.drawEllipse(position(), 0.05, 0.05);
 }
 
 void IntegratorDynamics::exportToTikz(QTikzPicture& tp)
@@ -161,7 +161,7 @@ void IntegratorDynamics::exportToTikz(QTikzPicture& tp)
     QPainterPath visiblePath = visibleArea(m_sensingRange);
     tp.path(visiblePath, "thick, draw=" + c + ", fill=black, fill opacity=0.2");
 
-    tp.circle(m_position, 0.05, "draw=black, fill=" + c);
+    tp.circle(position(), 0.05, "draw=black, fill=" + c);
 }
 
 void IntegratorDynamics::load(QSettings& config)

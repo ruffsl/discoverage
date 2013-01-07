@@ -83,7 +83,6 @@ class IntegratorDynamics : public Robot
     private:
         QPointer<RobotConfigWidget> m_configWidget;
 
-        QPointF m_position;
         qreal m_sensingRange;
         QVector<QPointF> m_trajectory;
 
