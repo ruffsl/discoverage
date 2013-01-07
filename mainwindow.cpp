@@ -61,7 +61,6 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 
     m_statusProgress = new QLabel("Explored: 0.00%", statusBar());
     statusBar()->addPermanentWidget(m_statusProgress);
-//     updateExplorationProgress();
 
     m_statusResolution = new QLabel(statusBar());
     statusBar()->addPermanentWidget(m_statusResolution);
@@ -76,7 +75,6 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 
     RobotListView* robotListView = new RobotListView(this);
     dwRobotManager->setWidget(robotListView);
-//     dwRobotManager->setVisible(false);
 
 
     connect(actionQuit, SIGNAL(triggered()), qApp, SLOT(quit()));
