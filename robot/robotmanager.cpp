@@ -110,6 +110,13 @@ Robot* RobotManager::robot(int index) const
     return m_robots[index];
 }
 
+void RobotManager::reset()
+{
+    foreach (Robot* robot, m_robots) {
+        robot->reset();
+    }
+}
+
 void RobotManager::setSensingRange(qreal sensingRange)
 {
     foreach (Robot* robot, m_robots) {

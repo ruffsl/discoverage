@@ -48,10 +48,14 @@ class RobotManager : public QObject
     //
     public slots:
         void addRobot();
+
         void removeRobot();
         bool removeRobot(Robot* robot);
+
         void setActiveRobot(Robot* robot);
         Robot* activeRobot();
+
+        void reset();
 
         int count() const;
         int indexOf(Robot* robot) const;
