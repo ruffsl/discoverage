@@ -102,6 +102,9 @@ void RobotConfigWidget::setRobotActive()
 void RobotConfigWidget::setConfigWidget(QWidget* widget)
 {
     layout()->addWidget(widget);
+    if (widget->layout()) {
+        widget->layout()->setMargin(0);
+    }
 }
 
 // kate: replace-tabs on; indent-width 4;
