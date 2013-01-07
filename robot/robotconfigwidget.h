@@ -17,37 +17,39 @@
    Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-#ifndef DISCOVERAGE_ROBOT_LIST_VIEW_H
-#define DISCOVERAGE_ROBOT_LIST_VIEW_H
+#ifndef DISCOVERAGE_ROBOT_CONFIG_WIDGET_H
+#define DISCOVERAGE_ROBOT_CONFIG_WIDGET_H
 
-#include <QtGui/QScrollArea>
-#include <QtCore/QVector>
+#include <QtGui/QWidget>
 
-class RobotWidget;
-class QBoxLayout;
 class Robot;
 
-class RobotListView : public QScrollArea
+class RobotConfigWidget : public QWidget
 {
     Q_OBJECT
 
     public:
-        RobotListView(QWidget* parent = 0);
-        virtual ~RobotListView();
+        RobotConfigWidget(Robot* robot, const QString& robotName);
+        virtual ~RobotConfigWidget();
+
+        Robot* robot() const;
+
+        void setConfigWidget(QWidget* widget);
 
     public slots:
-        void updateList();
-        void updateActiveRobot(Robot* robot);
+        void removeRobot();
+        void setRobotActive();
 
-    private slots:
-        void addSingleIntegrator();
-        void addUnicycle();
+    signals:
+        void removeRobot(Robot* robot);
+
+    protected:
+        virtual void mousePressEvent(QMouseEvent * event);
 
     private:
-        QBoxLayout* m_robotLayout;
-        QVector<RobotWidget*> m_robotItems;
+        Robot *m_robot;
 };
 
-#endif // DISCOVERAGE_ROBOT_LIST_VIEW_H
+#endif // DISCOVERAGE_ROBOT_CONFIG_WIDGET_H
 
 // kate: replace-tabs on; indent-width 4;

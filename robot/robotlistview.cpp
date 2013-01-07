@@ -24,6 +24,7 @@
 
 #include <QtCore/QDebug>
 #include <QtGui/QPushButton>
+#include <QtGui/QMenu>
 
 RobotListView::RobotListView(QWidget* parent)
     : QScrollArea(parent)
@@ -37,6 +38,11 @@ RobotListView::RobotListView(QWidget* parent)
     newRobot->setIcon(QIcon(":/icons/icons/add.png"));
     l->addWidget(newRobot);
 
+    QMenu* menu = new QMenu(newRobot);
+    menu->addAction("Single Integrator Kinematics", this, SLOT(addSingleIntegrator()));
+    menu->addAction("Unicycle Kinematics", this, SLOT(addUnicycle()));
+    newRobot->setMenu(menu);
+
     m_robotLayout = new QVBoxLayout();
     m_robotLayout->setSpacing(0);
     l->addLayout(m_robotLayout);
@@ -44,13 +50,22 @@ RobotListView::RobotListView(QWidget* parent)
 
     updateList();
 
-    connect(newRobot, SIGNAL(clicked()), RobotManager::self(), SLOT(addRobot()));
     connect(RobotManager::self(), SIGNAL(robotCountChanged()), this, SLOT(updateList()), Qt::QueuedConnection);
     connect(RobotManager::self(), SIGNAL(activeRobotChanged(Robot*)), this, SLOT(updateActiveRobot(Robot*)));
 }
 
 RobotListView::~RobotListView()
 {
+}
+
+void RobotListView::addSingleIntegrator()
+{
+    RobotManager::self()->addRobot();
+}
+
+void RobotListView::addUnicycle()
+{
+    // todo
 }
 
 void RobotListView::updateList()
