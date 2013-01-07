@@ -19,6 +19,7 @@
 
 #include "robotmanager.h"
 #include "integratordynamics.h"
+#include "unicycle.h"
 #include "scene.h"
 
 #include <QtCore/QDebug>
@@ -53,7 +54,7 @@ static Robot* createRobot(Robot::Dynamics dynamics)
     if (dynamics == Robot::IntegratorDynamics) {
         robot = new IntegratorDynamics(Scene::self());
     } else if (dynamics == Robot::Unicycle) {
-        // FIXME / TODO
+        robot = new Unicycle(Scene::self());
     }
     return robot;
 }

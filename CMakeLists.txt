@@ -22,6 +22,8 @@ set(discoverage_SRCS
   robot/robotlistview.cpp
   robot/robotconfigwidget.cpp
   robot/integratordynamicsconfigwidget.cpp
+  robot/unicycle.cpp
+  robot/unicycleconfigwidget.cpp
 )
 
 # another list, this time it includes all header files that should be treated with moc
@@ -38,6 +40,7 @@ set(discoverage_MOC_HDRS
   robot/robotlistview.h
   robot/robotconfigwidget.h
   robot/integratordynamicsconfigwidget.h
+  robot/unicycleconfigwidget.h
 )
 
 # some .ui files
@@ -49,6 +52,7 @@ set(discoverage_UIS
   discoveragefrontierwidget.ui
 
   robot/integratordynamicsconfigwidget.ui
+  robot/unicycleconfigwidget.ui
 )
 
 # and finally an resource file

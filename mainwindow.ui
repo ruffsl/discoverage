@@ -38,8 +38,8 @@
       <widget class="QWidget" name="scrollAreaWidgetContents">
        <property name="geometry">
         <rect>
-         <x>9</x>
-         <y>86</y>
+         <x>0</x>
+         <y>75</y>
          <width>681</width>
          <height>383</height>
         </rect>
@@ -55,7 +55,7 @@
      <x>0</x>
      <y>0</y>
      <width>758</width>
-     <height>20</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -154,6 +154,12 @@
    <widget class="QWidget" name="dockWidgetContents_2"/>
   </widget>
   <widget class="QDockWidget" name="dwRobotManager">
+   <property name="minimumSize">
+    <size>
+     <width>250</width>
+     <height>44</height>
+    </size>
+   </property>
    <property name="features">
     <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
    </property>
