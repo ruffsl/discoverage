@@ -40,8 +40,8 @@ RobotListView::RobotListView(QWidget* parent)
     l->addWidget(newRobot);
 
     QMenu* menu = new QMenu(newRobot);
-    menu->addAction("Single Integrator Kinematics", this, SLOT(addSingleIntegrator()));
-    menu->addAction("Unicycle Kinematics", this, SLOT(addUnicycle()));
+    menu->addAction("Integrator Dynamics", this, SLOT(addSingleIntegrator()));
+    menu->addAction("Unicycle Dynamics", this, SLOT(addUnicycle()));
     newRobot->setMenu(menu);
 
     m_robotLayout = new QVBoxLayout();
