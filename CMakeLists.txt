@@ -20,6 +20,7 @@ set(discoverage_SRCS
   robot/robotmanager.cpp
   robot/robotwidget.cpp
   robot/robotlistview.cpp
+  robot/robotconfigwidget.cpp
 )
 
 # another list, this time it includes all header files that should be treated with moc
@@ -35,6 +36,7 @@ set(discoverage_MOC_HDRS
   robot/robotmanager.h
   robot/robotwidget.h
   robot/robotlistview.h
+  robot/robotconfigwidget.h
 )
 
 # some .ui files
