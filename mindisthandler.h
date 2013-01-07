@@ -57,6 +57,7 @@ class MinDistHandler : public QObject, public ToolHandler
 
     protected:
         void updateVectorField();
+        void updateVectorField(Robot* robot);
 };
 
 #endif // MINDIST_HANDLER_H

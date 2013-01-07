@@ -102,37 +102,50 @@ void MinDistHandler::postProcess()
 
 void MinDistHandler::updateVectorField()
 {
-    const int dx = scene()->map().size().width();
-    const int dy = scene()->map().size().height();
-
     // FIXME: this is slow: compute for all explored free cells the shortest paths
     //        to all frontiers. Then pick the shortest one, and set the gradient
     //        according to direction of the first path segment
-    for (int i = 0; i < RobotManager::self()->count(); ++i) {
-        const QList<Cell*> frontiers = scene()->map().frontiers(RobotManager::self()->robot(i));
+    const int count = RobotManager::self()->count();
+    
+    if (count > 1) {
+        for (int r = 0; r < count; ++r) {
+            updateVectorField(RobotManager::self()->robot(r));
+        }
+    } else {
+        updateVectorField(0);
+    }
+}
 
-        for (int a = 0; a < dx; ++a) {
-            for (int b = 0; b < dy; ++b) {
-                Cell& c = scene()->map().cell(a, b);
-                if (c.state() == (Cell::Explored | Cell::Free)) {
-                    QList<Path> paths = scene()->map().frontierPaths(c.index(), frontiers);
-                    int shortestPathIndex = -1;
-                    qreal shortestPathLength = 1000000;
-                    for (int i = 0; i < paths.size(); ++i) {
-                        if (paths[i].m_length < shortestPathLength) {
-                            paths[i].beautify(scene()->map());
-                            shortestPathLength = paths[i].m_length;
-                            shortestPathIndex = i;
-                        }
-                    }
-                    QPointF grad(0, 0);
-                    if (shortestPathIndex != -1 && paths[shortestPathIndex].m_path.size()) {
-                        grad = paths[shortestPathIndex].m_path[1] - paths[shortestPathIndex].m_path[0];
-                        grad /= sqrt(grad.x()*grad.x() + grad.y()*grad.y());
-                    }
-                    c.setGradient(grad);
+void MinDistHandler::updateVectorField(Robot* robot)
+{
+    const int dx = scene()->map().size().width();
+    const int dy = scene()->map().size().height();
+    const QList<Cell*> frontiers = scene()->map().frontiers(robot);
+    for (int a = 0; a < dx; ++a) {
+        for (int b = 0; b < dy; ++b) {
+            Cell& c = scene()->map().cell(a, b);
+            if (robot && robot != c.robot())
+                continue;
+
+            if (c.state() != (Cell::Explored | Cell::Free))
+                continue;
+
+            QList<Path> paths = scene()->map().frontierPaths(c.index(), frontiers);
+            int shortestPathIndex = -1;
+            qreal shortestPathLength = 1000000;
+            for (int i = 0; i < paths.size(); ++i) {
+                if (paths[i].m_length < shortestPathLength) {
+                    paths[i].beautify(scene()->map());
+                    shortestPathLength = paths[i].m_length;
+                    shortestPathIndex = i;
                 }
             }
+            QPointF grad(0, 0);
+            if (shortestPathIndex != -1 && paths[shortestPathIndex].m_path.size()) {
+                grad = paths[shortestPathIndex].m_path[1] - paths[shortestPathIndex].m_path[0];
+                grad /= sqrt(grad.x()*grad.x() + grad.y()*grad.y());
+            }
+            c.setGradient(grad);
         }
     }
 }
