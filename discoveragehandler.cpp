@@ -267,6 +267,10 @@ void DisCoverageHandler::postProcess()
 QPointF DisCoverageHandler::gradient(Robot* robot, bool /*interpolate*/)
 {
     const QList<Cell*> frontiers = Scene::self()->map().frontiers(robot);
+    
+    if (frontiers.size() == 0)
+        return QPointF(0, 0);
+
     GridMap& m = Scene::self()->map();
     QPoint pt = m.worldToIndex(robot->position());
     QList<Path> allPaths = m.frontierPaths(pt, frontiers);
