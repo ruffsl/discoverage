@@ -27,9 +27,9 @@ int main(int argc, char* argv[])
   QApplication app(argc, argv);
 
   Config::self();
-  
+
   MainWindow* mw = new MainWindow();
-  mw->resize(1000, 750);
+  mw->resize(1100, 750);
   mw->show();
 
   int exitCode = app.exec();

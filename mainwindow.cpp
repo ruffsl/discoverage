@@ -59,7 +59,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     dwStatistics->setWidget(m_stats);
     dwStatistics->setVisible(false);
 
-    m_statusProgress = new QLabel("Explored: 0 %", statusBar());
+    m_statusProgress = new QLabel("Explored: 0.00%", statusBar());
     statusBar()->addPermanentWidget(m_statusProgress);
 //     updateExplorationProgress();
 
@@ -106,7 +106,7 @@ MainWindow::~MainWindow()
 void MainWindow::updateExplorationProgress()
 {
     double progress = m_scene->map().explorationProgress() * 100.0;
-    m_statusProgress->setText(QString("Explored: %1 %").arg(qRound(progress)));
+    m_statusProgress->setText(QString("Explored: %1%").arg(progress, 0, 'f', 2));
 }
 
 void MainWindow::setStatusPosition(const QPoint& pos)
