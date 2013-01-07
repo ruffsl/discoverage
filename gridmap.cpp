@@ -161,6 +161,8 @@ GridMap::GridMap(Scene* scene, double width, double height, double resolution)
     m_freeCellCount = (xCellCount - 2 * (border+1)) * (yCellCount - 2 * (border+1));
 
     connect(Config::self(), SIGNAL(configChanged()), this, SLOT(updateCache()));
+
+    updateCache();
 }
 
 GridMap::~GridMap()

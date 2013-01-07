@@ -91,7 +91,10 @@ void Scene::newScene()
         delete m_map;
         m_map = new GridMap(this, width, height, res);
         mainWindow()->setStatusResolution(res);
-        m_map->updateCache();
+        mainWindow()->updateExplorationProgress();
+
+        RobotManager::self()->reset();
+
         setFixedSize(sizeHint());
         update();
     }
@@ -100,9 +103,9 @@ void Scene::newScene()
 void Scene::load(QSettings& config)
 {
     m_map->load(config);
+    m_map->updateCache();
 
     mainWindow()->setStatusResolution(m_map->resolution());
-    m_map->updateCache();
     setFixedSize(sizeHint());
 
     m_minDistHandler.load(config);
