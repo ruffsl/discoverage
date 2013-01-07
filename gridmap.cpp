@@ -685,7 +685,7 @@ void GridMap::filterCells(QVector<Cell*> & cells, Robot* robot)
 
 double GridMap::explorationProgress() const
 {
-//     qDebug() << m_freeCellCount;
+//     qDebug() << m_exploredCellCount << "/" << m_freeCellCount;
     if (m_freeCellCount == 0) return 0;
     return static_cast<double>(m_exploredCellCount) / m_freeCellCount;
 }
