@@ -42,6 +42,11 @@ IntegratorDynamics::~IntegratorDynamics()
     delete m_configWidget;
 }
 
+Robot::Dynamics IntegratorDynamics::type()
+{
+    return Robot::IntegratorDynamics;
+}
+
 RobotConfigWidget* IntegratorDynamics::configWidget()
 {
     if (!m_configWidget) {
@@ -166,7 +171,7 @@ void IntegratorDynamics::load(QSettings& config)
 {
     setPosition(config.value("position", QPointF(0.0, 0.0)).toPointF());
     setSensingRange(config.value("sensing-range", 3.0).toDouble());
-    setSensingRange(config.value("fill-sensing-range", false).toBool());
+    setFillSensingRange(config.value("fill-sensing-range", false).toBool());
 }
 
 void IntegratorDynamics::save(QSettings& config)

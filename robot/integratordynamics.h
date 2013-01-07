@@ -31,7 +31,7 @@ class IntegratorDynamics : public Robot
         IntegratorDynamics(Scene *scene);
         virtual ~IntegratorDynamics();
 
-        bool isActive() const;
+        virtual Dynamics type();
 
         virtual void tick();
         virtual void reset();

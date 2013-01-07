@@ -108,6 +108,8 @@ void Scene::load(QSettings& config)
     mainWindow()->setStatusResolution(m_map->resolution());
     setFixedSize(sizeHint());
 
+    RobotManager::self()->load(config);
+
     m_minDistHandler.load(config);
     m_discoverageHandler.load(config);
     m_explorationHandler.load(config);
@@ -126,6 +128,8 @@ void Scene::save(QSettings& config)
     m_discoverageHandler.save(config);
     m_minDistHandler.save(config);
     m_bulloHandler.save(config);
+
+    RobotManager::self()->save(config);
 }
 
 void Scene::wheelEvent(QWheelEvent* event)

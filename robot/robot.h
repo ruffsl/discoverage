@@ -43,6 +43,8 @@ class Robot
         Robot(Scene *scene);
         virtual ~Robot();
 
+        virtual Dynamics type() = 0;
+
         bool isActive() const;
 
         virtual void tick();

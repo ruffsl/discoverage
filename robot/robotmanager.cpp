@@ -41,6 +41,9 @@ RobotManager::RobotManager(QObject* parent)
 
 RobotManager::~RobotManager()
 {
+    qDeleteAll(m_robots);
+    m_robots.clear();
+
     s_self = 0;
 }
 
@@ -153,6 +156,7 @@ void RobotManager::load(QSettings& config)
     const int robotCount = config.value("count", 0).toInt();
     config.endGroup();
 
+    qDeleteAll(m_robots);
     m_robots.clear();
 
     for (int i = 0; i < robotCount; ++i) {
@@ -169,12 +173,20 @@ void RobotManager::load(QSettings& config)
         m_robots.append(robot);
         config.endGroup();
     }
+    
+    m_activeRobot = m_robots.size() > 0 ? m_robots[0] : 0;
+
+    emit robotCountChanged();
+    emit activeRobotChanged(m_activeRobot);
 }
 
 void RobotManager::save(QSettings& config)
 {
     config.beginGroup("robots");
     config.setValue("count", m_robots.size());
+    for (int i = 0; i < m_robots.size(); ++i) {
+        config.setValue(QString("robot-dynamics-%1").arg(i), m_robots[i]->type());
+    }
     config.endGroup();
 
     for (int i = 0; i < m_robots.size(); ++i) {
