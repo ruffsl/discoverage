@@ -37,12 +37,17 @@ class UnicycleConfigWidget : public RobotConfigWidget
         virtual ~UnicycleConfigWidget();
 
     public slots:
+        // used to update the orientatio in the gui
         void setOrientationFromRobot(double value);
 
+        // the spin box changed -> update robot and dial
         void setOrientation(double value);
+        // the dial changed -> updaet spin box and robot
         void setDialOrientation(int value);
 
+        // sensing range changed in gui -> set robot
         void setSensingRange(double range);
+        // fill property changed -> set robot
         void setFillSensingRange(bool fill);
 
     private:
