@@ -8,13 +8,14 @@ set(discoverage_SRCS
   scene.cpp
   cell.cpp
   gridmap.cpp
-  bullo.cpp
-  toolhandler.cpp
-  discoveragehandler.cpp
-  mindisthandler.cpp
   statistics.cpp
   config.cpp
   tikzexport.cpp
+
+  handler/toolhandler.cpp
+  handler/mindisthandler.cpp
+  handler/discoveragehandler.cpp
+  handler/bullo.cpp
 
   robot/robot.cpp
   robot/integratordynamics.cpp
@@ -29,13 +30,15 @@ set(discoverage_SRCS
 # another list, this time it includes all header files that should be treated with moc
 set(discoverage_MOC_HDRS
   mainwindow.h
+  config.h
   scene.h
   gridmap.h
-  discoveragehandler.h
-  bullo.h
-  mindisthandler.h
   statistics.h
-  config.h
+
+  handler/mindisthandler.h
+  handler/discoveragehandler.h
+  handler/bullo.h
+
   robot/robotmanager.h
   robot/robotlistview.h
   robot/robotconfigwidget.h
@@ -48,8 +51,9 @@ set(discoverage_UIS
   mainwindow.ui
   toolwidget.ui
   newscenedialog.ui
-  discoveragewidget.ui
-  discoveragefrontierwidget.ui
+
+  handler/discoveragewidget.ui
+  handler/discoveragefrontierwidget.ui
 
   robot/integratordynamicsconfigwidget.ui
   robot/unicycleconfigwidget.ui
@@ -93,6 +97,7 @@ include_directories(
   ${CMAKE_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}
   ${CMAKE_SOURCE_DIR}/robot
+  ${CMAKE_SOURCE_DIR}/handler
 )
 
 # here we instruct CMake to build "sample" executable from all of the source files
