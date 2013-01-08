@@ -181,21 +181,23 @@ void Unicycle::exportToTikz(QTikzPicture& tp)
     tp.path(visiblePath, "thick, draw=" + c/* + ", fill=black, fill opacity=0.2"*/);
 
     // draw unicycle
-    tp.beginScope(QString("xshift=%1cm").arg(position().x()) + QString(", yshift=%1cm").arg(position().y()) + QString(", rotate=%1").arg(orientation() * 180 / M_PI));
+    tp.beginScope(QString("xshift=%1cm").arg(position().x())
+                + QString(", yshift=%1cm").arg(position().y())
+                + QString(", rotate=%1").arg(orientation() * 180 / M_PI));
 
     // draw wheels
     QRectF wheel(-0.1, -0.15, 0.2, 0.1);
-    tp.path(wheel, "draw=black, fill=" + c);
+    tp.path(wheel, "draw=black, fill=lightgray");
     wheel.moveTo(-0.1,  0.05);
-    tp.path(wheel, "draw=black, fill=" + c);
+    tp.path(wheel, "draw=black, fill=lightgray");
 
     // draw triangle
     QPainterPath triangle;
     triangle.moveTo(0.15, 0);
-    triangle.lineTo(-0, -0.15);
-    triangle.lineTo(-0, 0.15);
+    triangle.lineTo(-0, -0.12);
+    triangle.lineTo(-0, 0.12);
     triangle.closeSubpath();
-    tp.path(triangle, "draw=black, fill=white");
+    tp.path(triangle, "draw=black, fill=" + c);
 
     tp.endScope();
 }
