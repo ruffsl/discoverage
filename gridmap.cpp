@@ -1501,31 +1501,39 @@ void GridMap::exportToTikzOpt(QTikzPicture& tp)
     const QRectF sceneRect(0, 0, m_resolution * size().width(), m_resolution * size().height());
 
     // draw frontiers
-    tp.beginScope();
-        tp.clip(frontiers);
-        tp.path(sceneRect, "fill=colFrontier");
-    tp.endScope();
+    if (!frontiers.isEmpty()) {
+        tp.beginScope();
+            tp.clip(frontiers);
+            tp.path(sceneRect, "fill=colFrontier");
+        tp.endScope();
+    }
 
     // draw unexplored obstacles
-    tp.beginScope();
-        tp.clip(unexploredObstacles);
-        tp.path(sceneRect, "fill=colUnexploredObstacle");
-    tp.endScope();
+    if (!unexploredObstacles.isEmpty()) {
+        tp.beginScope();
+            tp.clip(unexploredObstacles);
+            tp.path(sceneRect, "fill=colUnexploredObstacle");
+        tp.endScope();
+    }
 
     // draw explored obstacles
-    tp.beginScope();
-        tp.clip(exploredObstacles);
-        tp.path(sceneRect, "fill=colExploredObstacle");
-    tp.endScope();
+    if (!exploredObstacles.isEmpty()) {
+        tp.beginScope();
+            tp.clip(exploredObstacles);
+            tp.path(sceneRect, "fill=colExploredObstacle");
+        tp.endScope();
+    }
 
     // draw grid for unexplored cells
-    tp.beginScope();
-        tp.path(unexploredRegion, "draw=colBorder");
-        tp.clip(unexploredRegion);
-        tp << "\\draw[draw=colBorder] (0, 0) grid [step=" << m_resolution << "] ("
-           << m_resolution * size().width() << ", "
-           << m_resolution * size().height() << ");\n";
-    tp.endScope();
+    if (!unexploredRegion.isEmpty()) {
+        tp.beginScope();
+            tp.path(unexploredRegion, "draw=colBorder");
+            tp.clip(unexploredRegion);
+            tp << "\\draw[draw=colBorder] (0, 0) grid [step=" << m_resolution << "] ("
+            << m_resolution * size().width() << ", "
+            << m_resolution * size().height() << ");\n";
+        tp.endScope();
+    }
 }
 
 // kate: replace-tabs on; indent-width 4;
