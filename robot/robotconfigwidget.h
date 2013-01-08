@@ -24,26 +24,46 @@
 
 class Robot;
 
+/**
+ * Base class for Robot config widgets.
+ */
 class RobotConfigWidget : public QWidget
 {
     Q_OBJECT
 
     public:
+        /**
+         * Constructor.
+         * The robot is the robot that this config widget configures.
+         * The robot name is displayed in the header of the config widget.
+         */
         RobotConfigWidget(Robot* robot, const QString& robotName);
         virtual ~RobotConfigWidget();
 
+        /**
+         * the associated robot this config widget belongs to.
+         */
         Robot* robot() const;
 
+        /**
+         * Hook your gui into a widget and set it with this function as
+         * main config widget.
+         */
         void setConfigWidget(QWidget* widget);
 
-    public slots:
-        void removeRobot();
+    protected slots:
+        // mark robot() as active robot.
         void setRobotActive();
 
+    private slots:
+        void removeRobot();
+
     signals:
+        // emitted when the "remove" button is clicked. Connected to the RobotManager.
         void removeRobot(Robot* robot);
 
     protected:
+        // reimplemented to mark robot as active
         virtual void mousePressEvent(QMouseEvent * event);
 
     private:
