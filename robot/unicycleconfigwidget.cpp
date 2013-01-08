@@ -61,26 +61,46 @@ UnicycleConfigWidget::~UnicycleConfigWidget()
     delete m_ui;
 }
 
+void UnicycleConfigWidget::setOrientationFromRobot(double value)
+{
+    value = value * 180 / M_PI;
+    if (value < 0) value += 360;
+    
+    m_ui->sbOrientation->blockSignals(true);
+    m_ui->sbOrientation->setValue(360 - value);
+    m_ui->sbOrientation->blockSignals(false);
+
+    value -= 90;
+    if (value < 0) value += 360;
+    m_ui->dialOrientation->blockSignals(true);
+    m_ui->dialOrientation->setValue(value);
+    m_ui->dialOrientation->blockSignals(false);
+}
+
 void UnicycleConfigWidget::setOrientation(double value)
 {
     Unicycle* r = static_cast<Unicycle*>(robot());
-    r->setOrientation(value * M_PI / 180);
+    r->setOrientation(2*M_PI - value * M_PI / 180);
 
     m_ui->dialOrientation->blockSignals(true);
     m_ui->dialOrientation->setValue(360 - (value - 270));
     m_ui->dialOrientation->blockSignals(false);
+
+    Scene::self()->update();
 }
 
 void UnicycleConfigWidget::setDialOrientation(int value)
 {
-    value = 360 - value - 90;
-    if (value < 0) value += 360;
+    value = value + 90;
+    if (value > 360) value -= 360;
     Unicycle* r = static_cast<Unicycle*>(robot());
     r->setOrientation(value * M_PI / 180.0);
 
     m_ui->sbOrientation->blockSignals(true);
-    m_ui->sbOrientation->setValue(value);
+    m_ui->sbOrientation->setValue(360 - value);
     m_ui->sbOrientation->blockSignals(false);
+
+    Scene::self()->update();
 }
 
 void UnicycleConfigWidget::setSensingRange(double range)

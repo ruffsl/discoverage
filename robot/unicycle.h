@@ -25,6 +25,8 @@
 #include <QtCore/QVector>
 #include <QtCore/QPointer>
 
+class UnicycleConfigWidget;
+
 class Unicycle : public Robot
 {
     public:
@@ -82,7 +84,7 @@ class Unicycle : public Robot
         virtual void exportToTikz(QTikzPicture& tp);
 
     private:
-        QPointer<RobotConfigWidget> m_configWidget;
+        QPointer<UnicycleConfigWidget> m_configWidget;
 
         double m_orientation;
         qreal m_sensingRange;

@@ -37,6 +37,8 @@ class UnicycleConfigWidget : public RobotConfigWidget
         virtual ~UnicycleConfigWidget();
 
     public slots:
+        void setOrientationFromRobot(double value);
+
         void setOrientation(double value);
         void setDialOrientation(int value);
 

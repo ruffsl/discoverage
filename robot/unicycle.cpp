@@ -217,6 +217,10 @@ void Unicycle::tick()
 
         m_orientation += delta / 4.0;
 
+        if (m_configWidget) {
+            m_configWidget->setOrientationFromRobot(m_orientation);
+        }
+
         pos += QPointF(cos(m_orientation), sin(m_orientation)) * scene()->map().resolution();
         setPosition(pos);
         m_trajectory.append(pos);
