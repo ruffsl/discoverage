@@ -183,13 +183,21 @@ void Unicycle::tick()
         if (delta > M_PI) delta -= 2 * M_PI;
         else if (delta < -M_PI) delta += 2 * M_PI;
 
-        setOrientation(m_orientation + delta / 4.0);
+//         qDebug() << "m_orientation" << m_orientation;
+//         qDebug() << "atan2" << delta + m_orientation;
+//         qDebug() << "delta" << delta;
+
+        const double deltaDot = delta / 1.0; // 1.0 is sample time
+//         qDebug() << deltaDot;
+        const double u1 = 0.3 + 0.7 * exp(-0.5*deltaDot*deltaDot);
+
+        setOrientation(m_orientation + delta / 4);
 
         if (m_configWidget) {
             m_configWidget->setOrientationFromRobot(m_orientation);
         }
 
-        pos += QPointF(cos(m_orientation), sin(m_orientation)) * scene()->map().resolution();
+        pos += u1 * QPointF(cos(m_orientation), sin(m_orientation)) * scene()->map().resolution();
         setPosition(pos, true);
     }
 
