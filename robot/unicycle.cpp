@@ -178,9 +178,26 @@ void Unicycle::exportToTikz(QTikzPicture& tp)
     // construct path of visibility region
     tp.comment("robot sensed area");
     QPainterPath visiblePath = visibleArea(m_sensingRange);
-    tp.path(visiblePath, "thick, draw=" + c + ", fill=black, fill opacity=0.2");
+    tp.path(visiblePath, "thick, draw=" + c/* + ", fill=black, fill opacity=0.2"*/);
 
-    tp.circle(position(), 0.05, "draw=black, fill=" + c);
+    // draw unicycle
+    tp.beginScope(QString("xshift=%1cm").arg(position().x()) + QString(", yshift=%1cm").arg(position().y()) + QString(", rotate=%1").arg(orientation() * 180 / M_PI));
+
+    // draw wheels
+    QRectF wheel(-0.1, -0.15, 0.2, 0.1);
+    tp.path(wheel, "draw=black, fill=" + c);
+    wheel.moveTo(-0.1,  0.05);
+    tp.path(wheel, "draw=black, fill=" + c);
+
+    // draw triangle
+    QPainterPath triangle;
+    triangle.moveTo(0.15, 0);
+    triangle.lineTo(-0, -0.15);
+    triangle.lineTo(-0, 0.15);
+    triangle.closeSubpath();
+    tp.path(triangle, "draw=black, fill=white");
+
+    tp.endScope();
 }
 
 void Unicycle::load(QSettings& config)
