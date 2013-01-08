@@ -183,7 +183,7 @@ void Unicycle::tick()
         if (delta > M_PI) delta -= 2 * M_PI;
         else if (delta < -M_PI) delta += 2 * M_PI;
 
-        m_orientation += delta / 4.0;
+        setOrientation(m_orientation + delta / 4.0);
 
         if (m_configWidget) {
             m_configWidget->setOrientationFromRobot(m_orientation);
