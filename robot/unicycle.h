@@ -59,9 +59,8 @@ class Unicycle : public Robot
     //
     public:
         virtual void draw(QPainter& p);
-        void drawRobot(QPainter& p);
 
-    private:
+        void drawRobot(QPainter& p);
         void drawUnicycle(QPainter& p);
 
     //

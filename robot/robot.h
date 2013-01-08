@@ -32,6 +32,10 @@ class QPainter;
 class QSettings;
 class RobotConfigWidget;
 
+/**
+ * Base class for Robots.
+ * Inherit this class and reimplement tick() with your own dynamics.
+ */
 class Robot
 {
     public:
