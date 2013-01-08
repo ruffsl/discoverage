@@ -172,7 +172,7 @@ void Unicycle::drawRobot(QPainter& p)
 void Unicycle::exportToTikz(QTikzPicture& tp)
 {
     const QString c = tp.registerColor(color());
-    tp.comment("robot trajectory");
+    tp.comment("robot trajectory (unicycle dynamics)");
     tp.line(m_trajectory, "thick, draw=" + c);
 
     // construct path of visibility region
