@@ -58,16 +58,16 @@ RobotConfigWidget* IntegratorDynamics::configWidget()
 
 bool IntegratorDynamics::hasOrientation() const
 {
-    return (m_trajectory.size() > 1);
+    return (trajectory().size() > 1);
 }
 
 qreal IntegratorDynamics::orientation() const
 {
-    const int count = m_trajectory.size();
+    const int count = trajectory().size();
     if (count < 2) {
         return 0.0;
     } else {
-        const QPointF lastMove = m_trajectory[count - 1] - m_trajectory[count - 2];
+        const QPointF lastMove = trajectory()[count - 1] - trajectory()[count - 2];
         qreal delta = atan2(lastMove.y(), lastMove.x());
         return delta;
     }
@@ -75,11 +75,11 @@ qreal IntegratorDynamics::orientation() const
 
 QPointF IntegratorDynamics::orientationVector() const
 {
-    const int count = m_trajectory.size();
+    const int count = trajectory().size();
     if (count < 2) {
         return QPointF(0, 0);
     } else {
-        QPointF lastMove = m_trajectory[count - 1] - m_trajectory[count - 2];
+        QPointF lastMove = trajectory()[count - 1] - trajectory()[count - 2];
         if (!lastMove.isNull()) {
             lastMove /= sqrt(lastMove.x()*lastMove.x() + lastMove.y()*lastMove.y());
         }
@@ -95,11 +95,6 @@ void IntegratorDynamics::setSensingRange(qreal sensingRange)
 qreal IntegratorDynamics::sensingRange() const
 {
     return m_sensingRange;
-}
-
-void IntegratorDynamics::clearTrajectory()
-{
-    m_trajectory.clear();
 }
 
 void IntegratorDynamics::setFillSensingRange(bool fill)
@@ -131,12 +126,9 @@ void IntegratorDynamics::drawSensedArea(QPainter& p)
 void IntegratorDynamics::draw(QPainter& p)
 {
     p.setRenderHints(QPainter::Antialiasing, true);
-
     p.setPen(QPen(color(), map()->resolution() * 0.3, Qt::SolidLine));
 
-    // draw trajectory
-    if (m_trajectory.size()) p.drawPolyline(&m_trajectory[0], m_trajectory.size());
-
+    drawTrajectory(p);
     drawRobot(p);
     drawSensedArea(p);
 
@@ -157,7 +149,7 @@ void IntegratorDynamics::exportToTikz(QTikzPicture& tp)
 {
     const QString c = tp.registerColor(color());
     tp.comment("robot trajectory (integrator dynamics)");
-    tp.line(m_trajectory, "thick, draw=" + c);
+    tp.line(trajectory(), "thick, draw=" + c);
 
     // construct path of visibility region
     tp.comment("robot sensed area");
@@ -169,14 +161,16 @@ void IntegratorDynamics::exportToTikz(QTikzPicture& tp)
 
 void IntegratorDynamics::load(QSettings& config)
 {
-    setPosition(config.value("position", QPointF(0.0, 0.0)).toPointF());
+    Robot::load(config);
+
     setSensingRange(config.value("sensing-range", 3.0).toDouble());
     setFillSensingRange(config.value("fill-sensing-range", false).toBool());
 }
 
 void IntegratorDynamics::save(QSettings& config)
 {
-    config.setValue("position", position());
+    Robot::save(config);
+
     config.setValue("sensing-range", sensingRange());
     config.setValue("fill-sensing-range", fillSensingRange());
 }
@@ -185,16 +179,10 @@ void IntegratorDynamics::tick()
 {
     QPointF pos = position();
 
-    if (m_trajectory.size() == 0) {
-        m_trajectory.append(pos);
-    }
-
     pos += scene()->toolHandler()->gradient(this, true) * scene()->map().resolution();
-    setPosition(pos);
+    setPosition(pos, true);
 
     bool changed = scene()->map().exploreInRadius(pos, m_sensingRange, Cell::Explored);
-
-    m_trajectory.append(pos);
 }
 
 void IntegratorDynamics::reset()

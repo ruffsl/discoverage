@@ -55,8 +55,6 @@ class IntegratorDynamics : public Robot
         void setSensingRange(qreal sensingRange);
         qreal sensingRange() const;
 
-        void clearTrajectory();
-
         void setFillSensingRange(bool fill);
         bool fillSensingRange() const;
 
@@ -84,8 +82,6 @@ class IntegratorDynamics : public Robot
         QPointer<RobotConfigWidget> m_configWidget;
 
         qreal m_sensingRange;
-        QVector<QPointF> m_trajectory;
-
         bool m_fillSensingRange;
 };
 

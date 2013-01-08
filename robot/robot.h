@@ -23,6 +23,7 @@
 #include <QPointF>
 #include <QtGui/QColor>
 #include <QPainterPath>
+#include <QVector>
 
 class Scene;
 class GridMap;
@@ -56,7 +57,7 @@ class Robot
     // Robot properties
     //
     public:
-        virtual void setPosition(const QPointF& position);
+        virtual void setPosition(const QPointF& position, bool trackTrajectory = false);
         virtual const QPointF& position() const;
 
         virtual bool hasOrientation() const;
@@ -65,6 +66,10 @@ class Robot
         virtual qreal orientation() const;
         // orientation of last move as unit vector
         virtual QPointF orientationVector() const;
+
+        // trajectory manipulation
+        void clearTrajectory();
+        const QVector<QPointF>& trajectory() const;
 
     //
     // environment information
@@ -75,20 +80,22 @@ class Robot
 
         QColor color();
         virtual void draw(QPainter& p);
+        virtual void drawTrajectory(QPainter& p);
         virtual QPainterPath visibleArea(double radius);
 
     //
     // load/save & export functions
     //
     public:
-        virtual void load(QSettings& config) = 0;
-        virtual void save(QSettings& config) = 0;
+        virtual void load(QSettings& config);
+        virtual void save(QSettings& config);
 
         virtual void exportToTikz(QTikzPicture& tp);
 
     private:
         Scene* m_scene;
         QPointF m_position;
+        QVector<QPointF> m_trajectory;
 };
 
 #endif // DISCOVERAGE_ROBOT_H

@@ -58,8 +58,6 @@ class Unicycle : public Robot
         void setSensingRange(qreal sensingRange);
         qreal sensingRange() const;
 
-        void clearTrajectory();
-
         void setFillSensingRange(bool fill);
         bool fillSensingRange() const;
 
@@ -88,8 +86,6 @@ class Unicycle : public Robot
 
         double m_orientation;
         qreal m_sensingRange;
-        QVector<QPointF> m_trajectory;
-
         bool m_fillSensingRange;
 };
 

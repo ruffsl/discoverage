@@ -89,11 +89,6 @@ qreal Unicycle::sensingRange() const
     return m_sensingRange;
 }
 
-void Unicycle::clearTrajectory()
-{
-    m_trajectory.clear();
-}
-
 void Unicycle::setFillSensingRange(bool fill)
 {
     m_fillSensingRange = fill;
@@ -126,9 +121,7 @@ void Unicycle::draw(QPainter& p)
 
     p.setPen(QPen(color(), map()->resolution() * 0.3, Qt::SolidLine));
 
-    // draw trajectory
-    if (m_trajectory.size()) p.drawPolyline(&m_trajectory[0], m_trajectory.size());
-
+    drawTrajectory(p);
     drawRobot(p);
     drawSensedArea(p);
 
@@ -173,7 +166,7 @@ void Unicycle::exportToTikz(QTikzPicture& tp)
 {
     const QString c = tp.registerColor(color());
     tp.comment("robot trajectory (unicycle dynamics)");
-    tp.line(m_trajectory, "thick, draw=" + c);
+    tp.line(trajectory(), "thick, draw=" + c);
 
     // construct path of visibility region
     tp.comment("robot sensed area");
@@ -204,7 +197,8 @@ void Unicycle::exportToTikz(QTikzPicture& tp)
 
 void Unicycle::load(QSettings& config)
 {
-    setPosition(config.value("position", QPointF(0.0, 0.0)).toPointF());
+    Robot::load(config);
+
     setOrientation(config.value("orientation", 0.0).toDouble());
     setSensingRange(config.value("sensing-range", 3.0).toDouble());
     setFillSensingRange(config.value("fill-sensing-range", false).toBool());
@@ -212,7 +206,8 @@ void Unicycle::load(QSettings& config)
 
 void Unicycle::save(QSettings& config)
 {
-    config.setValue("position", position());
+    Robot::save(config);
+
     config.setValue("orientation", orientation());
     config.setValue("sensing-range", sensingRange());
     config.setValue("fill-sensing-range", fillSensingRange());
@@ -221,10 +216,6 @@ void Unicycle::save(QSettings& config)
 void Unicycle::tick()
 {
     QPointF pos = position();
-
-    if (m_trajectory.size() == 0) {
-        m_trajectory.append(pos);
-    }
 
     QPointF grad = scene()->toolHandler()->gradient(this, true);
     if (!grad.isNull()) {
@@ -241,8 +232,7 @@ void Unicycle::tick()
         }
 
         pos += QPointF(cos(m_orientation), sin(m_orientation)) * scene()->map().resolution();
-        setPosition(pos);
-        m_trajectory.append(pos);
+        setPosition(pos, true);
     }
 
     bool changed = scene()->map().exploreInRadius(pos, m_sensingRange, Cell::Explored);

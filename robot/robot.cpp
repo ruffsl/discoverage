@@ -39,8 +39,14 @@ Robot::~Robot()
 {
 }
 
-void Robot::setPosition(const QPointF& position)
+void Robot::setPosition(const QPointF& position, bool trackTrajectory)
 {
+    if (trackTrajectory) {
+        if (m_trajectory.size() == 0)
+            m_trajectory.append(m_position);
+        m_trajectory.append(position);
+    }
+
     m_position = position;
 }
 
@@ -134,6 +140,27 @@ void Robot::draw(QPainter& p)
 {
 }
 
+void Robot::drawTrajectory(QPainter& p)
+{
+    if (m_trajectory.size()) {
+        p.save();
+        p.setRenderHints(QPainter::Antialiasing, true);
+        p.setPen(QPen(color(), map()->resolution() * 0.3, Qt::SolidLine));
+        p.drawPolyline(&m_trajectory[0], m_trajectory.size());
+        p.restore();
+    }
+}
+
+void Robot::clearTrajectory()
+{
+    m_trajectory.clear();
+}
+
+const QVector<QPointF>& Robot::trajectory() const
+{
+    return m_trajectory;
+}
+
 void Robot::exportToTikz(QTikzPicture& tp)
 {
 }
@@ -145,5 +172,30 @@ void Robot::tick()
 void Robot::reset()
 {
 }
+
+void Robot::load(QSettings& config)
+{
+    setPosition(config.value("position", QPointF(0.0, 0.0)).toPointF());
+
+    // load trajectory
+    QList<QVariant> trajectory = config.value("trajectory", QList<QVariant>()).toList();
+    m_trajectory.clear();
+    foreach (const QVariant& p, trajectory) {
+        m_trajectory.append(p.toPointF());
+    }
+}
+
+void Robot::save(QSettings& config)
+{
+    config.setValue("position", position());
+
+    // save trajectory
+    QList<QVariant> trajectory;
+    foreach (const QPointF& p, m_trajectory) {
+        trajectory.append(p);
+    }
+    config.setValue("trajectory", trajectory);
+}
+
 
 // kate: replace-tabs on; indent-width 4;
