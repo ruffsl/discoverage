@@ -57,7 +57,7 @@ RobotConfigWidget* Unicycle::configWidget()
 void Unicycle::setOrientation(double radian)
 {
     if (radian > M_PI) radian -= 2 * M_PI;
-    if (radian < M_PI) radian += 2 * M_PI;
+    if (radian < -M_PI) radian += 2 * M_PI;
 
     m_orientation = radian;
 }
