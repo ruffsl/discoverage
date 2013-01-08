@@ -23,6 +23,7 @@
 #include <QtGui/QWidget>
 
 class Robot;
+class QLabel;
 
 /**
  * Base class for Robot config widgets.
@@ -57,6 +58,7 @@ class RobotConfigWidget : public QWidget
 
     private slots:
         void removeRobot();
+        void updateColor();
 
     signals:
         // emitted when the "remove" button is clicked. Connected to the RobotManager.
@@ -68,6 +70,7 @@ class RobotConfigWidget : public QWidget
 
     private:
         Robot *m_robot;
+        QLabel* m_lblPixmap;
 };
 
 #endif // DISCOVERAGE_ROBOT_CONFIG_WIDGET_H

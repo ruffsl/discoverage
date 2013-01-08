@@ -60,18 +60,19 @@ RobotConfigWidget::RobotConfigWidget(Robot* robot, const QString& robotName)
     btnRemoveRobot->setIcon(QIcon(":/icons/icons/remove.png"));
     btnRemoveRobot->setToolTip("Remove robot");
 
-    QLabel* lblPixmap = new QLabel(this);
-    lblPixmap->setFixedSize(16, 16);
-    lblPixmap->setPixmap(pixmap(robot->color()));
+    m_lblPixmap= new QLabel(this);
+    m_lblPixmap->setFixedSize(16, 16);
+    m_lblPixmap->setPixmap(pixmap(robot->color()));
 
     QLabel* lblRobot = new QLabel(robotName, this);
 
-    header->addWidget(lblPixmap);
+    header->addWidget(m_lblPixmap);
     header->addWidget(lblRobot);
     header->addWidget(btnRemoveRobot);
 
     connect(btnRemoveRobot, SIGNAL(clicked()), this, SLOT(removeRobot()));
     connect(this, SIGNAL(removeRobot(Robot*)), RobotManager::self(), SLOT(removeRobot(Robot*)), Qt::QueuedConnection);
+    connect(RobotManager::self(), SIGNAL(robotCountChanged()), this, SLOT(updateColor()));
 }
 
 RobotConfigWidget::~RobotConfigWidget()
@@ -105,6 +106,11 @@ void RobotConfigWidget::setConfigWidget(QWidget* widget)
     if (widget->layout()) {
         widget->layout()->setMargin(0);
     }
+}
+
+void RobotConfigWidget::updateColor()
+{
+    m_lblPixmap->setPixmap(pixmap(robot()->color()));
 }
 
 // kate: replace-tabs on; indent-width 4;
