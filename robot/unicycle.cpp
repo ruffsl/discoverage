@@ -162,8 +162,6 @@ void Unicycle::load(QSettings& config)
     Robot::load(config);
 
     setOrientation(config.value("orientation", 0.0).toDouble());
-    setSensingRange(config.value("sensing-range", 3.0).toDouble());
-    setFillSensingRange(config.value("fill-sensing-range", false).toBool());
 }
 
 void Unicycle::save(QSettings& config)
@@ -171,8 +169,6 @@ void Unicycle::save(QSettings& config)
     Robot::save(config);
 
     config.setValue("orientation", orientation());
-    config.setValue("sensing-range", sensingRange());
-    config.setValue("fill-sensing-range", fillSensingRange());
 }
 
 void Unicycle::tick()
