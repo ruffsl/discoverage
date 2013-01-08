@@ -54,13 +54,6 @@ class Unicycle : public Robot
         // orientation of last move as unit vector
         virtual QPointF orientationVector() const;
 
-
-        void setSensingRange(qreal sensingRange);
-        qreal sensingRange() const;
-
-        void setFillSensingRange(bool fill);
-        bool fillSensingRange() const;
-
     //
     // environment information
     //
@@ -70,7 +63,6 @@ class Unicycle : public Robot
 
     private:
         void drawUnicycle(QPainter& p);
-        void drawSensedArea(QPainter& p);
 
     //
     // load/save & export functions
@@ -85,8 +77,6 @@ class Unicycle : public Robot
         QPointer<UnicycleConfigWidget> m_configWidget;
 
         double m_orientation;
-        qreal m_sensingRange;
-        bool m_fillSensingRange;
 };
 
 #endif // DISCOVERAGE_UNICYCLE_DYNAMICS_H

@@ -32,6 +32,8 @@
 Robot::Robot(Scene* scene)
     : m_scene(scene)
     , m_position(scene->map().center())
+    , m_sensingRange(3.0)
+    , m_fillSensingRange(false)
 {
 }
 
@@ -107,6 +109,26 @@ QColor Robot::color()
     }
 }
 
+void Robot::setSensingRange(double sensingRange)
+{
+    m_sensingRange = sensingRange;
+}
+
+double Robot::sensingRange() const
+{
+    return m_sensingRange;
+}
+
+void Robot::setFillSensingRange(bool fill)
+{
+    m_fillSensingRange = fill;
+}
+
+bool Robot::fillSensingRange() const
+{
+    return m_fillSensingRange;
+}
+
 static QPainterPath circularPath(const QPointF& center, qreal radius)
 {
     int segmentCount = static_cast<int>((radius + 1.0) * 10);
@@ -151,6 +173,22 @@ void Robot::drawTrajectory(QPainter& p)
     }
 }
 
+void Robot::drawSensedArea(QPainter& p)
+{
+    QColor col(color());
+    QPen pen(col, map()->resolution() * 0.3);
+    p.setPen(pen);
+    if (fillSensingRange()) {
+        col.setAlpha(50);
+        p.setBrush(col);
+    } else {
+        p.setBrush(Qt::NoBrush);
+    }
+
+    QPainterPath visiblePath = visibleArea(m_sensingRange);
+    p.drawPath(visiblePath);
+}
+
 void Robot::clearTrajectory()
 {
     m_trajectory.clear();
@@ -176,6 +214,8 @@ void Robot::reset()
 void Robot::load(QSettings& config)
 {
     setPosition(config.value("position", QPointF(0.0, 0.0)).toPointF());
+    setSensingRange(config.value("sensing-range", 3.0).toDouble());
+    setFillSensingRange(config.value("fill-sensing-range", false).toBool());
 
     // load trajectory
     QList<QVariant> trajectory = config.value("trajectory", QList<QVariant>()).toList();
@@ -188,6 +228,8 @@ void Robot::load(QSettings& config)
 void Robot::save(QSettings& config)
 {
     config.setValue("position", position());
+    config.setValue("sensing-range", sensingRange());
+    config.setValue("fill-sensing-range", fillSensingRange());
 
     // save trajectory
     QList<QVariant> trajectory;

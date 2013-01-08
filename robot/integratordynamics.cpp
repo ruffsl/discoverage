@@ -32,8 +32,6 @@
 
 IntegratorDynamics::IntegratorDynamics(Scene* scene)
     : Robot(scene)
-    , m_sensingRange(3.0)
-    , m_fillSensingRange(false)
 {
 }
 
@@ -87,42 +85,6 @@ QPointF IntegratorDynamics::orientationVector() const
     }
 }
 
-void IntegratorDynamics::setSensingRange(qreal sensingRange)
-{
-    m_sensingRange = sensingRange;
-}
-
-qreal IntegratorDynamics::sensingRange() const
-{
-    return m_sensingRange;
-}
-
-void IntegratorDynamics::setFillSensingRange(bool fill)
-{
-    m_fillSensingRange = fill;
-}
-
-bool IntegratorDynamics::fillSensingRange() const
-{
-    return m_fillSensingRange;
-}
-
-void IntegratorDynamics::drawSensedArea(QPainter& p)
-{
-    QColor col(color());
-    QPen pen(col, map()->resolution() * 0.3);
-    p.setPen(pen);
-    if (fillSensingRange()) {
-        col.setAlpha(50);
-        p.setBrush(col);
-    } else {
-        p.setBrush(Qt::NoBrush);
-    }
-
-    QPainterPath visiblePath = visibleArea(m_sensingRange);
-    p.drawPath(visiblePath);
-}
-
 void IntegratorDynamics::draw(QPainter& p)
 {
     p.setRenderHints(QPainter::Antialiasing, true);
@@ -153,7 +115,7 @@ void IntegratorDynamics::exportToTikz(QTikzPicture& tp)
 
     // construct path of visibility region
     tp.comment("robot sensed area");
-    QPainterPath visiblePath = visibleArea(m_sensingRange);
+    QPainterPath visiblePath = visibleArea(sensingRange());
     tp.path(visiblePath, "thick, draw=" + c + ", fill=black, fill opacity=0.2");
 
     tp.circle(position(), 0.05, "draw=black, fill=" + c);
@@ -162,17 +124,11 @@ void IntegratorDynamics::exportToTikz(QTikzPicture& tp)
 void IntegratorDynamics::load(QSettings& config)
 {
     Robot::load(config);
-
-    setSensingRange(config.value("sensing-range", 3.0).toDouble());
-    setFillSensingRange(config.value("fill-sensing-range", false).toBool());
 }
 
 void IntegratorDynamics::save(QSettings& config)
 {
     Robot::save(config);
-
-    config.setValue("sensing-range", sensingRange());
-    config.setValue("fill-sensing-range", fillSensingRange());
 }
 
 void IntegratorDynamics::tick()
@@ -182,7 +138,7 @@ void IntegratorDynamics::tick()
     pos += scene()->toolHandler()->gradient(this, true) * scene()->map().resolution();
     setPosition(pos, true);
 
-    bool changed = scene()->map().exploreInRadius(pos, m_sensingRange, Cell::Explored);
+    bool changed = scene()->map().exploreInRadius(pos, sensingRange(), Cell::Explored);
 }
 
 void IntegratorDynamics::reset()

@@ -50,14 +50,6 @@ class IntegratorDynamics : public Robot
         // orientation of last move as unit vector
         virtual QPointF orientationVector() const;
 
-        
-        
-        void setSensingRange(qreal sensingRange);
-        qreal sensingRange() const;
-
-        void setFillSensingRange(bool fill);
-        bool fillSensingRange() const;
-
     //
     // environment information
     //
@@ -67,7 +59,6 @@ class IntegratorDynamics : public Robot
 
     private:
         void drawIntegratorDynamics(QPainter& p);
-        void drawSensedArea(QPainter& p);
 
     //
     // load/save & export functions
@@ -80,9 +71,6 @@ class IntegratorDynamics : public Robot
 
     private:
         QPointer<RobotConfigWidget> m_configWidget;
-
-        qreal m_sensingRange;
-        bool m_fillSensingRange;
 };
 
 #endif // DISCOVERAGE_INTEGRATOR_DYNAMICS_H

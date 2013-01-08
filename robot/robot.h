@@ -71,6 +71,12 @@ class Robot
         void clearTrajectory();
         const QVector<QPointF>& trajectory() const;
 
+        void setSensingRange(double sensingRange);
+        double sensingRange() const;
+
+        void setFillSensingRange(bool fill);
+        bool fillSensingRange() const;
+
     //
     // environment information
     //
@@ -81,6 +87,7 @@ class Robot
         QColor color();
         virtual void draw(QPainter& p);
         virtual void drawTrajectory(QPainter& p);
+        virtual void drawSensedArea(QPainter& p);
         virtual QPainterPath visibleArea(double radius);
 
     //
@@ -96,6 +103,9 @@ class Robot
         Scene* m_scene;
         QPointF m_position;
         QVector<QPointF> m_trajectory;
+
+        double m_sensingRange;
+        bool m_fillSensingRange;
 };
 
 #endif // DISCOVERAGE_ROBOT_H

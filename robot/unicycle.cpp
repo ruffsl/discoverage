@@ -32,8 +32,6 @@
 
 Unicycle::Unicycle(Scene* scene)
     : Robot(scene)
-    , m_sensingRange(3.0)
-    , m_fillSensingRange(false)
 {
 }
 
@@ -77,42 +75,6 @@ qreal Unicycle::orientation() const
 QPointF Unicycle::orientationVector() const
 {
     return QPointF(cos(m_orientation), sin(m_orientation));
-}
-
-void Unicycle::setSensingRange(qreal sensingRange)
-{
-    m_sensingRange = sensingRange;
-}
-
-qreal Unicycle::sensingRange() const
-{
-    return m_sensingRange;
-}
-
-void Unicycle::setFillSensingRange(bool fill)
-{
-    m_fillSensingRange = fill;
-}
-
-bool Unicycle::fillSensingRange() const
-{
-    return m_fillSensingRange;
-}
-
-void Unicycle::drawSensedArea(QPainter& p)
-{
-    QColor col(color());
-    QPen pen(col, map()->resolution() * 0.3);
-    p.setPen(pen);
-    if (fillSensingRange()) {
-        col.setAlpha(50);
-        p.setBrush(col);
-    } else {
-        p.setBrush(Qt::NoBrush);
-    }
-
-    QPainterPath visiblePath = visibleArea(m_sensingRange);
-    p.drawPath(visiblePath);
 }
 
 void Unicycle::draw(QPainter& p)
@@ -170,7 +132,7 @@ void Unicycle::exportToTikz(QTikzPicture& tp)
 
     // construct path of visibility region
     tp.comment("robot sensed area");
-    QPainterPath visiblePath = visibleArea(m_sensingRange);
+    QPainterPath visiblePath = visibleArea(sensingRange());
     tp.path(visiblePath, "thick, draw=" + c/* + ", fill=black, fill opacity=0.2"*/);
 
     // draw unicycle
@@ -235,7 +197,7 @@ void Unicycle::tick()
         setPosition(pos, true);
     }
 
-    bool changed = scene()->map().exploreInRadius(pos, m_sensingRange, Cell::Explored);
+    bool changed = scene()->map().exploreInRadius(pos, sensingRange(), Cell::Explored);
 }
 
 void Unicycle::reset()
