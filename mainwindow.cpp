@@ -210,7 +210,15 @@ void MainWindow::saveSceneAs()
 
 void MainWindow::exportToTikz()
 {
-    QString filename("scene.tikz");
+    QString filename("scene");
+    if (!m_sceneFile.isEmpty()) {
+        filename = m_sceneFile;
+        if (filename.endsWith(".scene")) {
+            filename = filename.left(filename.size() - 6);
+        }
+    }
+    filename += QString("-iteration-%1").arg(m_stats->iteration(), 3, 10, QChar('0'));
+    filename += ".tikz";
 
     QFile file(filename);
     if (file.open(QFile::WriteOnly | QFile::Truncate)) {
