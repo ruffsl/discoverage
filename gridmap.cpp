@@ -387,11 +387,6 @@ void GridMap::updateCell(Cell& cell)
     cell.draw(p, Config::self()->showDensity(), Config::self()->showVectorField());
 }
 
-const QList<Cell*>& GridMap::frontiers() const
-{
-    return m_frontierCache;
-}
-
 QList<Cell*> GridMap::frontiers(Robot* robot) const
 {
     if (!robot || RobotManager::self()->count() == 1) {

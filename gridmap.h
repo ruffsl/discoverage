@@ -129,7 +129,7 @@ class GridMap : public QObject
         inline bool isValidField(const QPoint& cellIndex) const;// index check for
 
         bool setState(Cell& cell, Cell::State newState);        // modify cell state
-        const QList<Cell*>& frontiers() const;                  // cached list of all frontiers
+        inline const QList<Cell*>& frontiers() const;           // cached list of all frontiers
         QList<Cell*> frontiers(Robot* robot) const;             // frontiers for robot
 
     //
@@ -196,6 +196,11 @@ bool GridMap::isValidField(int xIndex, int yIndex) const
 bool GridMap::isValidField(const QPoint& cellIndex) const
 {
     return isValidField(cellIndex.x(), cellIndex.y());
+}
+
+const QList<Cell*>& GridMap::frontiers() const
+{
+    return m_frontierCache;
 }
 
 #endif // GRIDMAP_H
