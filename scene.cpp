@@ -326,6 +326,11 @@ void Scene::reset()
     update();
 }
 
+void Scene::saveImage(const QString& filename)
+{
+    m_pixmapCache.save(filename);
+}
+
 void Scene::exportToTikz(QTikzPicture& tp)
 {
     tp.begin("yscale=-1");

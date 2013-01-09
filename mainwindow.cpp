@@ -90,10 +90,9 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     connect(actionStatistics, SIGNAL(triggered(bool)), dwStatistics, SLOT(setVisible(bool)));
     connect(actionExport, SIGNAL(triggered()), this, SLOT(exportToTikz()));
     connect(actionReload, SIGNAL(triggered()), this, SLOT(reloadScene()));
-    connect(actionStep, SIGNAL(triggered()), m_scene, SLOT(tick()));
+    connect(actionStep, SIGNAL(triggered()), this, SLOT(tick()));
     connect(m_toolsUi->cmbTool, SIGNAL(currentIndexChanged(int)), m_scene, SLOT(selectTool(int)));
     connect(m_toolsUi->sbRadius, SIGNAL(valueChanged(double)), m_scene, SLOT(setOperationRadius(double)));
-    connect(actionStep, SIGNAL(triggered()), m_stats, SLOT(tick()));
     connect(actionReload, SIGNAL(triggered()), m_stats, SLOT(reset()));
 }
 
@@ -246,4 +245,25 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
         QMainWindow::keyPressEvent(event);
     }
 }
+
+void MainWindow::tick()
+{
+    m_scene->tick();
+    m_stats->tick();
+
+    // record data if wanted
+    if (actionRecord->isChecked()) {
+        QString filename("scene");
+        if (!m_sceneFile.isEmpty()) {
+            filename = m_sceneFile;
+            if (filename.endsWith(".scene")) {
+                filename = filename.left(filename.size() - 6);
+            }
+        }
+        filename += QString("-iteration-%1").arg(m_stats->iteration(), 3, 10, QChar('0'));
+        filename += ".png";
+        m_scene->saveImage(filename);
+    }
+}
+
 // kate: replace-tabs on; indent-width 4;

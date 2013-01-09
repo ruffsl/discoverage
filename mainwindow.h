@@ -53,6 +53,8 @@ class MainWindow : public QMainWindow, protected Ui::MainWindow
         void saveScene();
         void saveSceneAs();
 
+        void tick();
+
         void exportToTikz();
 
     protected:

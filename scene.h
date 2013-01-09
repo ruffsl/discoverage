@@ -80,6 +80,7 @@ class Scene : public QFrame
         void setOperationRadius(double radius);
 
         void tick();
+        void saveImage(const QString& filename);
 
         // mark all cells as unexplored
         void reset();
