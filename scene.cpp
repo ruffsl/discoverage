@@ -228,17 +228,23 @@ void Scene::setOperationRadius(double radius)
 
 void Scene::draw(QPaintDevice* paintDevice)
 {
-    QPainter p(paintDevice);
+    if (m_pixmapCache.size() != sizeHint()) {
+        m_pixmapCache = QPixmap(sizeHint());
+    }
+
+    QPainter p(&m_pixmapCache);
+
     m_map->draw(p);
 
+    // print overlays in scaled coordinate system
     p.scale(m_map->scaleFactor(), m_map->scaleFactor());
-
-    // painter tool overlay
     m_toolHandler->draw(p);
-
-
     RobotManager::self()->draw(p);
 
+    p.end();
+
+    p.begin(paintDevice);
+    p.drawPixmap(0, 0, m_pixmapCache);
     p.end();
 }
 
@@ -307,7 +313,9 @@ void Scene::tick()
     m_toolHandler->postProcess();
 
     m_mainWindow->updateExplorationProgress();
-    update();
+
+    // force repaint now, so we have an up-to-date pixmap cache
+    repaint();
 }
 
 void Scene::reset()
