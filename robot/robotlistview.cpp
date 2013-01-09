@@ -87,6 +87,7 @@ void RobotListView::updateList()
             m_robotLayout->insertWidget(i, cw);
         }
 
+        cw->updatePixmap();
         cw->setBackgroundRole((i % 2) ? QPalette::AlternateBase : QPalette::Base);
 
         // see updateActiveRobot()

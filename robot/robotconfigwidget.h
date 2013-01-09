@@ -52,13 +52,19 @@ class RobotConfigWidget : public QWidget
          */
         void setConfigWidget(QWidget* widget);
 
+        /**
+         * @internal called by RobotListView.
+         */
+        void updatePixmap();
+
+        virtual QPixmap pixmap() = 0;
+
     protected slots:
         // mark robot() as active robot.
         void setRobotActive();
 
     private slots:
         void removeRobot();
-        void updateColor();
 
     signals:
         // emitted when the "remove" button is clicked. Connected to the RobotManager.

@@ -68,4 +68,19 @@ void IntegratorDynamicsConfigWidget::setFillSensingRange(bool fill)
     Scene::self()->update();
 }
 
+QPixmap IntegratorDynamicsConfigWidget::pixmap()
+{
+    QPixmap pixmap(16, 16);
+    QPainter p(&pixmap);
+    QRect rect(0, 0, 15, 15);
+    p.fillRect(rect, Qt::white);
+    p.drawRect(rect);
+
+    p.setRenderHints(QPainter::Antialiasing, true);
+    p.setBrush(robot()->color());
+    p.drawEllipse(3, 3, 10, 10);
+    p.end();
+    return pixmap;
+}
+
 // kate: replace-tabs on; indent-width 4;

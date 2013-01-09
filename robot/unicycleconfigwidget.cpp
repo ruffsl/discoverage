@@ -119,4 +119,36 @@ void UnicycleConfigWidget::setFillSensingRange(bool fill)
     Scene::self()->update();
 }
 
+QPixmap UnicycleConfigWidget::pixmap()
+{
+    QPixmap pixmap(16, 16);
+    QPainter p(&pixmap);
+    QRect rect(0, 0, 15, 15);
+    p.fillRect(rect, Qt::white);
+    p.drawRect(rect);
+
+    p.setRenderHints(QPainter::Antialiasing, true);
+    p.setBrush(robot()->color());
+    p.translate(7, 8);
+    p.scale(38, 38);
+//     p.rotate(90);
+
+    // draw wheels
+    QRectF wheel(-0.1, -0.15, 0.2, 0.1);
+    p.drawRect(wheel);
+    wheel.moveTo(-0.1,  0.05);
+    p.drawRect(wheel);
+
+    // draw triangle
+    QPainterPath triangle;
+    triangle.moveTo(0.15, 0);
+    triangle.lineTo(-0, -0.15);
+    triangle.lineTo(-0, 0.15);
+    triangle.closeSubpath();
+    p.drawPath(triangle);
+
+    p.end();
+    return pixmap;
+}
+
 // kate: replace-tabs on; indent-width 4;

@@ -24,6 +24,7 @@
 #include <QtGui/QColor>
 #include <QPainterPath>
 #include <QVector>
+#include <QPixmap>
 
 class Scene;
 class GridMap;

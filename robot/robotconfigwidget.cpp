@@ -27,21 +27,6 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QLabel>
 
-static QPixmap pixmap(const QColor& color)
-{
-    QPixmap pixmap(16, 16);
-    pixmap.fill(color);
-    QPainter p(&pixmap);
-    QPen blackPen(Qt::black, 1);
-    p.setPen(blackPen);
-    p.drawRect(0, 0, 15, 15);
-    p.end();
-
-    return pixmap;
-}
-
-
-
 RobotConfigWidget::RobotConfigWidget(Robot* robot, const QString& robotName)
     : QWidget()
     , m_robot(robot)
@@ -62,7 +47,6 @@ RobotConfigWidget::RobotConfigWidget(Robot* robot, const QString& robotName)
 
     m_lblPixmap= new QLabel(this);
     m_lblPixmap->setFixedSize(16, 16);
-    m_lblPixmap->setPixmap(pixmap(robot->color()));
 
     QLabel* lblRobot = new QLabel(robotName, this);
 
@@ -72,7 +56,6 @@ RobotConfigWidget::RobotConfigWidget(Robot* robot, const QString& robotName)
 
     connect(btnRemoveRobot, SIGNAL(clicked()), this, SLOT(removeRobot()));
     connect(this, SIGNAL(removeRobot(Robot*)), RobotManager::self(), SLOT(removeRobot(Robot*)), Qt::QueuedConnection);
-    connect(RobotManager::self(), SIGNAL(robotCountChanged()), this, SLOT(updateColor()));
 }
 
 RobotConfigWidget::~RobotConfigWidget()
@@ -108,9 +91,9 @@ void RobotConfigWidget::setConfigWidget(QWidget* widget)
     }
 }
 
-void RobotConfigWidget::updateColor()
+void RobotConfigWidget::updatePixmap()
 {
-    m_lblPixmap->setPixmap(pixmap(robot()->color()));
+    m_lblPixmap->setPixmap(pixmap());
 }
 
 // kate: replace-tabs on; indent-width 4;

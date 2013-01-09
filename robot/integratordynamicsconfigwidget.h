@@ -36,6 +36,8 @@ class IntegratorDynamicsConfigWidget : public RobotConfigWidget
         IntegratorDynamicsConfigWidget(IntegratorDynamics* robot);
         virtual ~IntegratorDynamicsConfigWidget();
 
+        virtual QPixmap pixmap();
+
     public slots:
         void setSensingRange(double range);
         void setFillSensingRange(bool fill);

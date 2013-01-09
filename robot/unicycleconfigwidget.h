@@ -36,6 +36,8 @@ class UnicycleConfigWidget : public RobotConfigWidget
         UnicycleConfigWidget(Unicycle* robot);
         virtual ~UnicycleConfigWidget();
 
+        virtual QPixmap pixmap();
+
     public slots:
         // used to update the orientatio in the gui
         void setOrientationFromRobot(double value);
