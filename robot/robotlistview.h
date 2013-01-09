@@ -25,6 +25,7 @@
 
 class RobotConfigWidget;
 class QBoxLayout;
+class QComboBox;
 class Robot;
 
 class RobotListView : public QScrollArea
@@ -40,11 +41,11 @@ class RobotListView : public QScrollArea
         void updateActiveRobot(Robot* robot);
 
     private slots:
-        void addSingleIntegrator();
-        void addUnicycle();
+        void addRobot();
 
     private:
         QBoxLayout* m_robotLayout;
+        QComboBox* m_cbRobots;
 };
 
 #endif // DISCOVERAGE_ROBOT_LIST_VIEW_H

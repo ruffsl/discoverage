@@ -26,6 +26,7 @@
 #include <QtGui/QPushButton>
 #include <QtGui/QMenu>
 #include <QtGui/QVBoxLayout>
+#include <QtGui/QComboBox>
 
 RobotListView::RobotListView(QWidget* parent)
     : QScrollArea(parent)
@@ -35,14 +36,17 @@ RobotListView::RobotListView(QWidget* parent)
 
     QVBoxLayout* l = new QVBoxLayout(widget());
 
-    QPushButton* newRobot = new QPushButton("Add robot", widget());
-    newRobot->setIcon(QIcon(":/icons/icons/add.png"));
-    l->addWidget(newRobot);
+    QHBoxLayout* hbox = new QHBoxLayout();
+    l->addLayout(hbox);
+    
+    m_cbRobots = new QComboBox(widget());
+    m_cbRobots->addItem("Integrator Dynamics");
+    m_cbRobots->addItem("Unicycle Dynamics");
+    hbox->addWidget(m_cbRobots);
 
-    QMenu* menu = new QMenu(newRobot);
-    menu->addAction("Integrator Dynamics", this, SLOT(addSingleIntegrator()));
-    menu->addAction("Unicycle Dynamics", this, SLOT(addUnicycle()));
-    newRobot->setMenu(menu);
+    QPushButton* newRobot = new QPushButton("Add", widget());
+    newRobot->setIcon(QIcon(":/icons/icons/add.png"));
+    hbox->addWidget(newRobot);
 
     m_robotLayout = new QVBoxLayout();
     m_robotLayout->setSpacing(0);
@@ -50,6 +54,8 @@ RobotListView::RobotListView(QWidget* parent)
     l->addStretch();
 
     updateList();
+    
+    connect(newRobot, SIGNAL(clicked()), this, SLOT(addRobot()));
 
     connect(RobotManager::self(), SIGNAL(robotCountChanged()), this, SLOT(updateList()), Qt::QueuedConnection);
     connect(RobotManager::self(), SIGNAL(activeRobotChanged(Robot*)), this, SLOT(updateActiveRobot(Robot*)));
@@ -59,14 +65,13 @@ RobotListView::~RobotListView()
 {
 }
 
-void RobotListView::addSingleIntegrator()
+void RobotListView::addRobot()
 {
-    RobotManager::self()->addRobot(Robot::IntegratorDynamics);
-}
-
-void RobotListView::addUnicycle()
-{
-    RobotManager::self()->addRobot(Robot::Unicycle);
+    if (m_cbRobots->currentIndex() == 0) {
+        RobotManager::self()->addRobot(Robot::IntegratorDynamics);
+    } else if (m_cbRobots->currentIndex() == 1) {
+        RobotManager::self()->addRobot(Robot::Unicycle);
+    }
 }
 
 void RobotListView::updateList()
