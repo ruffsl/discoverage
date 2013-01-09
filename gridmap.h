@@ -140,6 +140,7 @@ class GridMap : public QObject
         void computeVoronoiPartition();
         void updateDensity();
         bool exploreInRadius(const QPointF& worldPos, double radius, bool markAsExplored);
+        void unexploreAll();
 
         double explorationProgress() const;
         QVector<Cell*> visibleCells(const QPointF& worldPos, double radius);

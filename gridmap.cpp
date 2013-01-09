@@ -595,6 +595,17 @@ bool GridMap::exploreInRadius(const QPointF& worldPos, double radius, bool markA
     return changed;
 }
 
+void GridMap::unexploreAll()
+{
+    const QSize s = size();
+    for (int a = 0; a < s.width(); ++a) {
+        QVector<Cell>& row = m_map[a];
+        for (int b = 0; b < s.height(); ++b) {
+            setState(row[b], Cell::Unknown);
+        }
+    }
+}
+
 QVector<Cell*> GridMap::visibleCells(const QPointF& worldPos, double radius)
 {
     const qreal x = worldPos.x();

@@ -81,6 +81,9 @@ class Scene : public QFrame
 
         void tick();
 
+        // mark all cells as unexplored
+        void reset();
+
     public:
         virtual QSize sizeHint() const;
 

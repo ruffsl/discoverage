@@ -164,6 +164,8 @@ void MainWindow::reloadScene()
 {
     if (!m_sceneFile.isEmpty()) {
         loadScene(m_sceneFile);
+    } else {
+        m_scene->reset();
     }
 }
 

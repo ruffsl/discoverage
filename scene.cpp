@@ -310,6 +310,14 @@ void Scene::tick()
     update();
 }
 
+void Scene::reset()
+{
+    m_map->unexploreAll();
+    RobotManager::self()->reset();
+    m_map->updateCache();
+    update();
+}
+
 void Scene::exportToTikz(QTikzPicture& tp)
 {
     tp.begin("yscale=-1");
