@@ -171,7 +171,7 @@ void Unicycle::save(QSettings& config)
     config.setValue("orientation", orientation());
 }
 
-void Unicycle::tick()
+bool Unicycle::tick()
 {
     QPointF pos = position();
 
@@ -202,6 +202,7 @@ void Unicycle::tick()
     }
 
     bool changed = scene()->map().exploreInRadius(pos, sensingRange(), Cell::Explored);
+    return changed;
 }
 
 void Unicycle::reset()

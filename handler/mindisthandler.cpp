@@ -83,21 +83,23 @@ void MinDistHandler::tick()
 {
 }
 
-void MinDistHandler::postProcess()
+void MinDistHandler::postProcess(bool cellsChanged)
 {
-    scene()->map().computeVoronoiPartition();
+    if (cellsChanged) {
+        scene()->map().computeVoronoiPartition();
 
-    if (Config::self()->showDensity()) {
-        for (int i = 0; i < RobotManager::self()->count(); ++i)
-            scene()->map().computeDistanceTransform(RobotManager::self()->robot(i));
-        scene()->map().updateDensity();
+        if (Config::self()->showDensity()) {
+            for (int i = 0; i < RobotManager::self()->count(); ++i)
+                scene()->map().computeDistanceTransform(RobotManager::self()->robot(i));
+            scene()->map().updateDensity();
+        }
+
+        if (Config::self()->showVectorField()) {
+            updateVectorField();
+        }
+
+        scene()->map().updateCache();
     }
-
-    if (Config::self()->showVectorField()) {
-        updateVectorField();
-    }
-
-    scene()->map().updateCache();
 }
 
 void MinDistHandler::updateVectorField()

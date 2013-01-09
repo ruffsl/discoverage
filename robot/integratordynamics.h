@@ -33,7 +33,7 @@ class IntegratorDynamics : public Robot
 
         virtual Dynamics type();
 
-        virtual void tick();
+        virtual bool tick();
         virtual void reset();
 
         virtual RobotConfigWidget* configWidget();

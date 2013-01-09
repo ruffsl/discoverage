@@ -306,11 +306,12 @@ GridMap& Scene::map()
 
 void Scene::tick()
 {
+    bool cellsChanged = false;
     for (int i = 0; i < RobotManager::self()->count(); ++i) {
-        RobotManager::self()->robot(i)->tick();
+        cellsChanged = RobotManager::self()->robot(i)->tick() || cellsChanged;
     }
 
-    m_toolHandler->postProcess();
+    m_toolHandler->postProcess(cellsChanged);
 
     m_mainWindow->updateExplorationProgress();
 

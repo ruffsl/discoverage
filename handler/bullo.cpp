@@ -114,7 +114,7 @@ void DisCoverageBulloHandler::exportToTikz(QTikzPicture& tp)
 
 void DisCoverageBulloHandler::updateParameters()
 {
-    postProcess();
+    postProcess(true);
     scene()->update();
 }
 
@@ -264,18 +264,20 @@ void DisCoverageBulloHandler::tick()
 {
 }
 
-void DisCoverageBulloHandler::postProcess()
+void DisCoverageBulloHandler::postProcess(bool cellsChanged)
 {
-    scene()->map().computeVoronoiPartition();
-    for (int i = 0; i < RobotManager::self()->count(); ++i)
-        scene()->map().computeDistanceTransform(RobotManager::self()->robot(i));
-    scene()->map().updateDensity();
+    if (cellsChanged) {
+        scene()->map().computeVoronoiPartition();
+        for (int i = 0; i < RobotManager::self()->count(); ++i)
+            scene()->map().computeDistanceTransform(RobotManager::self()->robot(i));
+        scene()->map().updateDensity();
 
-    if (Config::self()->showVectorField()) {
-        updateVectorField();
+        if (Config::self()->showVectorField()) {
+            updateVectorField();
+        }
+
+        scene()->map().updateCache();
     }
-
-    scene()->map().updateCache();
 }
 
 void DisCoverageBulloHandler::updateVectorField()

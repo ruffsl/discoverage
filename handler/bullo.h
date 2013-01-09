@@ -50,7 +50,7 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
         virtual void toolHandlerActive(bool activated);
         virtual void reset();
         virtual void tick();
-        virtual void postProcess();
+        virtual void postProcess(bool cellsChanged);
 
         virtual QPointF gradient(Robot* robot, bool interpolate);
 

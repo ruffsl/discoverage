@@ -53,7 +53,7 @@ class Robot
 
         bool isActive() const;
 
-        virtual void tick();
+        virtual bool tick();
         virtual void reset();
 
         virtual RobotConfigWidget* configWidget() = 0;

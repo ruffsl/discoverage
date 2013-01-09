@@ -156,7 +156,7 @@ void DisCoverageHandler::load(QSettings& config)
 
 void DisCoverageHandler::updateParameters()
 {
-    postProcess();
+    postProcess(true);
     scene()->update();
 }
 
@@ -251,17 +251,19 @@ void DisCoverageHandler::tick()
 {
 }
 
-void DisCoverageHandler::postProcess()
+void DisCoverageHandler::postProcess(bool cellsChanged)
 {
-    scene()->map().computeVoronoiPartition();
+    if (cellsChanged) {
+        scene()->map().computeVoronoiPartition();
 
-    if (Config::self()->showVectorField()) {
-        updateVectorField();
+        if (Config::self()->showVectorField()) {
+            updateVectorField();
+        }
+
+        scene()->map().updateCache();
+
+        m_plotter->updatePlot(RobotManager::self()->activeRobot());
     }
-
-    scene()->map().updateCache();
-
-    m_plotter->updatePlot(RobotManager::self()->activeRobot());
 }
 
 QPointF DisCoverageHandler::gradient(Robot* robot, bool /*interpolate*/)

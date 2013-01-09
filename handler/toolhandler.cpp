@@ -140,8 +140,9 @@ void ToolHandler::tick()
 {
 }
 
-void ToolHandler::postProcess()
+void ToolHandler::postProcess(bool cellsChanged)
 {
+    Q_UNUSED(cellsChanged)
 }
 
 void ToolHandler::save(QSettings& config)
