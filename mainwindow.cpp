@@ -83,6 +83,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     connect(actionNew, SIGNAL(triggered()), this, SLOT(newScene()));
     connect(actionOpen, SIGNAL(triggered()), this, SLOT(loadScene()));
     connect(actionSave, SIGNAL(triggered()), this, SLOT(saveScene()));
+    connect(actionSaveAs, SIGNAL(triggered()), this, SLOT(saveSceneAs()));
     connect(actionPartition, SIGNAL(triggered(bool)), Config::self(), SLOT(setShowPartition(bool)));
     connect(actionDensity, SIGNAL(triggered(bool)), Config::self(), SLOT(setShowDensity(bool)));
     connect(actionVectorField, SIGNAL(triggered(bool)), Config::self(), SLOT(setShowVectorField(bool)));
@@ -186,6 +187,15 @@ void MainWindow::saveScene()
     config.endGroup();
 
     m_scene->save(config);
+}
+
+void MainWindow::saveSceneAs()
+{
+    const QString fileName = QFileDialog::getSaveFileName(this, "Save Scene", QString(), "Scenes (*.scene)");
+    if (!fileName.isEmpty()) {
+        m_sceneFile = fileName;
+        saveScene();
+    }
 }
 
 void MainWindow::exportToTikz()

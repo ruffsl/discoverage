@@ -49,6 +49,7 @@ class MainWindow : public QMainWindow, protected Ui::MainWindow
         void newScene();
         void loadScene();
         void saveScene();
+        void saveSceneAs();
         void exportToTikz();
 
     protected:
