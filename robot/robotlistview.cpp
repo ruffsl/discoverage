@@ -38,23 +38,26 @@ RobotListView::RobotListView(QWidget* parent)
 
     QHBoxLayout* hbox = new QHBoxLayout();
     l->addLayout(hbox);
-    
+
+    // combo box with dynamics
     m_cbRobots = new QComboBox(widget());
     m_cbRobots->addItem("Integrator Dynamics");
     m_cbRobots->addItem("Unicycle Dynamics");
     hbox->addWidget(m_cbRobots);
 
+    // add button
     QPushButton* newRobot = new QPushButton("Add", widget());
     newRobot->setIcon(QIcon(":/icons/icons/add.png"));
     hbox->addWidget(newRobot);
 
+    // layout containing the robot config widgets
     m_robotLayout = new QVBoxLayout();
     m_robotLayout->setSpacing(0);
     l->addLayout(m_robotLayout);
     l->addStretch();
 
     updateList();
-    
+
     connect(newRobot, SIGNAL(clicked()), this, SLOT(addRobot()));
 
     connect(RobotManager::self(), SIGNAL(robotCountChanged()), this, SLOT(updateList()), Qt::QueuedConnection);
