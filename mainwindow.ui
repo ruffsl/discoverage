@@ -74,7 +74,7 @@
     <property name="title">
      <string>&amp;Simulation</string>
     </property>
-    <addaction name="actionReset"/>
+    <addaction name="actionReload"/>
     <addaction name="actionStop"/>
     <addaction name="actionStep"/>
     <addaction name="actionPlay"/>
@@ -128,7 +128,7 @@
    <addaction name="actionDummy"/>
    <addaction name="separator"/>
    <addaction name="actionRecord"/>
-   <addaction name="actionReset"/>
+   <addaction name="actionReload"/>
    <addaction name="actionStep"/>
    <addaction name="separator"/>
    <addaction name="actionZoomOut"/>
@@ -192,13 +192,16 @@
     <string>Ctrl+O</string>
    </property>
   </action>
-  <action name="actionReset">
+  <action name="actionReload">
    <property name="icon">
     <iconset resource="app.qrc">
      <normaloff>:/icons/icons/reset.png</normaloff>:/icons/icons/reset.png</iconset>
    </property>
    <property name="text">
-    <string>Reset</string>
+    <string>Reload</string>
+   </property>
+   <property name="toolTip">
+    <string>Reload scene</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>

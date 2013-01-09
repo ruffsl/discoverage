@@ -46,10 +46,13 @@ class MainWindow : public QMainWindow, protected Ui::MainWindow
         Scene* scene() const;
 
     public slots:
+        void loadScene(const QString& filename);
         void newScene();
-        void loadScene();
+        void openScene();
+        void reloadScene();
         void saveScene();
         void saveSceneAs();
+
         void exportToTikz();
 
     protected:

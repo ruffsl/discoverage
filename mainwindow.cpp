@@ -81,7 +81,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     connect(actionZoomIn, SIGNAL(triggered()), m_scene, SLOT(zoomIn()));
     connect(actionZoomOut, SIGNAL(triggered()), m_scene, SLOT(zoomOut()));
     connect(actionNew, SIGNAL(triggered()), this, SLOT(newScene()));
-    connect(actionOpen, SIGNAL(triggered()), this, SLOT(loadScene()));
+    connect(actionOpen, SIGNAL(triggered()), this, SLOT(openScene()));
     connect(actionSave, SIGNAL(triggered()), this, SLOT(saveScene()));
     connect(actionSaveAs, SIGNAL(triggered()), this, SLOT(saveSceneAs()));
     connect(actionPartition, SIGNAL(triggered(bool)), Config::self(), SLOT(setShowPartition(bool)));
@@ -89,12 +89,12 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     connect(actionVectorField, SIGNAL(triggered(bool)), Config::self(), SLOT(setShowVectorField(bool)));
     connect(actionStatistics, SIGNAL(triggered(bool)), dwStatistics, SLOT(setVisible(bool)));
     connect(actionExport, SIGNAL(triggered()), this, SLOT(exportToTikz()));
-    connect(actionReset, SIGNAL(triggered()), m_scene, SLOT(reset()));
+    connect(actionReload, SIGNAL(triggered()), this, SLOT(reloadScene()));
     connect(actionStep, SIGNAL(triggered()), m_scene, SLOT(tick()));
     connect(m_toolsUi->cmbTool, SIGNAL(currentIndexChanged(int)), m_scene, SLOT(selectTool(int)));
     connect(m_toolsUi->sbRadius, SIGNAL(valueChanged(double)), m_scene, SLOT(setOperationRadius(double)));
     connect(actionStep, SIGNAL(triggered()), m_stats, SLOT(tick()));
-    connect(actionReset, SIGNAL(triggered()), m_stats, SLOT(reset()));
+    connect(actionReload, SIGNAL(triggered()), m_stats, SLOT(reset()));
 }
 
 MainWindow::~MainWindow()
@@ -124,26 +124,29 @@ void MainWindow::newScene()
     m_sceneFile.clear();
 }
 
-void MainWindow::loadScene()
+void MainWindow::openScene()
 {
     QString fileName = QFileDialog::getOpenFileName(this, "Load Scene", QString(), "Scenes (*.scene)");
-    if (fileName.isEmpty()) {
-        return;
+    if (!fileName.isEmpty()) {
+        loadScene(fileName);
     }
+}
 
-    QSettings config(fileName, QSettings::IniFormat);
+void MainWindow::loadScene(const QString& filename)
+{
+    QSettings config(filename, QSettings::IniFormat);
     QSettings::Status status = config.status();
     if (status == QSettings::AccessError) {
-        qWarning() << "An access error occurred (e.g. trying to load a non-readable file):" << fileName;
+        qWarning() << "An access error occurred (e.g. trying to load a non-readable file):" << filename;
         return;
     } else if (status == QSettings::FormatError) {
-        qWarning() << "A format error in the INI file occurred:" << fileName;
+        qWarning() << "A format error in the INI file occurred:" << filename;
         return;
     }
 
     const int version = config.value("general/version", -1).toInt();
     if (version != 1) {
-        qWarning() << "Unknown version in file, aborting:" << fileName;
+        qWarning() << "Unknown version in file, aborting:" << filename;
         return;
     }
 
@@ -154,7 +157,14 @@ void MainWindow::loadScene()
     m_toolsUi->cmbTool->setCurrentIndex(config.value("tool", 0).toInt());
     config.endGroup();
 
-    m_sceneFile = fileName;
+    m_sceneFile = filename;
+}
+
+void MainWindow::reloadScene()
+{
+    if (!m_sceneFile.isEmpty()) {
+        loadScene(m_sceneFile);
+    }
 }
 
 void MainWindow::saveScene()
@@ -191,7 +201,7 @@ void MainWindow::saveScene()
 
 void MainWindow::saveSceneAs()
 {
-    const QString fileName = QFileDialog::getSaveFileName(this, "Save Scene", QString(), "Scenes (*.scene)");
+    const QString fileName = QFileDialog::getSaveFileName(this, "Save Scene As", QString(), "Scenes (*.scene)");
     if (!fileName.isEmpty()) {
         m_sceneFile = fileName;
         saveScene();
