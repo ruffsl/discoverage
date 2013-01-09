@@ -35,6 +35,8 @@ class Statistics : public QFrame
         virtual ~Statistics();
 
         MainWindow* mainWindow() const;
+        
+        int iteration() const;
 
     public slots:
         void reset();

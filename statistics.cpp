@@ -79,6 +79,11 @@ void Statistics::paintEvent(QPaintEvent* event)
     QFrame::paintEvent(event);
 }
 
+int Statistics::iteration() const
+{
+    return m_progress.size();
+}
+
 void Statistics::reset()
 {
     m_progress.clear();
