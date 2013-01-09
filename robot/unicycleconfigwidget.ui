@@ -6,14 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>227</width>
-    <height>105</height>
+    <width>215</width>
+    <height>83</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
+    <layout class="QGridLayout" name="gridLayout">
+     <item row="0" column="0">
       <widget class="QLabel" name="label">
        <property name="text">
         <string>Orientation:</string>
@@ -23,7 +23,7 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="0" column="1">
       <widget class="QDoubleSpinBox" name="sbOrientation">
        <property name="suffix">
         <string> °</string>
@@ -33,7 +33,7 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="0" column="2" rowspan="2">
       <widget class="QDial" name="dialOrientation">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -64,11 +64,7 @@
        </property>
       </widget>
      </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
+     <item row="1" column="0">
       <widget class="QLabel" name="lblSensingRangeBuddy">
        <property name="text">
         <string>Sensing range:</string>
@@ -78,7 +74,7 @@
        </property>
       </widget>
      </item>
-     <item>
+     <item row="1" column="1">
       <widget class="QDoubleSpinBox" name="sbSensingRange">
        <property name="suffix">
         <string> m</string>
