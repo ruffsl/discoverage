@@ -195,7 +195,7 @@
   <action name="actionReload">
    <property name="icon">
     <iconset resource="app.qrc">
-     <normaloff>:/icons/icons/reset.png</normaloff>:/icons/icons/reset.png</iconset>
+     <normaloff>:/icons/icons/document-reload.png</normaloff>:/icons/icons/document-reload.png</iconset>
    </property>
    <property name="text">
     <string>Reload</string>
