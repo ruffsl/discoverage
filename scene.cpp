@@ -298,17 +298,6 @@ GridMap& Scene::map()
     return *m_map;
 }
 
-void Scene::reset()
-{
-    m_toolHandler->reset();
-    for (int i = 0; i < RobotManager::self()->count(); ++i) {
-        RobotManager::self()->robot(i)->reset();
-    }
-
-    m_mainWindow->updateExplorationProgress();
-    update();
-}
-
 void Scene::tick()
 {
     for (int i = 0; i < RobotManager::self()->count(); ++i) {

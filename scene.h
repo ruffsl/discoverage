@@ -79,7 +79,6 @@ class Scene : public QFrame
         void selectTool(int toolIndex);
         void setOperationRadius(double radius);
 
-        void reset();
         void tick();
 
     public:
