@@ -241,6 +241,10 @@ void Scene::draw(QPaintDevice* paintDevice)
     m_toolHandler->draw(p);
     RobotManager::self()->draw(p);
 
+    if (Config::self()->showPreviewTrajectory() && RobotManager::self()->activeRobot()) {
+        RobotManager::self()->activeRobot()->drawPreviewTrajectory(p);
+    }
+
     p.end();
 
     p.begin(paintDevice);

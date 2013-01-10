@@ -189,6 +189,39 @@ void Robot::drawSensedArea(QPainter& p)
     p.drawPath(visiblePath);
 }
 
+void Robot::drawPreviewTrajectory(QPainter& p)
+{
+    QVector<QPointF> previewPath;
+    previewPath.append(m_position);
+
+    const QPoint index = scene()->map().worldToIndex(m_position);
+    if (!scene()->map().isValidField(index)) return;
+
+    const QPointF backupPos = m_position;
+    double length = 0;
+
+    do {
+        m_position = previewPath.last();
+        const QPointF& nextPos = m_position + scene()->toolHandler()->gradient(this, true) * scene()->map().resolution();
+        previewPath.append(nextPos);
+        const QPointF& cmpPos = previewPath[qMax(0, previewPath.size() - 5)];
+        length = (nextPos - cmpPos).manhattanLength();
+    } while (length >= scene()->map().resolution() &&
+        scene()->map().isValidField(scene()->map().worldToIndex(previewPath.last())) &&
+        !(scene()->map().cell(scene()->map().worldToIndex(previewPath.last())).state() & Cell::Frontier)
+    );
+
+    if (previewPath.size()) {
+        p.save();
+        p.setRenderHints(QPainter::Antialiasing, true);
+        p.setPen(QPen(color(), 0.05, Qt::DashLine));
+        p.drawPolyline(&previewPath[0], previewPath.size());
+        p.restore();
+    }
+
+    m_position = backupPos;
+}
+
 void Robot::clearTrajectory()
 {
     m_trajectory.clear();

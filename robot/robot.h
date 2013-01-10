@@ -91,6 +91,7 @@ class Robot
 
         QColor color();
         virtual void draw(QPainter& p);
+        virtual void drawPreviewTrajectory(QPainter& p);
         virtual void drawTrajectory(QPainter& p);
         virtual void drawSensedArea(QPainter& p);
         virtual QPainterPath visibleArea(double radius);
