@@ -131,7 +131,7 @@ void IntegratorDynamics::save(QSettings& config)
     Robot::save(config);
 }
 
-bool IntegratorDynamics::tick()
+void IntegratorDynamics::tick()
 {
     QPointF pos = position();
 
@@ -139,7 +139,6 @@ bool IntegratorDynamics::tick()
     setPosition(pos, true);
 
     bool changed = scene()->map().exploreInRadius(pos, sensingRange(), Cell::Explored);
-    return changed;
 }
 
 void IntegratorDynamics::reset()

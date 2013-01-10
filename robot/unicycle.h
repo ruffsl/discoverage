@@ -35,7 +35,7 @@ class Unicycle : public Robot
 
         virtual Dynamics type();
 
-        virtual bool tick();
+        virtual void tick();
         virtual void reset();
 
         virtual RobotConfigWidget* configWidget();

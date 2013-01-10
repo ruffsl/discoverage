@@ -47,7 +47,7 @@ class MinDistHandler : public QObject, public ToolHandler
         virtual void reset();
         virtual void tick();
 
-        virtual void postProcess(bool cellsChanged);
+        virtual void postProcess();
 
         virtual QPointF gradient(Robot* robot, bool interpolate);
 

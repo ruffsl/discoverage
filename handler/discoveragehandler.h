@@ -64,7 +64,7 @@ class DisCoverageHandler : public QObject, public ToolHandler
         virtual void toolHandlerActive(bool activated);
         virtual void reset();
         virtual void tick();
-        virtual void postProcess(bool cellsChanged);
+        virtual void postProcess();
 
         virtual void load(QSettings& config);
         virtual void save(QSettings& config);

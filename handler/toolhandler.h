@@ -92,7 +92,7 @@ class ToolHandler
          */
         virtual void tick();
 
-        virtual void postProcess(bool cellsChanged);
+        virtual void postProcess();
 
         /**
          * TODO

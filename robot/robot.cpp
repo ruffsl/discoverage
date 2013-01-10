@@ -203,9 +203,8 @@ void Robot::exportToTikz(QTikzPicture& tp)
 {
 }
 
-bool Robot::tick()
+void Robot::tick()
 {
-    return false;
 }
 
 void Robot::reset()
