@@ -38,8 +38,8 @@ Config::Config()
     , m_showPartition(false)
     , m_showDensity(false)
     , m_showVectorField(false)
-    , m_zoomFactor(8.0)
     , m_showPreviewTrajectory(false)
+    , m_zoomFactor(8.0)
 {
     s_self = this;
 }
@@ -72,7 +72,7 @@ void Config::load(QSettings& config)
     setShowPartition(config.value("show-partition",  false).toBool());
     setShowDensity(config.value("show-density",  false).toBool());
     setShowVectorField(config.value("show-vector-field",  false).toBool());
-    setShowPreviewTrajectory(config.vlaue("show-preview-trajectory",  false).toBool());
+    setShowPreviewTrajectory(config.value("show-preview-trajectory",  false).toBool());
     m_zoomFactor = config.value("map-zoom-factor",  8.0).toDouble();
 
     config.endGroup();
@@ -137,12 +137,12 @@ void Config::setShowVectorField(bool show)
     end();
 }
 
-bool showPreviewTrajectory() const
+bool Config::showPreviewTrajectory() const
 {
     return m_showPreviewTrajectory;
 }
 
-void setShowPreviewTrajectory(bool show)
+void Config::setShowPreviewTrajectory(bool show)
 {
     if (m_showPreviewTrajectory == show)
         return;
