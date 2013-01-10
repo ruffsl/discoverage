@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="icons">
+    <file>icons/eye.png</file>
     <file>icons/document-reload.png</file>
     <file>icons/document-save-as.png</file>
     <file>icons/record.png</file>

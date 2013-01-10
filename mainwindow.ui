@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>758</width>
-    <height>694</height>
+    <width>1358</width>
+    <height>678</height>
    </rect>
   </property>
   <property name="toolButtonStyle">
@@ -38,7 +38,7 @@
       <widget class="QWidget" name="scrollAreaWidgetContents">
        <property name="geometry">
         <rect>
-         <x>0</x>
+         <x>212</x>
          <y>78</y>
          <width>681</width>
          <height>383</height>
@@ -54,7 +54,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>758</width>
+     <width>1358</width>
      <height>20</height>
     </rect>
    </property>
@@ -86,6 +86,7 @@
     <addaction name="actionPartition"/>
     <addaction name="actionDensity"/>
     <addaction name="actionVectorField"/>
+    <addaction name="actionPreview"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSimulation"/>
@@ -124,6 +125,7 @@
    <addaction name="actionPartition"/>
    <addaction name="actionDensity"/>
    <addaction name="actionVectorField"/>
+   <addaction name="actionPreview"/>
    <addaction name="actionStatistics"/>
    <addaction name="separator"/>
    <addaction name="actionExport"/>
@@ -392,6 +394,21 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+Shift+S</string>
+   </property>
+  </action>
+  <action name="actionPreview">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="app.qrc">
+     <normaloff>:/icons/icons/eye.png</normaloff>:/icons/icons/eye.png</iconset>
+   </property>
+   <property name="text">
+    <string>Preview</string>
+   </property>
+   <property name="toolTip">
+    <string>Preview trajectory of selected robot</string>
    </property>
   </action>
  </widget>
