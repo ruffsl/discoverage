@@ -57,6 +57,9 @@ class MainWindow : public QMainWindow, protected Ui::MainWindow
 
         void exportToTikz();
 
+        void helpAbout();
+        void helpAboutQt();
+
     protected:
         virtual void keyPressEvent(QKeyEvent* event);
 

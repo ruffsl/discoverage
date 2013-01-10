@@ -31,6 +31,7 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/QKeyEvent>
 #include <QtCore/QSettings>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     : QMainWindow(parent, flags)
@@ -95,6 +96,9 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     connect(m_toolsUi->cmbTool, SIGNAL(currentIndexChanged(int)), m_scene, SLOT(selectTool(int)));
     connect(m_toolsUi->sbRadius, SIGNAL(valueChanged(double)), m_scene, SLOT(setOperationRadius(double)));
     connect(actionReload, SIGNAL(triggered()), m_stats, SLOT(reset()));
+
+    connect(actionAbout, SIGNAL(triggered()), this, SLOT(helpAbout()));
+    connect(actionAboutQt, SIGNAL(triggered()), this, SLOT(helpAboutQt()));
 }
 
 MainWindow::~MainWindow()
@@ -281,4 +285,15 @@ void MainWindow::updateActionState()
     actionVectorField->setChecked(Config::self()->showVectorField());
     actionPreview->setChecked(Config::self()->showPreviewTrajectory());
 }
+
+void MainWindow::helpAbout()
+{
+    QMessageBox::about(this, "About DisCoverage", "(c) 2011-2013 by Dominik Haumann");
+}
+
+void MainWindow::helpAboutQt()
+{
+    qApp->aboutQt();
+}
+
 // kate: replace-tabs on; indent-width 4;
