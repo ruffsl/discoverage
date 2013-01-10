@@ -85,6 +85,8 @@ class Scene : public QFrame
         // mark all cells as unexplored
         void reset();
 
+        void slotConfigChanged();
+
     public:
         virtual QSize sizeHint() const;
 

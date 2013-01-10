@@ -70,7 +70,7 @@ Scene::Scene(MainWindow* mainWindow, QWidget* parent)
     connect(RobotManager::self(), SIGNAL(robotCountChanged()), this, SLOT(update()), Qt::QueuedConnection);
     connect(RobotManager::self(), SIGNAL(activeRobotChanged(Robot*)), this, SLOT(update()));
 
-    connect(Config::self(), SIGNAL(configChanged()), this, SLOT(update()));
+    connect(Config::self(), SIGNAL(configChanged()), this, SLOT(slotConfigChanged()));
 }
 
 Scene::~Scene()
@@ -323,6 +323,12 @@ void Scene::reset()
     m_map->unexploreAll();
     RobotManager::self()->reset();
     m_map->updateCache();
+    update();
+}
+
+void Scene::slotConfigChanged()
+{
+    m_toolHandler->postProcess();
     update();
 }
 
