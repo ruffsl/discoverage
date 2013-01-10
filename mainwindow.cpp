@@ -288,7 +288,11 @@ void MainWindow::updateActionState()
 
 void MainWindow::helpAbout()
 {
-    QMessageBox::about(this, "About DisCoverage", "(c) 2011-2013 by Dominik Haumann");
+    QMessageBox::about(this, "About DisCoverage",
+                       "<p><b>About DisCoverage</b></p>"
+                       "<p>DisCoverage is a framework for exploration strategies. "
+                       "It supports multiple robots with several types of vehicle dynamics.</p>"
+                       "<p>(c) 2011-2013 by Dominik Haumann</p>");
 }
 
 void MainWindow::helpAboutQt()
