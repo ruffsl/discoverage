@@ -62,6 +62,8 @@ class MainWindow : public QMainWindow, protected Ui::MainWindow
 
     protected:
         virtual void keyPressEvent(QKeyEvent* event);
+        virtual bool eventFilter(QObject *obj, QEvent *event);
+
 
         // after loading, set states of toggle QActions correctly
         void updateActionState();

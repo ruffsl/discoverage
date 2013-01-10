@@ -73,6 +73,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
 
     m_scene = new Scene(this, this);
     scrollArea->setWidget(m_scene);
+    scrollArea->installEventFilter(this);
 
     RobotListView* robotListView = new RobotListView(this);
     dwRobotManager->setWidget(robotListView);
@@ -255,6 +256,18 @@ void MainWindow::keyPressEvent(QKeyEvent* event)
     if (!event->isAccepted()) {
         QMainWindow::keyPressEvent(event);
     }
+}
+
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
+    // pass wheel events on the scroll area to the scene
+    if (event->type() == QEvent::Wheel && 
+        QApplication::keyboardModifiers() & Qt::ControlModifier)
+    {
+         QCoreApplication::sendEvent(m_scene, static_cast<QWheelEvent *>(event));
+         return true;
+    }
+    return QMainWindow::eventFilter(obj, event);
 }
 
 void MainWindow::tick()
