@@ -59,6 +59,9 @@ class Config : public QObject
         bool showVectorField() const;
         void setShowVectorField(bool show);
 
+        bool showPreviewTrajectory() const;
+        void setShowPreviewTrajectory(bool show);
+
         bool zoomIn();
         bool zoomOut();
         double zoom();
@@ -69,6 +72,7 @@ class Config : public QObject
         bool m_showPartition;
         bool m_showDensity;
         bool m_showVectorField;
+        bool m_showPreviewTrajectory;
         double m_zoomFactor;
 };
 
