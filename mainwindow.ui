@@ -79,18 +79,6 @@
     <addaction name="actionStep"/>
     <addaction name="actionPlay"/>
    </widget>
-   <widget class="QMenu" name="menu_Tools">
-    <property name="title">
-     <string>&amp;Tools</string>
-    </property>
-    <addaction name="actionPlaceRobot"/>
-    <addaction name="separator"/>
-    <addaction name="actionAddObstacles"/>
-    <addaction name="actionRemoveObstacles"/>
-    <addaction name="separator"/>
-    <addaction name="actionMarkAsExplored"/>
-    <addaction name="actionMarkAsUnexplored"/>
-   </widget>
    <widget class="QMenu" name="menu_Visualization">
     <property name="title">
      <string>&amp;Visualization</string>
@@ -102,7 +90,6 @@
    <addaction name="menuFile"/>
    <addaction name="menuSimulation"/>
    <addaction name="menu_Visualization"/>
-   <addaction name="menu_Tools"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
@@ -283,31 +270,6 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+-</string>
-   </property>
-  </action>
-  <action name="actionAddObstacles">
-   <property name="text">
-    <string>Add &amp;Obstacles</string>
-   </property>
-  </action>
-  <action name="actionRemoveObstacles">
-   <property name="text">
-    <string>&amp;Remove Obstacles</string>
-   </property>
-  </action>
-  <action name="actionMarkAsExplored">
-   <property name="text">
-    <string>Mark as &amp;Explored</string>
-   </property>
-  </action>
-  <action name="actionMarkAsUnexplored">
-   <property name="text">
-    <string>Mark as &amp;Unexplored</string>
-   </property>
-  </action>
-  <action name="actionPlaceRobot">
-   <property name="text">
-    <string>&amp;Place Robot</string>
    </property>
   </action>
   <action name="actionNew">
