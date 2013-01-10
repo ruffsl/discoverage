@@ -142,6 +142,7 @@ void ToolHandler::tick()
 
 void ToolHandler::postProcess()
 {
+    scene()->map().updateCache();
 }
 
 void ToolHandler::save(QSettings& config)
