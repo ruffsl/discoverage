@@ -292,6 +292,7 @@ void MainWindow::helpAbout()
                        "<p><b>About DisCoverage</b></p>"
                        "<p>DisCoverage is a framework for exploration strategies. "
                        "It supports multiple robots with several types of vehicle dynamics.</p>"
+                       "<p>License: GNU General Public Licence (version 2 or 3)</p>"
                        "<p>(c) 2011-2013 by Dominik Haumann</p>");
 }
 
