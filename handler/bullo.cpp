@@ -126,16 +126,12 @@ void DisCoverageBulloHandler::draw(QPainter& p)
 
     // draw trajectories
     p.setRenderHints(QPainter::Antialiasing, true);
-    p.setPen(QPen(Qt::blue, scene()->map().resolution() * 0.3));
-    if (m_previewPath.size()) p.drawPolyline(&m_previewPath[0], m_previewPath.size());
-
     p.setPen(QPen(QColor(0, 0, 0, 196), scene()->map().resolution() * 0.3, Qt::DotLine));
     p.setBrush(Qt::NoBrush);
     for (int i = 0; i < RobotManager::self()->count(); ++i) {
         QPainterPath visibleArea = RobotManager::self()->robot(i)->visibleArea(integrationRange());
         p.drawPath(visibleArea);
     }
-
 
     // debug: show gradient interpolation nodes
 //     p.drawEllipse(g00, 0.05, 0.05);
@@ -149,11 +145,6 @@ void DisCoverageBulloHandler::draw(QPainter& p)
 void DisCoverageBulloHandler::mouseMoveEvent(QMouseEvent* event)
 {
     ToolHandler::mouseMoveEvent(event);
-
-    if (event->buttons() & Qt::RightButton) {
-        QPointF robotPos = scene()->map().screenToWorld(event->posF());
-        updatePreviewTrajectory(robotPos);
-    }
 }
 
 void DisCoverageBulloHandler::mousePressEvent(QMouseEvent* event)
@@ -164,9 +155,6 @@ void DisCoverageBulloHandler::mousePressEvent(QMouseEvent* event)
 void DisCoverageBulloHandler::mouseReleaseEvent(QMouseEvent* event)
 {
     ToolHandler::mouseReleaseEvent(event);
-
-    if (event->buttons() ^ Qt::RightButton)
-        m_previewPath.clear();
 }
 
 void DisCoverageBulloHandler::reset()
@@ -302,28 +290,6 @@ void DisCoverageBulloHandler::updateVectorField()
             }
         }
     }
-}
-
-void DisCoverageBulloHandler::updatePreviewTrajectory(const QPointF& robotPos)
-{
-    m_previewPath.clear();
-    m_previewPath.append(robotPos);
-
-    const QPoint index = scene()->map().worldToIndex(robotPos);
-    if (!scene()->map().isValidField(index)) return;
-
-    Robot* robot = RobotManager::self()->count() > 1 ? scene()->map().cell(index).robot() : 0;
-    double length = 0;
-
-    do {
-        const QPointF& lastPos = m_previewPath.last();
-        const QPointF& nextPos = lastPos + interpolatedGradient(lastPos, robot) * scene()->map().resolution();
-        m_previewPath.append(nextPos);
-        const QPointF& cmpPos = m_previewPath[qMax(0, m_previewPath.size() - 5)];
-        length = (nextPos - cmpPos).manhattanLength();
-    } while (length >= scene()->map().resolution() &&
-        !(scene()->map().cell(scene()->map().worldToIndex(m_previewPath.last())).state() & Cell::Frontier)
-    );
 }
 
 //END DisCoverageBulloHandler

@@ -76,8 +76,6 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
         qreal performance(const QPointF& p, const QPointF& q);
         qreal fitness(const QPointF& robotPos, const QVector<Cell*>& cells);
 
-        void updatePreviewTrajectory(const QPointF& robotPos);
-
         QDockWidget* dockWidget();
 
     private:
@@ -88,8 +86,6 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
         QPointF g01;
         QPointF g10;
         QPointF g11;
-
-        QVector<QPointF> m_previewPath;
 };
 
 #endif // DISCOVERAGE_BULLO_HANDLER_H
