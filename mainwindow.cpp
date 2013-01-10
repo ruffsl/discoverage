@@ -45,7 +45,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     QWidget* toolsWidget = new QWidget();
     m_toolsUi = new Ui::ToolWidget();
     m_toolsUi->setupUi(toolsWidget);
-    m_toolsUi->cmbTool->addItem("Place Robot");          // 0
+    m_toolsUi->cmbTool->addItem("Place Vehicle");        // 0
     m_toolsUi->cmbTool->insertSeparator(1);              // 1
     m_toolsUi->cmbTool->addItem("Modify Obstacles");     // 2
     m_toolsUi->cmbTool->addItem("Modify Explored Area"); // 3
