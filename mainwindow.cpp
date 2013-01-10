@@ -157,7 +157,11 @@ void MainWindow::loadScene(const QString& filename)
     m_toolsUi->cmbTool->setCurrentIndex(config.value("tool", 0).toInt());
     config.endGroup();
 
+    Config::self()->load(config);
+
     m_sceneFile = filename;
+
+    updateActionState();
 }
 
 void MainWindow::reloadScene()
@@ -193,6 +197,8 @@ void MainWindow::saveScene()
     }
 
     config.setValue("general/version", 1);
+
+    Config::self()->save(config);
 
     config.beginGroup("tool-handler");
     config.setValue("tool", m_toolsUi->cmbTool->currentIndex());
@@ -267,4 +273,12 @@ void MainWindow::tick()
     }
 }
 
+void MainWindow::updateActionState()
+{
+    // we connect to QAction::triggered(), which is not emitted when calling setChecked
+    actionPartition->setChecked(Config::self()->showPartition());
+    actionDensity->setChecked(Config::self()->showDensity());
+    actionVectorField->setChecked(Config::self()->showVectorField());
+    actionPreview->setChecked(Config::self()->showPreviewTrajectory());
+}
 // kate: replace-tabs on; indent-width 4;
