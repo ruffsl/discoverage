@@ -17,6 +17,9 @@
    Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+#define _USE_MATH_DEFINES 
+#include <math.h>
+
 #include "discoveragehandler.h"
 #include "scene.h"
 #include "mainwindow.h"
@@ -31,8 +34,6 @@
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
 #include <QtGui/QDockWidget>
-
-#include <math.h>
 
 //BEGIN DisCoverageHandler
 DisCoverageHandler::DisCoverageHandler(Scene* scene)

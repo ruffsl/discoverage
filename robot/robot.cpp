@@ -17,6 +17,9 @@
    Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+#define _USE_MATH_DEFINES 
+#include <math.h>
+
 #include "robot.h"
 #include "robotmanager.h"
 #include "tikzexport.h"
@@ -26,8 +29,6 @@
 #include <QtCore/QDebug>
 #include <QtGui/QPainter>
 #include <QtCore/QSettings>
-
-#include <math.h>
 
 Robot::Robot(Scene* scene)
     : m_scene(scene)

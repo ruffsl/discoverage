@@ -17,13 +17,15 @@
    Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
+#define _USE_MATH_DEFINES 
+#include <math.h>
+
 #include "scene.h"
 #include "tikzexport.h"
 
 #include <QtGui/QPainter>
 #include <QtGui/QBrush>
 #include <QtCore/QDataStream>
-#include <math.h>
 
 //BEGIN helpers
 static QColor densityToColor(float density)
