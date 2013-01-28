@@ -41,9 +41,14 @@ QTikzPicture::QTikzPicture()
 {
 }
 
-void QTikzPicture::setStream(QTextStream* textStream)
+void QTikzPicture::setStream(QTextStream* textStream, int precision)
 {
     ts = textStream;
+
+    if (ts) {
+        ts->setRealNumberPrecision(precision);
+        ts->setRealNumberNotation(QTextStream::FixedNotation);
+    }
 }
 
 QString QTikzPicture::registerColor(const QColor& color)

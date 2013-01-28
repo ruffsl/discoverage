@@ -236,8 +236,6 @@ void MainWindow::exportToTikz()
     QFile file(filename);
     if (file.open(QFile::WriteOnly | QFile::Truncate)) {
         QTextStream ts(&file);
-        ts.setRealNumberPrecision(2);
-        ts.setRealNumberNotation(QTextStream::FixedNotation);
         QTikzPicture tikzPicture;
         tikzPicture.setStream(&ts);
         m_scene->exportToTikz(tikzPicture);

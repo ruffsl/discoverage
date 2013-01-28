@@ -43,7 +43,7 @@ class QTikzPicture
     public:
         QTikzPicture();
 
-        void setStream(QTextStream* textStream);
+        void setStream(QTextStream* textStream, int precision = 2);
 
         QString registerColor(const QColor& color);
 
