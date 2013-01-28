@@ -123,7 +123,7 @@ void Path::beautify(GridMap& gridMap, bool computeExactLength)
         m_length = 0;
         for (int i = 0; i < m_path.size() - 1; ++i) {
             const QPoint d(m_path[i+1] - m_path[i]);
-            m_length += sqrt((double)d.x()*d.x() + d.y()*d.y())) * gridMap.resolution();
+            m_length += sqrt((double)(d.x()*d.x() + d.y()*d.y())) * gridMap.resolution();
         }
     }
 }
