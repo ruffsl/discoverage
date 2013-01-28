@@ -231,6 +231,7 @@ void MainWindow::exportToTikz()
         }
     }
     filename += QString("-iteration-%1").arg(m_stats->iteration(), 3, 10, QChar('0'));
+    const QString plot3 = filename + "-3dplot.tikz";
     filename += ".tikz";
 
     QFile file(filename);
@@ -239,6 +240,15 @@ void MainWindow::exportToTikz()
         QTikzPicture tikzPicture;
         tikzPicture.setStream(&ts);
         m_scene->exportToTikz(tikzPicture);
+    }
+
+    file.close();
+    file.setFileName(plot3);
+    if (file.open(QFile::WriteOnly | QFile::Truncate)) {
+        QTextStream ts(&file);
+        ts.setRealNumberPrecision(2);
+        ts.setRealNumberNotation(QTextStream::FixedNotation);
+        m_scene->toolHandler()->exportObjectiveFunction(ts);
     }
 }
 

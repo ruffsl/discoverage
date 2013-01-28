@@ -112,6 +112,25 @@ void DisCoverageBulloHandler::exportToTikz(QTikzPicture& tp)
     }
 }
 
+void DisCoverageBulloHandler::exportObjectiveFunction(QTextStream& ts)
+{
+    const int dx = scene()->map().size().width();
+    const int dy = scene()->map().size().height();
+    for (int b = 0; b < dy; ++b) {
+        for (int a = 0; a < dx; ++a) {
+            Cell& c = scene()->map().cell(a, b);
+            double y = scene()->map().cell(dx-1, dy-1).center().y() - c.center().y();
+            if (c.state() == (Cell::Explored | Cell::Free)) {
+                QVector<Cell*> visibleCells = scene()->map().visibleCells(c.center(), integrationRange());
+                const qreal f = fitness(c.center(), visibleCells);
+                ts << c.center().x() << " " << y << " " << -log(-f) << "\n";
+            } else {
+                ts << c.center().x() << " " << y << " " << "nan" << "\n";
+            }
+        }
+    }
+}
+
 void DisCoverageBulloHandler::updateParameters()
 {
     postProcess();

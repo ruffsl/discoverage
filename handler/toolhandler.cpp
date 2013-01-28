@@ -167,6 +167,10 @@ void ToolHandler::exportToTikz(QTikzPicture& tp)
 {
 }
 
+void ToolHandler::exportObjectiveFunction(QTextStream& ts)
+{
+}
+
 void ToolHandler::drawOperationRadius(QPainter& p)
 {
     p.setOpacity(0.2);
