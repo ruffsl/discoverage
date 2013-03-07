@@ -63,6 +63,8 @@ class GridMap : public QObject
         void exportToTikz(QTikzPicture& tp);
         void exportToTikzOpt(QTikzPicture& tp);
 
+        void exportLegend(QTikzPicture& tp);
+
     //
     // drawing
     //

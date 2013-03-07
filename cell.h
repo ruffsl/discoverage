@@ -44,6 +44,8 @@ class Cell
             Explored = 1 << 4  // 16
         };
 
+    static QColor densityToColor(float density);
+
     public:
         Cell();
         Cell(const QRectF& rect);

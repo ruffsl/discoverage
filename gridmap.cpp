@@ -1540,4 +1540,36 @@ void GridMap::exportToTikzOpt(QTikzPicture& tp)
     }
 }
 
+void GridMap::exportLegend(QTikzPicture& tp)
+{
+    // find maximum distance
+    double maxDist = 0;
+    for (int a = 0; a < m_map.size(); ++a) {
+        for (int b = 0; b < m_map[a].size(); ++b) {
+            Cell& c = m_map[a][b];
+            if (c.state() == (Cell::Free | Cell::Explored)) {
+                if (maxDist < c.frontierDist())
+                    maxDist = c.frontierDist();
+            }
+        }
+    }
+
+    const double h = m_resolution * (size().height() - 4);
+    tp.begin("yscale=-1");
+    const int imax = 100;
+    for (int i = 0; i < imax; i++) {
+        double dist = (i * maxDist) / imax;
+        QString c = tp.registerColor(Cell::densityToColor(exp(-0.5/(2*2)*dist*dist)));
+        double y = h * i / imax;
+        QRectF rect(0.0, y, 0.8, h / imax);
+        tp.path(rect, "fill=" + c + ", draw=" + c);
+    }
+    tp.newline();
+    tp.path(QRectF(0.0, 0.0, 0.8, h), "draw=black");
+    tp.newline();
+    tp << "\\node[below] at (0.4, 0) {$\\phi_\\text{max}$};\n";
+    tp << "\\node[above] at (0.4, " << h << ") {$\\phi_\\text{min}$};\n";
+    tp.end();
+}
+
 // kate: replace-tabs on; indent-width 4;

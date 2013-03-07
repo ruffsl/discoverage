@@ -28,7 +28,7 @@
 #include <QtCore/QDataStream>
 
 //BEGIN helpers
-static QColor densityToColor(float density)
+QColor Cell::densityToColor(float density)
 {
     const float sat = density == 0 ? 0.0 : 0.5;
     const float val = 1.0;

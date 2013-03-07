@@ -231,6 +231,7 @@ void MainWindow::exportToTikz()
         }
     }
     filename += QString("-iteration-%1").arg(m_stats->iteration(), 3, 10, QChar('0'));
+    const QString legend = filename + "-legend.tikz";
     const QString plot3 = filename + "-3dplot.tikz";
     filename += ".tikz";
 
@@ -240,6 +241,15 @@ void MainWindow::exportToTikz()
         QTikzPicture tikzPicture;
         tikzPicture.setStream(&ts);
         m_scene->exportToTikz(tikzPicture);
+    }
+
+    file.close();
+    file.setFileName(legend);
+    if (file.open(QFile::WriteOnly | QFile::Truncate)) {
+        QTextStream ts(&file);
+        QTikzPicture tikzPicture;
+        tikzPicture.setStream(&ts);
+        m_scene->map().exportLegend(tikzPicture);
     }
 
     file.close();
