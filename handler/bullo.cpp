@@ -108,7 +108,7 @@ void DisCoverageBulloHandler::exportToTikz(QTikzPicture& tp)
 {
     for (int i = 0; i < RobotManager::self()->count(); ++i) {
         QPainterPath visibleArea = RobotManager::self()->robot(i)->visibleArea(integrationRange());
-        tp.path(visibleArea, "dashed, thick");
+        tp.path(visibleArea, "very thick, cyan!90!black");
     }
 }
 
