@@ -23,6 +23,7 @@
 #include "tikzexport.h"
 #include "scene.h"
 #include "gridmap.h"
+#include "config.h"
 
 #include <QtCore/QDebug>
 #include <QtGui/QPainter>
@@ -112,6 +113,12 @@ void IntegratorDynamics::exportToTikz(QTikzPicture& tp)
     const QString c = tp.registerColor(color());
     tp.comment("robot trajectory (integrator dynamics)");
     tp.line(trajectory(), "thick, draw=" + c);
+
+    if (isActive() && Config::self()->showPreviewTrajectory()) {
+        QVector<QPointF> t = previewTrajectory();
+        tp.comment("robot preview trajectory (integrator dynamics)");
+        tp.line(trajectory(), "thick, draw=" + c);
+    }
 
     // construct path of visibility region
     tp.comment("robot sensed area");
