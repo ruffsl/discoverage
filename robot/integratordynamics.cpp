@@ -123,7 +123,7 @@ void IntegratorDynamics::exportToTikz(QTikzPicture& tp)
     // construct path of visibility region
     tp.comment("robot sensed area");
     QPainterPath visiblePath = visibleArea(sensingRange());
-    tp.path(visiblePath, "thick, draw=" + c + ", fill=black, fill opacity=0.2");
+    tp.path(visiblePath, "thick, draw=" + c); // + ", fill=black, fill opacity=0.2");
 
     tp.circle(position(), 0.05, "draw=black, fill=" + c);
 }
