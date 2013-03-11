@@ -211,8 +211,8 @@ void Cell::exportToTikz(QTikzPicture& tp, bool fillDensity, bool exportGradient)
     }
 
     if (exportGradient && !m_gradient.isNull()) {
-        QPointF src = center() - m_gradient * m_rect.width() / 4.0;
-        QPointF dst = center() + m_gradient * m_rect.width() / 4.0;
+        QPointF src = center() - m_gradient * m_rect.width() / 3.5;
+        QPointF dst = center() + m_gradient * m_rect.width() / 3.5;
         tp.line(src, dst, "->");
     }
 }
