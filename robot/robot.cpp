@@ -190,13 +190,13 @@ void Robot::drawSensedArea(QPainter& p)
     p.drawPath(visiblePath);
 }
 
-void Robot::drawPreviewTrajectory(QPainter& p)
+QVector<QPointF> Robot::previewTrajectory()
 {
     QVector<QPointF> previewPath;
     previewPath.append(m_position);
 
     const QPoint index = scene()->map().worldToIndex(m_position);
-    if (!scene()->map().isValidField(index)) return;
+    if (!scene()->map().isValidField(index)) return previewPath;
 
     const QPointF backupPos = m_position;
     double length = 0;
@@ -212,6 +212,14 @@ void Robot::drawPreviewTrajectory(QPainter& p)
         !(scene()->map().cell(scene()->map().worldToIndex(previewPath.last())).state() & Cell::Frontier)
     );
 
+    m_position = backupPos;
+
+    return previewPath;
+}
+
+void Robot::drawPreviewTrajectory(QPainter& p)
+{
+    QVector<QPointF> previewPath = previewTrajectory();
     if (previewPath.size()) {
         p.save();
         p.setRenderHints(QPainter::Antialiasing, true);
@@ -219,8 +227,6 @@ void Robot::drawPreviewTrajectory(QPainter& p)
         p.drawPolyline(&previewPath[0], previewPath.size());
         p.restore();
     }
-
-    m_position = backupPos;
 }
 
 void Robot::clearTrajectory()

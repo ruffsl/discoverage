@@ -82,6 +82,8 @@ class Robot
         void setFillSensingRange(bool fill);
         bool fillSensingRange() const;
 
+        QVector<QPointF> previewTrajectory();
+
     //
     // environment information
     //
