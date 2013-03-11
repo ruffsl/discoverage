@@ -1420,6 +1420,7 @@ void GridMap::exportToTikz(QTikzPicture& tp)
     // 1st round: export all explored free cells
     tp.newline();
     tp.comment("explored cells");
+    if (!showDensity && showVectorField) tp.beginScope("gray");
     for (int a = 0; a < m_map.size(); ++a) {
         for (int b = 0; b < m_map[a].size(); ++b) {
             Cell& c = m_map[a][b];
@@ -1427,6 +1428,7 @@ void GridMap::exportToTikz(QTikzPicture& tp)
                 c.exportToTikz(tp, showDensity, showVectorField);
         }
     }
+    if (!showDensity && showVectorField) tp.endScope();
 
 #if 0
     // 2nd round: all unexplored cells (not frontiers)
