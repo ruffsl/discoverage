@@ -10,6 +10,9 @@
     <height>678</height>
    </rect>
   </property>
+  <property name="windowTitle">
+   <string>DisCoverage: A new Paradigm for Multi-Robot-Exploration</string>
+  </property>
   <property name="toolButtonStyle">
    <enum>Qt::ToolButtonTextUnderIcon</enum>
   </property>
