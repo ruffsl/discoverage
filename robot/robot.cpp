@@ -203,11 +203,11 @@ QVector<QPointF> Robot::previewTrajectory()
 
     do {
         m_position = previewPath.last();
-        const QPointF& nextPos = m_position + scene()->toolHandler()->gradient(this, true) * scene()->map().resolution();
+        const QPointF& nextPos = m_position + scene()->toolHandler()->gradient(this, true) * scene()->map().resolution()*0.5;
         previewPath.append(nextPos);
         const QPointF& cmpPos = previewPath[qMax(0, previewPath.size() - 5)];
         length = (nextPos - cmpPos).manhattanLength();
-    } while (length >= scene()->map().resolution() &&
+    } while (length >= 0.5*scene()->map().resolution() &&
         scene()->map().isValidField(scene()->map().worldToIndex(previewPath.last())) &&
         !(scene()->map().cell(scene()->map().worldToIndex(previewPath.last())).state() & Cell::Frontier)
     );
