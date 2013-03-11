@@ -112,20 +112,20 @@ void IntegratorDynamics::exportToTikz(QTikzPicture& tp)
 {
     const QString c = tp.registerColor(color());
     tp.comment("robot trajectory (integrator dynamics)");
-    tp.line(trajectory(), "thick, draw=" + c);
+    tp.line(trajectory(), "very thick, draw=" + c);
 
     if (isActive() && Config::self()->showPreviewTrajectory()) {
         QVector<QPointF> t = previewTrajectory();
         tp.comment("robot preview trajectory (integrator dynamics)");
-        tp.line(trajectory(), "thick, draw=" + c);
+        tp.line(t, "very thick, draw=" + c);
     }
 
     // construct path of visibility region
     tp.comment("robot sensed area");
     QPainterPath visiblePath = visibleArea(sensingRange());
-    tp.path(visiblePath, "thick, draw=" + c); // + ", fill=black, fill opacity=0.2");
+    tp.path(visiblePath, "very thick, draw=" + c); // + ", fill=black, fill opacity=0.2");
 
-    tp.circle(position(), 0.05, "draw=black, fill=" + c);
+    tp.circle(position(), 0.05, "draw=black, fill=white");
 }
 
 void IntegratorDynamics::load(QSettings& config)

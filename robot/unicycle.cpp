@@ -128,12 +128,12 @@ void Unicycle::exportToTikz(QTikzPicture& tp)
 {
     const QString c = tp.registerColor(color());
     tp.comment("robot trajectory (unicycle dynamics)");
-    tp.line(trajectory(), "thick, draw=" + c);
+    tp.line(trajectory(), "very thick, draw=" + c);
 
     // construct path of visibility region
     tp.comment("robot sensed area");
     QPainterPath visiblePath = visibleArea(sensingRange());
-    tp.path(visiblePath, "thick, draw=" + c/* + ", fill=black, fill opacity=0.2"*/);
+    tp.path(visiblePath, "very thick, draw=" + c/* + ", fill=black, fill opacity=0.2"*/);
 
     // draw unicycle
     tp.beginScope(QString("xshift=%1cm").arg(position().x())
