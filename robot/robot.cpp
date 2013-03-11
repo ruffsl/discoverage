@@ -132,7 +132,7 @@ bool Robot::fillSensingRange() const
 
 static QPainterPath circularPath(const QPointF& center, qreal radius)
 {
-    int segmentCount = static_cast<int>((radius + 1.0) * 10);
+    int segmentCount = static_cast<int>((radius + 1.0) * 20);
 
     QPainterPath path;
     path.moveTo(center + QPointF(radius, 0));
