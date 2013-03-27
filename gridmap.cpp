@@ -1193,10 +1193,25 @@ void GridMap::computeDistanceTransform(Robot* robot)
     QTime time;
     time.start();
 
+    const QList<Cell*> f = frontiers(robot);
+
+    // if no frontiers -> set dist to 0 everywhere
+    if (f.isEmpty()) {
+        for (int a = 0; a < m_map.size(); ++a) {
+            for (int b = 0; b < m_map[a].size(); ++b) {
+                Cell& c = m_map[a][b];
+                if (c.robot() == robot && c.state() == (Cell::Free | Cell::Explored)) {
+                    c.setFrontierDist(0);
+                }
+            }
+        }
+        return;
+    }
+
     QList<Cell*> queue;
 
     // queue all frontier cells
-    foreach (Cell* frontierCell, frontiers(robot)) {
+    foreach (Cell* frontierCell, f) {
         frontierCell->setFrontierDist(0);
         queue.append(frontierCell);
     }
