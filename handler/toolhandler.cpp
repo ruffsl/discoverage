@@ -101,6 +101,7 @@ void ToolHandler::mousePressEvent(QMouseEvent* event)
         if (Robot* robot = RobotManager::self()->activeRobot()) {
             QPointF pos = scene()->map().screenToWorld(event->posF());
             robot->setPosition(pos);
+            Scene::self()->mainWindow()->statusBar()->showMessage(QString("%1, %2").arg(pos.x(), pos.y()));
         }
     }
 }
@@ -111,6 +112,7 @@ void ToolHandler::mouseMoveEvent(QMouseEvent* event)
         if (Robot* robot = RobotManager::self()->activeRobot()) {
             QPointF pos = scene()->map().screenToWorld(event->posF());
             robot->setPosition(pos);
+            Scene::self()->mainWindow()->statusBar()->showMessage(QString("%1, %2").arg(pos.x()).arg(pos.y()));
         }
     }
 }
