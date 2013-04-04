@@ -70,6 +70,11 @@ class Cell
 
         void setDensity(float density);
 
+        inline float frontierDist() const
+        { return m_frontierDist; }
+
+        void setFrontierDist(float dist);
+
         QDataStream& load(QDataStream& ds);
 
         QDataStream& save(QDataStream& ds);
@@ -141,6 +146,7 @@ class Cell
         float m_costF;
         float m_costG;
         float m_density;
+        float m_frontierDist;
 };
 
 inline Cell::State operator|(Cell::State state, int value)

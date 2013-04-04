@@ -53,6 +53,9 @@ find_package(Qt4 REQUIRED)
 # (QT_USE_FILE is a variable defined by FIND_PACKAGE( Qt4 ) that contains a path to CMake script)
 INCLUDE( ${QT_USE_FILE} )
 
+# we require opencv
+find_package( OpenCV REQUIRED )
+
 # this command will generate rules that will run rcc on all files from SAMPLE_RCS
 # in result SAMPLE_RC_SRCS variable will contain paths to files produced by rcc
 QT4_ADD_RESOURCES( discoverage_RC_SRCS ${discoverage_RCS} )
@@ -72,4 +75,4 @@ add_executable( discoverage ${discoverage_SRCS} ${discoverage_MOC_SRCS} ${discov
 
 # last thing we have to do is to tell CMake what libraries our executable needs,
 # luckily FIND_PACKAGE prepared QT_LIBRARIES variable for us:
-target_link_libraries( discoverage ${QT_LIBRARIES} )
+target_link_libraries( discoverage ${QT_LIBRARIES} ${OpenCV_LIBS} )

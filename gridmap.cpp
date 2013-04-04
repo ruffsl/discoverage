@@ -24,9 +24,34 @@
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
 #include <QtCore/QTime>
+#include <QtCore/QBitArray>
 
 #include <math.h>
 #include <set>
+
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+
+static int directionMap[16][2] = {
+    // x   y
+    {  0, -1},           // oben
+    {  1,  0},           // rechts
+    {  0,  1},           // unten
+    { -1,  0},           // links
+    {  1, -1},           // rechts-oben
+    {  1,  1},           // rechts-unten
+    { -1,  1},           // links-unten
+    { -1, -1},           // links-oben
+    {  2, -1},           // rechts-oben
+    {  2,  1},           // rechts-unten
+    { -2,  1},           // links-unten
+    { -2, -1},           // links-oben
+    {  1, -2},           // rechts-oben
+    {  1,  2},           // rechts-unten
+    { -1,  2},           // links-unten
+    { -1, -2}            // links-oben
+};
 
 void Path::beautify(GridMap& gridMap)
 {
@@ -243,6 +268,62 @@ qreal GridMap::resolution() const
     return m_resolution;
 }
 
+void GridMap::updateCellWeights()
+{
+    Q_ASSERT(m_map.size() > 0);
+    
+    computeDist();
+    
+    for (int a = 0; a < m_map.size(); ++a) {
+        for (int b = 0; b < m_map[a].size(); ++b) {
+            Cell& c = m_map[a][b];
+            if (c.state() & Cell::Explored &&
+                c.state() & Cell::Free)
+            {
+                float dist = c.frontierDist();
+                c.setDensity(exp(-0.5/(3*3)*dist*dist));
+            }
+        }
+    }
+//  
+
+    return;
+
+    QVector<QBitArray> visitedMap(m_map.size(), QBitArray(m_map[0].size()));
+
+    for (int a = 0; a < m_map.size(); ++a) {
+        for (int b = 0; b < m_map[a].size(); ++b) {
+            Cell& c = m_map[a][b];
+            if (  !(c.state() & Cell::Explored)
+                || (c.state() & Cell::Obstacle)
+                || visitedMap[a][b]
+            ) {
+                continue;
+            }
+
+            QList<Path> allFrontierPaths = frontierPaths(QPoint(a, b));
+            
+            float pathLength = 1000000;
+            int index = -1;
+            for (int i = 0; i < allFrontierPaths.size(); ++i) {
+                if (allFrontierPaths[i].m_length < pathLength) {
+                    index = i;
+                    pathLength = allFrontierPaths[i].m_length;
+                }
+            }
+            
+            if (index != -1) {
+//                 qDebug() << 1.0/(sqrt(2 * M_PI) * (2*1)) * exp(-0.5/(1) * pathLength*pathLength);
+//                 while (pathLength > 10) pathLength -= 10;
+//                 c.setDensity(pathLength / 10.0);
+//                 qDebug() << 1.0/(sqrt(2 * M_PI) * (1)) * exp(-0.5/(1) * pathLength*pathLength);
+//                 c.setDensity(1.0/(sqrt(2 * M_PI) * (1)) * exp(-0.5/(1) * pathLength*pathLength));
+                c.setDensity(exp(-0.5/(3*3)*pathLength*pathLength));
+            }
+        }
+    }
+}
+
 void GridMap::updateCache()
 {
     const int sizex = m_map.size();
@@ -256,8 +337,16 @@ void GridMap::updateCache()
     const qreal w = m_resolution;
     const qreal scale = scaleFactor();
 
-    m_pixmapCache = QPixmap(scale * sizex * w + 1, scale * sizey * w + 1);
+    // create QPixmap spanning the entire space Q
+    if (m_pixmapCache.width() != scale * sizex * w + 1 ||
+        m_pixmapCache.height() != scale * sizey * w + 1)
+    {
+        m_pixmapCache = QPixmap(scale * sizex * w + 1, scale * sizey * w + 1);
+    }
     m_pixmapCache.fill();
+
+    // precalculate all weights in the cells
+    updateCellWeights();
 
     // finally draw to pixmap cache
     QPainter p(&m_pixmapCache);
@@ -480,18 +569,6 @@ QList<Path> GridMap::frontierPaths(const QPoint& start)
         return QList<Path>();
     }
 
-    static int directionMap[8][2] = {
-        // x   y
-        {  0, -1},           // oben
-        {  1,  0},           // rechts
-        {  0,  1},           // unten
-        { -1,  0},           // links
-        {  1, -1},           // rechts-oben
-        {  1,  1},           // rechts-unten
-        { -1,  1},           // links-unten
-        { -1, -1}            // links-oben
-    };
-
     QTime time;
     time.start();
 
@@ -619,17 +696,6 @@ QList<Path> GridMap::frontierPaths(const QPoint& start)
 Path GridMap::aStar(const QPoint& from, const QPoint& to)
 {
     QList<Cell*> dirtyCells;
-    static int directionMap[8][2] = {
-        // x   y
-        {  0, -1},           // oben
-        {  1,  0},           // rechts
-        {  0,  1},           // unten
-        { -1,  0},           // links
-        {  1, -1},           // rechts-oben
-        {  1,  1},           // rechts-unten
-        { -1,  1},           // links-unten
-        { -1, -1}            // links-oben
-    };
 
     QTime time;
     time.start();
@@ -963,6 +1029,139 @@ bool GridMap::aaPathVisible(const QPoint& from, const QPoint& to)
     if (m_map[X1][Y1].isObstacle()) return false; // DrawPixel(X1, Y1, BaseColor);
     
     return true;
+}
+
+void GridMap::computeDist()
+{
+#if 0
+    const int rows = m_map.size();
+    const int cols = m_map[0].size();
+    
+    cv::Mat input(m_map.size(), m_map[0].size(), CV_8SC1);
+
+    for (int a = 0; a < rows; ++a) {
+        QVector<Cell>& row = m_map[a];
+        for (int b = 0; b < cols; ++b) {
+            Cell* cell = &m_map[a][b];
+            if (cell->state() & Cell::Free && cell->state() & Cell::Explored)
+            {
+                input.at<uchar>(a, b) = 255;
+            } else if (cell->state() & Cell::Frontier) {
+                input.at<uchar>(a, b) = 0;
+            } else {
+                input.at<uchar>(a, b) = -1;
+            }
+        }
+    }
+
+    cv::Mat dist;//(rows, cols;
+    cv::distanceTransform(input, dist, CV_DIST_L2, CV_DIST_MASK_PRECISE);
+
+//     cv::normalize(dist, dist, 0.0, 1.0, cv::NORM_MINMAX);
+//     cv::imshow("non-normalized", dist);
+
+    for (int a = 0; a < rows; ++a) {
+        for (int b = 0; b < cols; ++b) {
+            if (input.at<uchar>(a, b) != 0) {
+                if (dist.at<float>(a, b) > 0)
+                    qDebug() << dist.at<float>(a, b);
+                m_map[a][b].setFrontierDist(m_resolution * dist.at<float>(a, b));
+            }
+        }
+    }
+
+    return;
+#endif
+    
+    QList<Cell*> queue;
+
+    // queue all free explored cells next to the frontier
+    foreach (Cell* frontierCell, frontiers()) {
+
+        frontierCell->setFrontierDist(0);
+
+        for (int i = 0; i < 8; ++i) {
+            // 8-neighborhood
+            const int x = frontierCell->index().x() + directionMap[i][0];
+            const int y = frontierCell->index().y() + directionMap[i][1];
+
+            // check validity
+            if (!isValidField(x, y))
+                continue;
+
+            Cell* cell = &m_map[x][y];
+
+            // if free, set costs accordingly and queue
+            if (cell->state() & Cell::Free && 
+                cell->state() & Cell::Explored)
+            {
+                cell->setPathState(Cell::PathClose);
+                const float dist = m_resolution * (i < 4 ? 1.0 : 1.4142136);
+                if (!queue.contains(cell)) {
+                    cell->setFrontierDist(dist);
+                    queue.append(cell);
+                } else if (cell->frontierDist() > dist) {
+                    cell->setFrontierDist(dist);
+                }
+            }
+        }
+    }
+
+    QList<Cell*> dirtyCells;
+    // now we have all free explored cells next to the frontier in the queue
+    // next, as long as the queue is not empty, flood by iterating the neighbors
+    while (queue.size()) {
+        Cell* baseCell = queue.takeFirst();
+        dirtyCells.append(baseCell);
+        baseCell->setPathState(Cell::PathClose);
+
+        // 8-neighborhood
+        for (int i = 0; i < 16; ++i) {
+            const int x = baseCell->index().x() + directionMap[i][0];
+            const int y = baseCell->index().y() + directionMap[i][1];
+
+            // check validity
+            if (!isValidField(x, y))
+                continue;
+
+            Cell* cell = &m_map[x][y];
+//             if (cell->pathState() == Cell::PathClose)
+//                 continue;
+
+            // obstacle or not explored
+            if (!(cell->state() & Cell::Free && 
+                  cell->state() & Cell::Explored))
+                continue;
+
+            const float dist = baseCell->frontierDist() + m_resolution * (i < 4 ? 1.0 : 
+                                                                (i < 8 ? 1.4142136 : 2.236068));
+
+            // Ignorieren wenn Knoten geschlossen ist und bessere Kosten hat
+            if (cell->pathState() == Cell::PathClose && cell->frontierDist() < dist)
+                continue;
+
+            // Cell ist bereits in der Queue, nur ersetzen wenn Kosten besser
+            if (cell->pathState() == Cell::PathOpen)
+            {
+                if (cell->frontierDist() <= dist)
+                    continue;
+
+                // Alten Eintrag aus der Queue entfernen
+                queue.removeAll(cell);
+            }
+
+            cell->setFrontierDist(dist);
+
+            // flag open and queue
+            cell->setPathState(Cell::PathOpen);
+            queue.append(cell);
+            
+        }
+    }
+
+    foreach (Cell* cell, dirtyCells) {
+        cell->setPathState(Cell::PathNone);
+    }
 }
 
 // kate: replace-tabs on; indent-width 4;

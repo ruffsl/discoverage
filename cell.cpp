@@ -22,13 +22,16 @@
 #include <QtGui/QPainter>
 #include <QtGui/QBrush>
 #include <QtCore/QDataStream>
+#include <math.h>
 
 //BEGIN helpers
 static QColor densityToColor(float density)
 {
-    const float sat = density == 0 ? 0.0 : 1.0;
+    const float sat = density == 0 ? 0.0 : 0.5;
     const float val = 1.0;
-    const float hue = density;
+    float tmp = sqrt(-logf(density)) / 10;
+    const float hue = tmp;
+    qDebug() << hue;
 
     return QColor::fromHsvF(hue, sat, val);
 }
@@ -41,7 +44,8 @@ Cell::Cell()
     , m_state(static_cast<State>(Free | Unknown))
     , m_costF(0.0)
     , m_costG(0.0)
-    , m_density(0.0)
+    , m_density(1.0)
+    , m_frontierDist(0.0)
 {
 }
 
@@ -52,7 +56,8 @@ Cell::Cell(const QRectF& rect)
     , m_state(static_cast<State>(Free | Unknown))
     , m_costF(0.0)
     , m_costG(0.0)
-    , m_density(0.2)
+    , m_density(1.0)
+    , m_frontierDist(0.0)
 {
 }
 
@@ -94,7 +99,6 @@ void Cell::draw(QPainter& p)
         p.setPen(Qt::gray);
         p.drawRect(m_rect);
     } else { // m_state & Explored
-//         densityToColor
         p.fillRect(m_rect, densityToColor(m_density));
     }
 }
@@ -125,6 +129,11 @@ void Cell::setState(State newState)
 void Cell::setDensity(float density)
 {
     m_density = density;
+}
+
+void Cell::setFrontierDist(float dist)
+{
+    m_frontierDist = dist;
 }
 
 QDataStream& Cell::load(QDataStream& ds)

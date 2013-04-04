@@ -120,9 +120,11 @@ class GridMap
         const QSet<Cell*>& frontiers() const;                   // cached list of all frontiers
 
     //
-    // Exploration
+    // Exploration & Density
     //
     public:
+        void computeDist();
+        void updateCellWeights();
         void explore(const QPointF& pos, double radius, Cell::State destState);
         
         double explorationProgress() const;
