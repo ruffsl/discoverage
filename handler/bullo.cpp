@@ -219,7 +219,12 @@ QPointF DisCoverageBulloHandler::gradient(const QPointF& robotPos, const QVector
     QPointF grad ((x2 - x1) / (2*dx), (y2 - y1) / (2*dy));
     if (!grad.isNull()) {
         // normalize vector (1 sqrt)
-        grad /= sqrt(grad.x() * grad.x() + grad.y() * grad.y());
+        const qreal len = sqrt(grad.x() * grad.x() + grad.y() * grad.y());
+        if (len < 0.0000001) {
+            grad = QPointF(0, 0);
+        } else {
+            grad /= len;
+        }
     }
     return grad;
 }
