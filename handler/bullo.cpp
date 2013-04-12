@@ -248,10 +248,11 @@ QPointF DisCoverageBulloHandler::interpolatedGradient(const QPointF& robotPos, R
     if (m.isValidField(cellIndex + QPoint(0, dy))) g10 = (m.cell(cellIndex + QPoint(0, dy)).center());
     if (m.isValidField(cellIndex + QPoint(dx,dy))) g11 = (m.cell(cellIndex + QPoint(dx, dy)).center());
 
-    QVector<Cell*> c00 = m.visibleCells(g00, integrationRange());
-    QVector<Cell*> c01 = m.visibleCells(g01, integrationRange());
-    QVector<Cell*> c10 = m.visibleCells(g10, integrationRange());
-    QVector<Cell*> c11 = m.visibleCells(g11, integrationRange());
+    double rint = m.hasFrontiers(robot) ? integrationRange() : 1000000;
+    QVector<Cell*> c00 = m.visibleCells(g00, rint);
+    QVector<Cell*> c01 = m.visibleCells(g01, rint);
+    QVector<Cell*> c10 = m.visibleCells(g10, rint);
+    QVector<Cell*> c11 = m.visibleCells(g11, rint);
     if (robot) {
         m.filterCells(c00, robot);
         m.filterCells(c01, robot);
@@ -278,15 +279,25 @@ void DisCoverageBulloHandler::tick()
 
 void DisCoverageBulloHandler::postProcess()
 {
+    // compute geodesic Voronoi partitioning
     scene()->map().computeVoronoiPartition();
+
+    // update the frontier cache
+    scene()->map().updateRobotFrontierCache();
+
+    // compute distance transform in each Voronoi cell with respect to the frontiers
     for (int i = 0; i < RobotManager::self()->count(); ++i)
         scene()->map().computeDistanceTransform(RobotManager::self()->robot(i));
+
+    // now that each cell contains the correct distance to the frontier, update density
     scene()->map().updateDensity();
 
+    // compute vector field in each cell if needed
     if (Config::self()->showVectorField()) {
         updateVectorField();
     }
 
+    // redraw pixmap cache
     scene()->map().updateCache();
 }
 

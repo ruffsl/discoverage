@@ -385,21 +385,6 @@ void GridMap::updateCell(Cell& cell)
     cell.draw(p, Config::self()->showDensity(), Config::self()->showVectorField());
 }
 
-QList<Cell*> GridMap::frontiers(Robot* robot) const
-{
-    if (!robot || RobotManager::self()->count() == 1) {
-        return m_frontierCache;
-    }
-
-    QList<Cell*> cells;
-    for (QList<Cell*>::const_iterator it = m_frontierCache.constBegin(); it != m_frontierCache.constEnd(); ++it) {
-        if ((*it)->robot() == robot) {
-            cells.append(*it);
-        }
-    }
-    return cells;
-}
-
 bool GridMap::setState(Cell& cell, Cell::State state)
 {
     const Cell::State oldState = cell.state();
@@ -685,6 +670,39 @@ void GridMap::filterCells(QVector<Cell*> & cells, Robot* robot)
             ++i;
         }
     }
+}
+
+void GridMap::updateRobotFrontierCache()
+{
+    // clear cache before filling it
+    m_robotFrontierCache.clear();
+
+    // shortcut for only one robot
+    if (RobotManager::self()->count() == 1) {
+        if (m_frontierCache.size() > 0)
+            m_robotFrontierCache[RobotManager::self()->robot(0)] = m_frontierCache;
+        return;
+    }
+
+    // now assign each frontier cell to the correct list
+    foreach (Cell* c, m_frontierCache) {
+        m_robotFrontierCache[c->robot()].append(c);
+    }
+}
+
+QList<Cell*> GridMap::frontiers(Robot* robot) const
+{
+    if (m_robotFrontierCache.contains(robot)) {
+        return m_robotFrontierCache[robot];
+    }
+
+    return QList<Cell*>();
+}
+
+bool GridMap::hasFrontiers(Robot* robot) const 
+{
+    return m_robotFrontierCache.contains(robot);
+//         && m_robotFrontierCache[robot].size() > 0;
 }
 
 double GridMap::explorationProgress() const

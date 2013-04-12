@@ -131,8 +131,6 @@ class GridMap : public QObject
         inline bool isValidField(const QPoint& cellIndex) const;// index check for
 
         bool setState(Cell& cell, Cell::State newState);        // modify cell state
-        inline const QList<Cell*>& frontiers() const;           // cached list of all frontiers
-        QList<Cell*> frontiers(Robot* robot) const;             // frontiers for robot
 
     //
     // Exploration & Density
@@ -148,6 +146,20 @@ class GridMap : public QObject
         QVector<Cell*> visibleCells(const QPointF& worldPos, double radius);
         QVector<Cell*> visibleCells(Robot* robot, double radius);
         void filterCells(QVector<Cell*> & cells, Robot* robot);
+
+    //
+    // Frontier caching for each robot
+    //
+    public:
+        inline const QList<Cell*>& frontiers() const;           // cached list of all frontiers
+
+        void updateRobotFrontierCache();
+        QList<Cell*> frontiers(Robot* robot) const;             // frontiers for robot
+        bool hasFrontiers(Robot* robot) const;
+        QList<Cell*> frontiersForRobot(Robot* robot) const;
+
+    private:
+        QHash<Robot*, QList<Cell*> > m_robotFrontierCache;
 
     private:
         bool exploreCell(const QPoint& center, const QPoint& target, qreal radius, Cell::State targetState);
