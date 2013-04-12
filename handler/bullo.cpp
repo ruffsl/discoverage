@@ -148,7 +148,9 @@ void DisCoverageBulloHandler::draw(QPainter& p)
     p.setPen(QPen(QColor(0, 0, 0, 196), scene()->map().resolution() * 0.3, Qt::DotLine));
     p.setBrush(Qt::NoBrush);
     for (int i = 0; i < RobotManager::self()->count(); ++i) {
-        QPainterPath visibleArea = RobotManager::self()->robot(i)->visibleArea(integrationRange());
+        Robot* robot = RobotManager::self()->robot(i);
+        double rint = scene()->map().hasFrontiers(robot) ? integrationRange() : 50;
+        QPainterPath visibleArea = robot->visibleArea(rint, true);
         p.drawPath(visibleArea);
     }
 

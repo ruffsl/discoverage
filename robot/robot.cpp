@@ -146,12 +146,13 @@ static QPainterPath circularPath(const QPointF& center, qreal radius)
     return path;
 }
 
-QPainterPath Robot::visibleArea(double radius)
+QPainterPath Robot::visibleArea(double radius, bool limitToVoronoiCell)
 {
     QVector<Cell*> visibleCells = scene()->map().visibleCells(m_position, radius);
     QPainterPath visiblePath;
     foreach (Cell* cell, visibleCells) {
-        visiblePath.addRect(cell->rect());
+        if (!limitToVoronoiCell || cell->robot() == this)
+            visiblePath.addRect(cell->rect());
     }
     visiblePath = visiblePath.simplified();
     visiblePath = visiblePath.intersected(circularPath(m_position, radius));

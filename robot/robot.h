@@ -96,7 +96,7 @@ class Robot
         virtual void drawPreviewTrajectory(QPainter& p);
         virtual void drawTrajectory(QPainter& p);
         virtual void drawSensedArea(QPainter& p);
-        virtual QPainterPath visibleArea(double radius);
+        virtual QPainterPath visibleArea(double radius, bool limitToVoronoiCell = false);
 
     //
     // load/save & export functions
