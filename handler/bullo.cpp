@@ -204,7 +204,8 @@ QPointF DisCoverageBulloHandler::gradient(Robot* robot, bool interpolate)
     if (interpolate) {
         return interpolatedGradient(robot->position(), robot);
     } else {
-        QVector<Cell*> visibleCells = scene()->map().visibleCells(robot, integrationRange());
+        const double rint = scene()->map().hasFrontiers(robot) ? integrationRange() : 1000000;
+        QVector<Cell*> visibleCells = scene()->map().visibleCells(robot, rint);
         return gradient(robot->position(), visibleCells);
     }
 }
@@ -317,7 +318,10 @@ void DisCoverageBulloHandler::updateVectorField()
         for (int b = 0; b < dy; ++b) {
             Cell& c = scene()->map().cell(a, b);
             if (c.state() == (Cell::Explored | Cell::Free)) {
-                visibleCells = scene()->map().visibleCells(c.center(), integrationRange());
+                double rint = integrationRange();
+                if (c.robot() != 0 && !scene()->map().hasFrontiers(c.robot()))
+                    rint = 100;
+                visibleCells = scene()->map().visibleCells(c.center(), rint);
                 if (hasPartition && c.robot() != 0) {
                     // honor Voronoi partition
                     scene()->map().filterCells(visibleCells, c.robot());
