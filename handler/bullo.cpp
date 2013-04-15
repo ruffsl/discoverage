@@ -107,7 +107,9 @@ void DisCoverageBulloHandler::load(QSettings& config)
 void DisCoverageBulloHandler::exportToTikz(QTikzPicture& tp)
 {
     for (int i = 0; i < RobotManager::self()->count(); ++i) {
-        QPainterPath visibleArea = RobotManager::self()->robot(i)->visibleArea(integrationRange());
+        Robot* robot = RobotManager::self()->robot(i);
+        const double rint = scene()->map().hasFrontiers(robot) ? integrationRange() : 1000000;
+        QPainterPath visibleArea = robot->visibleArea(rint);
         tp.path(visibleArea, "very thick, cyan!90!black");
     }
 }
@@ -149,7 +151,7 @@ void DisCoverageBulloHandler::draw(QPainter& p)
     p.setBrush(Qt::NoBrush);
     for (int i = 0; i < RobotManager::self()->count(); ++i) {
         Robot* robot = RobotManager::self()->robot(i);
-        double rint = scene()->map().hasFrontiers(robot) ? integrationRange() : 50;
+        double rint = scene()->map().hasFrontiers(robot) ? integrationRange() : 1000000;
         QPainterPath visibleArea = robot->visibleArea(rint, true);
         p.drawPath(visibleArea);
     }

@@ -155,7 +155,11 @@ QPainterPath Robot::visibleArea(double radius, bool limitToVoronoiCell)
             visiblePath.addRect(cell->rect());
     }
     visiblePath = visiblePath.simplified();
-    visiblePath = visiblePath.intersected(circularPath(m_position, radius));
+
+    // potentially limit with visibility radius
+    if (radius < scene()->map().convexDiameter()) {
+        visiblePath = visiblePath.intersected(circularPath(m_position, radius));
+    }
 
     return visiblePath;
 }
