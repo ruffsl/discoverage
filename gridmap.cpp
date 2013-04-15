@@ -250,6 +250,13 @@ QPointF GridMap::center() const
                    m_resolution * h / 2);
 }
 
+double GridMap::convexDiameter() const
+{
+    const double w =  size().width();
+    const double h =  size().height();
+    return m_resolution * sqrt(w * w + h * h);
+}
+
 Cell& GridMap::cell(int xIndex, int yIndex)
 {
     // assert on index-out-of-range
