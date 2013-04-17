@@ -168,7 +168,7 @@ void DisCoverageHandler::updateVectorField()
     //        according to direction of the first path segment
     const int count = RobotManager::self()->count();
 
-    if (count > 1) {
+    if (count > 0) {
         for (int r = 0; r < count; ++r) {
             updateVectorField(RobotManager::self()->robot(r));
         }
@@ -205,7 +205,7 @@ void DisCoverageHandler::updateVectorField(Robot* robot)
                 double s = 0;
                 int i = 0;
                 foreach (Cell* q, frontiers) {
-                    s += disCoverage(c.center(), delta, q->rect().center(), allPaths[i]);
+                    s += disCoverage(c.center(), delta, q->center(), allPaths[i]);
                     ++i;
                 }
 
@@ -254,12 +254,18 @@ void DisCoverageHandler::tick()
 
 void DisCoverageHandler::postProcess()
 {
+    // compute geodesic Voronoi partition
     scene()->map().computeVoronoiPartition();
 
+    // update the frontier cache
+    scene()->map().updateRobotFrontierCache();
+
+    // compute vector field in each cell if needed
     if (Config::self()->showVectorField()) {
         updateVectorField();
     }
 
+    // redraw pixmap cache
     scene()->map().updateCache();
 
     m_plotter->updatePlot(RobotManager::self()->activeRobot());
