@@ -109,7 +109,7 @@ void DisCoverageBulloHandler::exportToTikz(QTikzPicture& tp)
     for (int i = 0; i < RobotManager::self()->count(); ++i) {
         Robot* robot = RobotManager::self()->robot(i);
         const double rint = scene()->map().hasFrontiers(robot) ? integrationRange() : 1000000;
-        QPainterPath visibleArea = robot->visibleArea(rint);
+        QPainterPath visibleArea = robot->visibleArea(rint, true);
         tp.path(visibleArea, "very thick, cyan!90!black");
     }
 }
@@ -284,7 +284,7 @@ void DisCoverageBulloHandler::tick()
 
 void DisCoverageBulloHandler::postProcess()
 {
-    // compute geodesic Voronoi partitioning
+    // compute geodesic Voronoi partition
     scene()->map().computeVoronoiPartition();
 
     // update the frontier cache
