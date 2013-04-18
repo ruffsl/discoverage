@@ -78,6 +78,8 @@ class DisCoverageHandler : public QObject, public ToolHandler
 
     private:
         QDockWidget* dockWidget();
+        QPointF interpolatedGradient(Robot* robot);
+        QPointF gradient(Robot* robot, const QPointF& robotPos, const double* startOrientation = 0, bool adjustDistanceComponent = false);
 
     private:
         QDockWidget* m_dock;

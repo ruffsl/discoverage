@@ -183,6 +183,7 @@ void DisCoverageHandler::updateVectorField(Robot* robot)
     const int dy = scene()->map().size().height();
     const QList<Cell*> frontiers = scene()->map().frontiers(robot);
 
+    // iterate over all free explored cells
     for (int a = 0; a < dx; ++a) {
         for (int b = 0; b < dy; ++b) {
             Cell& c = scene()->map().cell(a, b);
@@ -192,32 +193,7 @@ void DisCoverageHandler::updateVectorField(Robot* robot)
             if (c.state() != (Cell::Explored | Cell::Free))
                 continue;
 
-            QList<Path> allPaths;
-            allPaths = scene()->map().frontierPaths(QPoint(a, b), frontiers);
-            for (int i = 0; i < allPaths.size(); ++i) {
-                allPaths[i].beautify(scene()->map());
-            }
-
-            double delta = -M_PI;
-            double sMax = 0.0;
-            double deltaMax = 0.0;
-            while (delta < M_PI) {
-                double s = 0;
-                int i = 0;
-                foreach (Cell* q, frontiers) {
-                    s += disCoverage(c.center(), delta, q->center(), allPaths[i]);
-                    ++i;
-                }
-
-                if (s > sMax) {
-                    sMax = s;
-                    deltaMax = delta;
-                }
-                delta += 0.1;
-            }
-
-            QPointF grad(cos(deltaMax), sin(deltaMax));
-            c.setGradient(grad);
+            c.setGradient(gradient(robot, robot->position()));
         }
     }
 }
@@ -271,7 +247,60 @@ void DisCoverageHandler::postProcess()
     m_plotter->updatePlot(RobotManager::self()->activeRobot());
 }
 
-QPointF DisCoverageHandler::gradient(Robot* robot, bool /*interpolate*/)
+QPointF DisCoverageHandler::gradient(Robot* robot, bool interpolate)
+{
+    if (interpolate) {
+        return interpolatedGradient(robot);
+    } else {
+        const bool allowAutoAdjustDistanceComponent = true;
+        const double orientation = robot->orientation();
+        return gradient(robot, robot->position(), robot->hasOrientation() ? &orientation : 0, allowAutoAdjustDistanceComponent);
+    }
+}
+
+QPointF DisCoverageHandler::interpolatedGradient(Robot* robot)
+{
+    const QPointF robotPos = robot->position();
+    GridMap& m = scene()->map();
+    QPoint cellIndex(m.worldToIndex(robotPos));
+
+    // generate 4 samplings points in adjacent cell centers
+    const double diffx = 1.0 - fabs(robotPos.x() - m.cell(cellIndex).center().x()) / scene()->map().resolution();
+    const double diffy = 1.0 - fabs(robotPos.y() - m.cell(cellIndex).center().y()) / scene()->map().resolution();
+
+    const int dx = (robotPos.x() < m.cell(cellIndex).center().x()) ? -1 : 1;
+    const int dy = (robotPos.y() < m.cell(cellIndex).center().y()) ? -1 : 1;
+
+    QPointF g00(m.cell(cellIndex).center());
+    QPointF g01(g00);
+    QPointF g10(g00);
+    QPointF g11(g00);
+
+    if (m.isValidField(cellIndex + QPoint(dx, 0))) g01 = (m.cell(cellIndex + QPoint(dx, 0)).center());
+    if (m.isValidField(cellIndex + QPoint(0, dy))) g10 = (m.cell(cellIndex + QPoint(0, dy)).center());
+    if (m.isValidField(cellIndex + QPoint(dx,dy))) g11 = (m.cell(cellIndex + QPoint(dx, dy)).center());
+
+    // get robot orientation, if available
+    double orientation = robot->orientation();
+    double* pOrientation = robot->hasOrientation() ? (&orientation) : 0;
+
+    // compute gradients in all 4 sampling points
+    QPointF grad00(gradient(robot, g00, pOrientation, true)); // first time, allow to auto adjust distance component
+    QPointF grad01(gradient(robot, g01, pOrientation));
+    QPointF grad10(gradient(robot, g10, pOrientation));
+    QPointF grad11(gradient(robot, g11, pOrientation));
+
+    // interpolate: compute linear combination
+    QPointF gradX0(diffx * grad00 + (1 - diffx) * grad01);
+    QPointF gradX1(diffx * grad10 + (1 - diffx) * grad11);
+
+    QPointF grad(diffy * gradX0 + (1 - diffy) * gradX1);
+
+    // return gradient
+    return grad;
+}
+
+QPointF DisCoverageHandler::gradient(Robot* robot, const QPointF& robotPos, const double* startOrientation, bool adjustDistanceComponent)
 {
     const QList<Cell*> frontiers = Scene::self()->map().frontiers(robot);
     
@@ -279,7 +308,7 @@ QPointF DisCoverageHandler::gradient(Robot* robot, bool /*interpolate*/)
         return QPointF(0, 0);
 
     GridMap& m = Scene::self()->map();
-    QPoint pt = m.worldToIndex(robot->position());
+    QPoint pt = m.worldToIndex(robotPos);
     QList<Path> allPaths = m.frontierPaths(pt, frontiers);
 
     double shortestPath = 1000000000.0;
@@ -290,7 +319,7 @@ QPointF DisCoverageHandler::gradient(Robot* robot, bool /*interpolate*/)
         }
     }
 
-    if (autoAdaptDistanceStdDeviation()) {
+    if (autoAdaptDistanceStdDeviation() && adjustDistanceComponent) {
         setDistanceStdDeviation(shortestPath);
     }
 
@@ -303,7 +332,7 @@ QPointF DisCoverageHandler::gradient(Robot* robot, bool /*interpolate*/)
         double s = 0;
         int i = 0;
         foreach (Cell* q, frontiers) {
-            s += disCoverage(robot->position(), delta, q->rect().center(), allPaths[i]);
+            s += disCoverage(robotPos, delta, q->rect().center(), allPaths[i]);
             ++i;
         }
 
@@ -317,11 +346,10 @@ QPointF DisCoverageHandler::gradient(Robot* robot, bool /*interpolate*/)
     }
 
     // follow local optimum
-    if (followLocalOptimum()) {
+    if (followLocalOptimum() && startOrientation) {
         int i;
-        double robotOrientation = robot->orientation();
         for (i = 0; i < deltaPoints.size(); ++i) {
-            if (qFuzzyCompare(deltaPoints[i].x(), robotOrientation))
+            if (qFuzzyCompare(deltaPoints[i].x(), *startOrientation))
                 break;
         }
 
