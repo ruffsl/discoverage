@@ -145,7 +145,7 @@ void IntegratorDynamics::tick()
     pos += scene()->toolHandler()->gradient(this, true) * scene()->map().resolution();
     setPosition(pos, true);
 
-    bool changed = scene()->map().exploreInRadius(pos, sensingRange(), Cell::Explored);
+    scene()->map().exploreInRadius(pos, sensingRange(), Cell::Explored);
 }
 
 void IntegratorDynamics::reset()

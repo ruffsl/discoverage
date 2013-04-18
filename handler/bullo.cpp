@@ -156,12 +156,6 @@ void DisCoverageBulloHandler::draw(QPainter& p)
         p.drawPath(visibleArea);
     }
 
-    // debug: show gradient interpolation nodes
-//     p.drawEllipse(g00, 0.05, 0.05);
-//     p.drawEllipse(g01, 0.05, 0.05);
-//     p.drawEllipse(g10, 0.05, 0.05);
-//     p.drawEllipse(g11, 0.05, 0.05);
-
     p.setRenderHints(QPainter::Antialiasing, false);
 }
 
@@ -245,10 +239,11 @@ QPointF DisCoverageBulloHandler::interpolatedGradient(const QPointF& robotPos, R
     const int dx = (robotPos.x() < m.cell(cellIndex).center().x()) ? -1 : 1;
     const int dy = (robotPos.y() < m.cell(cellIndex).center().y()) ? -1 : 1;
 
-    g00 = (m.cell(cellIndex).center());
-    g01 = g00;
-    g10 = g00;
-    g11 = g00;
+    QPointF g00(m.cell(cellIndex).center());
+    QPointF g01(g00);
+    QPointF g10(g00);
+    QPointF g11(g00);
+
     if (m.isValidField(cellIndex + QPoint(dx, 0))) g01 = (m.cell(cellIndex + QPoint(dx, 0)).center());
     if (m.isValidField(cellIndex + QPoint(0, dy))) g10 = (m.cell(cellIndex + QPoint(0, dy)).center());
     if (m.isValidField(cellIndex + QPoint(dx,dy))) g11 = (m.cell(cellIndex + QPoint(dx, dy)).center());

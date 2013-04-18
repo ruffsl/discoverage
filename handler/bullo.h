@@ -82,11 +82,6 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
     private:
         QDockWidget* m_dock;
         Ui::DisCoverageFrontierWidget* m_ui;
- 
-        QPointF g00;
-        QPointF g01;
-        QPointF g10;
-        QPointF g11;
 };
 
 #endif // DISCOVERAGE_BULLO_HANDLER_H

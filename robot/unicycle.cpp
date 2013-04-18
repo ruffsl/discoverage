@@ -201,7 +201,7 @@ void Unicycle::tick()
         setPosition(pos, true);
     }
 
-    bool changed = scene()->map().exploreInRadius(pos, sensingRange(), Cell::Explored);
+    scene()->map().exploreInRadius(pos, sensingRange(), Cell::Explored);
 }
 
 void Unicycle::reset()
