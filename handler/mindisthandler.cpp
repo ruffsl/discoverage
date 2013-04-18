@@ -85,18 +85,25 @@ void MinDistHandler::tick()
 
 void MinDistHandler::postProcess()
 {
+    // compute geodesic Voronoi partition
     scene()->map().computeVoronoiPartition();
 
+    // update the frontier cache
+    scene()->map().updateRobotFrontierCache();
+
+    // show density if wanted, needs distance transform
     if (Config::self()->showDensity()) {
         for (int i = 0; i < RobotManager::self()->count(); ++i)
             scene()->map().computeDistanceTransform(RobotManager::self()->robot(i));
         scene()->map().updateDensity();
     }
 
+    // compute vector field in each cell if needed
     if (Config::self()->showVectorField()) {
         updateVectorField();
     }
 
+    // redraw pixmap cache
     scene()->map().updateCache();
 }
 
