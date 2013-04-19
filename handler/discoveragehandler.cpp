@@ -249,7 +249,8 @@ void DisCoverageHandler::postProcess()
 
 QPointF DisCoverageHandler::gradient(Robot* robot, bool interpolate)
 {
-    if (interpolate) {
+    const bool enableInterpolation = false;
+    if (enableInterpolation && interpolate) {
         return interpolatedGradient(robot);
     } else {
         const bool allowAutoAdjustDistanceComponent = true;
