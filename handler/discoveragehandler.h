@@ -102,6 +102,7 @@ class OrientationPlotter : public QFrame
 
     protected:
         virtual void paintEvent(QPaintEvent* event);
+        void contextMenuEvent(QContextMenuEvent * event);
 
     private:
         DisCoverageHandler* m_handler;

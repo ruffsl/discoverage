@@ -34,7 +34,12 @@
 #include <QtCore/QDebug>
 #include <QtCore/QSettings>
 #include <QtGui/QDockWidget>
-
+#include <QContextMenuEvent>
+#include <QMenu>
+#include <QAction>
+#include <QApplication>
+#include <QClipboard>
+ 
 //BEGIN DisCoverageHandler
 DisCoverageHandler::DisCoverageHandler(Scene* scene)
     : QObject()
@@ -193,7 +198,7 @@ void DisCoverageHandler::updateVectorField(Robot* robot)
             if (c.state() != (Cell::Explored | Cell::Free))
                 continue;
 
-            c.setGradient(gradient(robot, robot->position()));
+            c.setGradient(gradient(robot, c.center()));
         }
     }
 }
@@ -463,7 +468,7 @@ void OrientationPlotter::updatePlot(Robot* robot)
             sMax = s;
             deltaMax = delta;
         }
-        delta += 0.1;
+        delta += 0.02;
     }
 
     m_data = deltaPoints;
@@ -552,6 +557,20 @@ void OrientationPlotter::paintEvent(QPaintEvent* event)
         p.setBrush(QColor(255, 0, 0, 128));
     }
     p.drawEllipse(m_currentOrientation, 3.0 / scaleX, 3.0 / scaleY);
+}
+
+void OrientationPlotter::contextMenuEvent(QContextMenuEvent * event)
+{
+    QMenu m(this);
+    QAction* copyPlot = m.addAction("Copy Plot to Clipboard");
+    QAction* a = m.exec(mapToGlobal(event->pos()));
+    if (a == copyPlot) {
+        QString plot;
+        for (int i = 0; i < m_data.size(); ++i) {
+            plot += QString("(%1, %2) -- ").arg(m_data[i].x()).arg(m_data[i].y());
+        }
+        QApplication::clipboard()->setText(plot);
+    }
 }
 
 // kate: replace-tabs on; indent-width 4;
