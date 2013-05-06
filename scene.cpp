@@ -46,9 +46,9 @@ Scene::Scene(MainWindow* mainWindow, QWidget* parent)
     , m_robotHandler(this)
     , m_obstacleHandler(this)
     , m_explorationHandler(this)
-    , m_discoverageHandler(this)
-    , m_minDistHandler(this)
     , m_bulloHandler(this)
+    , m_discoverageHandler(this, &m_bulloHandler)
+    , m_minDistHandler(this)
 {
     s_self = this;
 

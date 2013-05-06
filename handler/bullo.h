@@ -60,6 +60,8 @@ class DisCoverageBulloHandler : public QObject, public ToolHandler
         virtual void exportToTikz(QTikzPicture& tp);
         virtual void exportObjectiveFunction(QTextStream& ts);
 
+        // udpate vector field only for one robot
+        void updateVectorField(Robot* robot);
     protected:
         // update vector field for all explored cells
         void updateVectorField();

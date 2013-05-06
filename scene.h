@@ -110,9 +110,9 @@ class Scene : public QFrame
         RobotHandler m_robotHandler;
         ObstacleHandler m_obstacleHandler;
         ExplorationHandler m_explorationHandler;
+        DisCoverageBulloHandler m_bulloHandler;
         DisCoverageHandler m_discoverageHandler;
         MinDistHandler m_minDistHandler;
-        DisCoverageBulloHandler m_bulloHandler;
 };
 
 #endif // SCENE_H

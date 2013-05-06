@@ -32,6 +32,7 @@ class QPainter;
 class Scene;
 class QDockWidget;
 class OrientationPlotter;
+class DisCoverageBulloHandler;
 
 namespace Ui { class DisCoverageWidget; }
 
@@ -40,7 +41,7 @@ class DisCoverageHandler : public QObject, public ToolHandler
     Q_OBJECT
 
     public:
-        DisCoverageHandler(Scene* scene);
+        DisCoverageHandler(Scene* scene, DisCoverageBulloHandler* centroidalSearch);
         virtual ~DisCoverageHandler();
 
         double disCoverage(const QPointF& pos, double delta, const QPointF& q, const Path& path);
@@ -85,6 +86,8 @@ class DisCoverageHandler : public QObject, public ToolHandler
         QDockWidget* m_dock;
         Ui::DisCoverageWidget* m_ui;
         OrientationPlotter* m_plotter;
+
+        DisCoverageBulloHandler* m_centroidalSearch;
 };
 
 class OrientationPlotter : public QFrame

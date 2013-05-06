@@ -330,6 +330,34 @@ void DisCoverageBulloHandler::updateVectorField()
     }
 }
 
+void DisCoverageBulloHandler::updateVectorField(Robot* robot)
+{
+    Q_ASSERT(robot);
+
+    const int dx = scene()->map().size().width();
+    const int dy = scene()->map().size().height();
+
+    QVector<Cell*> visibleCells;
+    QPointF grad;
+
+    for (int a = 0; a < dx; ++a) {
+        for (int b = 0; b < dy; ++b) {
+            Cell& c = scene()->map().cell(a, b);
+            if (c.state() == (Cell::Explored | Cell::Free) && c.robot() == robot) {
+                double rint = integrationRange();
+                if (c.robot() != 0 && !scene()->map().hasFrontiers(c.robot()))
+                    rint = 100;
+                visibleCells = scene()->map().visibleCells(c.center(), rint);
+                // honor Voronoi partition
+                scene()->map().filterCells(visibleCells, c.robot());
+
+                grad = gradient(c.center(), visibleCells);
+                c.setGradient(grad);
+            }
+        }
+    }
+}
+
 //END DisCoverageBulloHandler
 
 // kate: replace-tabs on; indent-width 4;

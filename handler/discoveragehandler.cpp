@@ -27,6 +27,8 @@
 #include "robot.h"
 #include "robotmanager.h"
 #include "config.h"
+#include "bullo.h"
+
 #include <qglobal.h> // qFuzzyCompare
 
 #include <QtGui/QPainter>
@@ -41,12 +43,13 @@
 #include <QClipboard>
  
 //BEGIN DisCoverageHandler
-DisCoverageHandler::DisCoverageHandler(Scene* scene)
+DisCoverageHandler::DisCoverageHandler(Scene* scene, DisCoverageBulloHandler* centroidalSearch)
     : QObject()
     , ToolHandler(scene)
     , m_dock(0)
     , m_ui(0)
     , m_plotter(0)
+    , m_centroidalSearch(centroidalSearch)
 {
     toolHandlerActive(false);
 }
@@ -201,6 +204,11 @@ void DisCoverageHandler::updateVectorField(Robot* robot)
             c.setGradient(gradient(robot, c.center()));
         }
     }
+
+    // fallback to centroidal search if no frontiers exist
+    if (robot && !scene()->map().hasFrontiers(robot)) {
+        m_centroidalSearch->updateVectorField(robot);
+    }
 }
 
 void DisCoverageHandler::draw(QPainter& p)
@@ -254,6 +262,11 @@ void DisCoverageHandler::postProcess()
 
 QPointF DisCoverageHandler::gradient(Robot* robot, bool interpolate)
 {
+    // no frontiers: fallback to centroidal search-based DisCoverage
+    if (!scene()->map().hasFrontiers(robot)) {
+        return m_centroidalSearch->gradient(robot, interpolate);
+    }
+
     const bool enableInterpolation = false;
     if (enableInterpolation && interpolate) {
         return interpolatedGradient(robot);
