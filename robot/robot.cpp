@@ -35,6 +35,7 @@ Robot::Robot(Scene* scene)
     , m_position(scene->map().center())
     , m_sensingRange(3.0)
     , m_fillSensingRange(false)
+    , m_stats(this)
 {
 }
 
@@ -250,10 +251,12 @@ void Robot::exportToTikz(QTikzPicture& tp)
 
 void Robot::tick()
 {
+    m_stats.tick();
 }
 
 void Robot::reset()
 {
+    m_stats.reset();
 }
 
 void Robot::load(QSettings& config)

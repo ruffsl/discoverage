@@ -140,6 +140,8 @@ void IntegratorDynamics::save(QSettings& config)
 
 void IntegratorDynamics::tick()
 {
+    Robot::tick();
+
     QPointF pos = position();
 
     pos += scene()->toolHandler()->gradient(this, true) * scene()->map().resolution();
@@ -150,6 +152,8 @@ void IntegratorDynamics::tick()
 
 void IntegratorDynamics::reset()
 {
+    Robot::reset();
+
     clearTrajectory();
 }
 

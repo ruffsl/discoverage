@@ -173,6 +173,8 @@ void Unicycle::save(QSettings& config)
 
 void Unicycle::tick()
 {
+    Robot::tick();
+
     QPointF pos = position();
 
     QPointF grad = scene()->toolHandler()->gradient(this, true);
@@ -206,6 +208,8 @@ void Unicycle::tick()
 
 void Unicycle::reset()
 {
+    Robot::reset();
+
     clearTrajectory();
 }
 

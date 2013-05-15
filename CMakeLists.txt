@@ -25,6 +25,7 @@ set(discoverage_SRCS
   robot/integratordynamicsconfigwidget.cpp
   robot/unicycle.cpp
   robot/unicycleconfigwidget.cpp
+  robot/robotstats.cpp
 )
 
 # another list, this time it includes all header files that should be treated with moc

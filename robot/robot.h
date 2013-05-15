@@ -26,6 +26,8 @@
 #include <QVector>
 #include <QPixmap>
 
+#include "robotstats.h"
+
 class Scene;
 class GridMap;
 class QTikzPicture;
@@ -51,9 +53,13 @@ class Robot
 
         virtual Dynamics type() = 0;
 
+        // true, if this robot is selected in the Robots sidebar pane
         bool isActive() const;
 
+        // reimplement for robot dynamics. Always call the super class first!
         virtual void tick();
+
+        // reimplement for robot dynamics. Always call the super class first!
         virtual void reset();
 
         virtual RobotConfigWidget* configWidget() = 0;
@@ -114,6 +120,8 @@ class Robot
 
         double m_sensingRange;
         bool m_fillSensingRange;
+
+        RobotStats m_stats;
 };
 
 #endif // DISCOVERAGE_ROBOT_H
