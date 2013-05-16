@@ -26,4 +26,9 @@ bool RobotStats::isUnemployed() const
     return ! Scene::self()->map().hasFrontiers(m_robot);
 }
 
+int RobotStats::unemployedCount() const
+{
+    return m_itUnemployed;
+}
+
 // kate: replace-tabs on; indent-width 4;

@@ -19,6 +19,9 @@ class RobotStats
         // returns true, if the robot has not frontieres in its cell
         bool isUnemployed() const;
 
+        // returns the number of iterations the robot did not have any assigned frontier cells
+        int unemployedCount() const;
+
     private:
         Robot* m_robot;
 

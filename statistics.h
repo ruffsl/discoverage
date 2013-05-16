@@ -22,9 +22,29 @@
 
 #include <QtGui/QFrame>
 
+class QSpinBox;
+class QPushButton;
 class QPaintEvent;
 class MainWindow;
 class QContextMenuEvent;
+
+class Stats
+{
+    public:
+        Stats();
+
+        int iteration;
+        qreal percentExplored; // [0; 1]
+        qreal percentUnemployed; // [0; 1]
+};
+
+class TestRun
+{
+    public:
+        TestRun();
+        int testRun;
+        QVector<Stats> stats;
+};
 
 class Statistics : public QFrame
 {
@@ -49,11 +69,26 @@ class Statistics : public QFrame
         virtual void paintEvent(QPaintEvent* event);
         virtual void contextMenuEvent(QContextMenuEvent* event);
 
+    //
+    // batch statistics
+    //
+    public:
+        qreal meanProgress(int iteration);
+        qreal varianceProgress(int iteration);
+    protected Q_SLOTS:
+        void startStopBatchProcess();
+    private:
+        bool m_batchProcessRunning;
+        QPushButton * m_btnStartStop;
+        QSpinBox* m_sbRuns;
 
     private:
         MainWindow* m_mainWindow;
         
         QVector<double> m_progress;
+
+        QVector<TestRun> m_testRuns;
+        QVector<qreal> m_meanProgress;
 };
 
 #endif // STATISTICS_H

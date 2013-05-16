@@ -90,6 +90,9 @@ class Robot
 
         QVector<QPointF> previewTrajectory();
 
+        // access to stats
+        const RobotStats& stats() const;
+
     //
     // environment information
     //

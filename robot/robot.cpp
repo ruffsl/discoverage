@@ -259,6 +259,11 @@ void Robot::reset()
     m_stats.reset();
 }
 
+const RobotStats& Robot::stats() const
+{
+    return m_stats;
+}
+
 void Robot::load(QSettings& config)
 {
     setPosition(config.value("position", QPointF(0.0, 0.0)).toPointF());

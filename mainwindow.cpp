@@ -96,7 +96,6 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     connect(actionStep, SIGNAL(triggered()), this, SLOT(tick()));
     connect(m_toolsUi->cmbTool, SIGNAL(currentIndexChanged(int)), m_scene, SLOT(selectTool(int)));
     connect(m_toolsUi->sbRadius, SIGNAL(valueChanged(double)), m_scene, SLOT(setOperationRadius(double)));
-    connect(actionReload, SIGNAL(triggered()), m_stats, SLOT(reset()));
 
     connect(actionAbout, SIGNAL(triggered()), this, SLOT(helpAbout()));
     connect(actionAboutQt, SIGNAL(triggered()), this, SLOT(helpAboutQt()));
@@ -175,6 +174,7 @@ void MainWindow::reloadScene()
         loadScene(m_sceneFile);
     } else {
         m_scene->reset();
+        m_stats->reset();
     }
 }
 
