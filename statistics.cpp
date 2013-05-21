@@ -123,12 +123,20 @@ void Statistics::paintEvent(QPaintEvent* event)
     p.drawLine(0, 0, 300, 0);
 
     m_meanProgress.clear();
+    m_meanUnemployed.clear();
     for (int i = 0; i < 300; ++i) {
         p.setPen(Qt::red);
         qreal mp = meanProgress(i) * 100.0;
         p.drawPoint(i, mp);
         p.setPen(Qt::darkGreen);
         p.drawPoint(i, mp - sqrt(varianceProgress(i)) * 100.0);
+
+
+        p.setPen(Qt::blue);
+        mp = meanUnemployed(i) * 100.0;
+        p.drawPoint(i, mp);
+        p.setPen(Qt::gray);
+        p.drawPoint(i, mp + sqrt(varianceUnemployed(i)) * 100.0);
     }
     p.restore();
 
@@ -225,6 +233,67 @@ qreal Statistics::varianceProgress(int iteration)
     return variance / N;
 }
 
+qreal Statistics::meanUnemployed(int iteration)
+{
+    const int N = m_testRuns.size();
+    qreal meanUnemployed= 0.0;
+    for (int i = 0; i < N; ++i) {
+        qreal unemployed = 1.0;
+        if (iteration < m_testRuns[i].stats.size()) {
+            unemployed = m_testRuns[i].stats[iteration].percentUnemployed;
+        }
+        meanUnemployed += unemployed;
+    }
+    m_meanUnemployed.append(meanUnemployed / N);
+    return meanUnemployed / N;
+}
+
+qreal Statistics::varianceUnemployed(int iteration)
+{
+//     qDebug () << m_meanUnemployed.size() << iter ation;
+    if (iteration >= m_meanUnemployed.size()) return 0;
+
+    const qreal mean = m_meanUnemployed[iteration];
+
+    const int N = m_testRuns.size();
+    qreal variance = 0.0;
+    for (int i = 0; i < N; ++i) {
+        qreal unemployed = 1.0;
+        if (iteration < m_testRuns[i].stats.size()) {
+            unemployed = m_testRuns[i].stats[iteration].percentUnemployed;
+        }
+        variance += (unemployed - mean) * (unemployed - mean);
+    }
+    return variance / N;
+}
+
+QPointF Statistics::randomRobotPos(int robot)
+{
+    const QSizeF worldSize = m_mainWindow->scene()->map().worldSize();
+    while (true) {
+        const QPointF worldPos((rand() * worldSize.width()) / RAND_MAX,
+                               (rand() * worldSize.height()) / RAND_MAX);
+        const QPoint cellIndex = m_mainWindow->scene()->map().worldToIndex(worldPos);
+
+        // make sure cell is valid and no obstacle
+        if (!m_mainWindow->scene()->map().isValidField(cellIndex) ||
+            m_mainWindow->scene()->map().cell(cellIndex).isObstacle())
+        {
+            continue;
+        }
+
+        // make sure no other robots is in the same cell
+        for (int i = 0; i < robot; ++i) {
+            const QPoint robotIndex = m_mainWindow->scene()->map().worldToIndex(
+                    RobotManager::self()->robot(i)->position());
+            if (robotIndex == cellIndex)
+                continue;
+        }
+
+        return worldPos;
+    }
+}
+
 void Statistics::startStopBatchProcess()
 {
     if (!m_batchProcessRunning) {
@@ -234,10 +303,19 @@ void Statistics::startStopBatchProcess()
         // prepare
         m_testRuns.clear();
 
+        // reproducible random numbers
+        srand(1);
+
         int run = 0;
         while (m_batchProcessRunning && run < m_sbRuns->value()) {
             m_mainWindow->reloadScene();
 
+            // randomize robot positions
+            for (int i = 0; i < RobotManager::self()->count(); ++i) {
+                RobotManager::self()->robot(i)->setPosition(randomRobotPos(i));
+            }
+
+            // do one run
             while (m_batchProcessRunning && m_mainWindow->scene()->map().explorationProgress() < 1.0) {
                 m_mainWindow->tick();
                 QApplication::processEvents();

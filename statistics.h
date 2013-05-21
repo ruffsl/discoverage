@@ -75,6 +75,9 @@ class Statistics : public QFrame
     public:
         qreal meanProgress(int iteration);
         qreal varianceProgress(int iteration);
+        qreal meanUnemployed(int iteration);
+        qreal varianceUnemployed(int iteration);
+        QPointF randomRobotPos(int robot);
     protected Q_SLOTS:
         void startStopBatchProcess();
     private:
@@ -89,6 +92,7 @@ class Statistics : public QFrame
 
         QVector<TestRun> m_testRuns;
         QVector<qreal> m_meanProgress;
+        QVector<qreal> m_meanUnemployed;
 };
 
 #endif // STATISTICS_H
