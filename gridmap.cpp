@@ -791,7 +791,7 @@ QList<Path> GridMap::frontierPaths(const QPoint& start, const QList<Cell*>& fron
             int ay = y + directionMap[i][1];
 
             // Testen ob neue x/y-Position gueltig ist ( Rand ist ausgenommen )
-            if (!isValidField(ax, ay) || m_map[ax][ay].state() & Cell::Unknown)
+            if (!isValidField(ax, ay))
                 continue;
 
             pCell = &m_map[ax][ay];
@@ -919,7 +919,7 @@ Path GridMap::aStar(const QPoint& from, const QPoint& to)
             int ax = x + directionMap[i][0];
             int ay = y + directionMap[i][1];
 
-            // Testen ob neue x/y-Position g�ltig ist ( Rand ist ausgenommen )
+            // Testen ob neue x/y-Position gueltig ist ( Rand ist ausgenommen )
             if (!isValidField(ax, ay))
                 continue;
 
