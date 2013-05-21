@@ -241,6 +241,15 @@ QSize GridMap::size() const
     return QSize(0, 0);
 }
 
+QSizeF GridMap::worldSize() const
+{
+    const int w = m_map.size();
+    const int h = w > 0 ? m_map[0].size() : 0;
+
+    return QSizeF(m_resolution * w,
+                  m_resolution * h);
+}
+
 QPointF GridMap::center() const
 {
     const int w = m_map.size();
