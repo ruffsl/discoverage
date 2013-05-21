@@ -30,13 +30,14 @@
 class QMouseEvent;
 class QPainter;
 class Scene;
+class DisCoverageBulloHandler;
 
 class MinDistHandler : public QObject, public ToolHandler
 {
     Q_OBJECT
 
     public:
-        MinDistHandler(Scene* scene);
+        MinDistHandler(Scene* scene, DisCoverageBulloHandler* centroidalSearch);
         virtual ~MinDistHandler();
 
     public:
@@ -58,6 +59,12 @@ class MinDistHandler : public QObject, public ToolHandler
     protected:
         void updateVectorField();
         void updateVectorField(Robot* robot);
+
+        QPointF gradient(const QPointF& robotPos, const QList<Cell*>& frontiers);
+        QPointF interpolatedGradient(const QPointF& robotPos, Robot* robot);
+
+    private:
+        DisCoverageBulloHandler* m_centroidalSearch;
 };
 
 #endif // MINDIST_HANDLER_H

@@ -48,7 +48,7 @@ Scene::Scene(MainWindow* mainWindow, QWidget* parent)
     , m_explorationHandler(this)
     , m_bulloHandler(this)
     , m_discoverageHandler(this, &m_bulloHandler)
-    , m_minDistHandler(this)
+    , m_minDistHandler(this, &m_bulloHandler)
 {
     s_self = this;
 

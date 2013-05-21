@@ -24,6 +24,7 @@
 #include "robot.h"
 #include "robotmanager.h"
 #include "config.h"
+#include "bullo.h"
 
 #include <QtGui/QPainter>
 #include <QtGui/QMouseEvent>
@@ -33,9 +34,10 @@
 #include <math.h>
 
 //BEGIN MinDistHandler
-MinDistHandler::MinDistHandler(Scene* scene)
+MinDistHandler::MinDistHandler(Scene* scene, DisCoverageBulloHandler* centroidalSearch)
     : QObject()
     , ToolHandler(scene)
+    , m_centroidalSearch(centroidalSearch)
 {
     toolHandlerActive(false);
 }
@@ -114,7 +116,7 @@ void MinDistHandler::updateVectorField()
     //        according to direction of the first path segment
     const int count = RobotManager::self()->count();
     
-    if (count > 1) {
+    if (count >= 1) {
         for (int r = 0; r < count; ++r) {
             updateVectorField(RobotManager::self()->robot(r));
         }
@@ -125,6 +127,12 @@ void MinDistHandler::updateVectorField()
 
 void MinDistHandler::updateVectorField(Robot* robot)
 {
+    // fallback to centroidal search if no frontiers exist
+    if (robot && !scene()->map().hasFrontiers(robot)) {
+        m_centroidalSearch->updateVectorField(robot);
+        return;
+    }
+
     const int dx = scene()->map().size().width();
     const int dy = scene()->map().size().height();
     const QList<Cell*> frontiers = scene()->map().frontiers(robot);
@@ -157,11 +165,25 @@ void MinDistHandler::updateVectorField(Robot* robot)
     }
 }
 
-QPointF MinDistHandler::gradient(Robot* robot, bool /*interpolate*/)
+QPointF MinDistHandler::gradient(Robot* robot, bool interpolate)
 {
-    const QList<Cell*> frontiers = scene()->map().frontiers(robot);
+    // no frontiers: fallback to centroidal search-based DisCoverage
+    if (!scene()->map().hasFrontiers(robot)) {
+        return m_centroidalSearch->gradient(robot, interpolate);
+    }
+
+    if (interpolate) {
+        return interpolatedGradient(robot->position(), robot);
+    } else {
+        const QList<Cell*> frontiers = scene()->map().frontiers(robot);
+        return gradient(robot->position(), frontiers);
+    }
+}
+
+QPointF MinDistHandler::gradient(const QPointF& robotPos, const QList<Cell*>& frontiers)
+{
     GridMap& m = scene()->map();
-    QPoint startIndex = m.worldToIndex(robot->position());
+    QPoint startIndex = m.worldToIndex(robotPos);
     QList<Path> allPaths = m.frontierPaths(startIndex, frontiers);
     double shortestPath = 1000000000.0;
     int shortestPathIndex = -1;
@@ -181,13 +203,48 @@ QPointF MinDistHandler::gradient(Robot* robot, bool /*interpolate*/)
 
     // pos is continuous robot position
     // cellCenter is center of 2nd path cell
-    const double dx = cellCenter.x() - robot->position().x();
-    const double dy = cellCenter.y() - robot->position().y();
+    const double dx = cellCenter.x() - robotPos.x();
+    const double dy = cellCenter.y() - robotPos.y();
 
     QPointF grad(dx, dy);
     if (!grad.isNull()) {
         grad /= sqrt(grad.x()*grad.x() + grad.y()*grad.y());
     }
+
+    return grad;
+}
+
+QPointF MinDistHandler::interpolatedGradient(const QPointF& robotPos, Robot* robot)
+{
+    GridMap& m = scene()->map();
+    QPoint cellIndex(m.worldToIndex(robotPos));
+
+    const double diffx = 1.0 - fabs(robotPos.x() - m.cell(cellIndex).center().x()) / scene()->map().resolution();
+    const double diffy = 1.0 - fabs(robotPos.y() - m.cell(cellIndex).center().y()) / scene()->map().resolution();
+
+    const int dx = (robotPos.x() < m.cell(cellIndex).center().x()) ? -1 : 1;
+    const int dy = (robotPos.y() < m.cell(cellIndex).center().y()) ? -1 : 1;
+
+    QPointF g00(m.cell(cellIndex).center());
+    QPointF g01(g00);
+    QPointF g10(g00);
+    QPointF g11(g00);
+
+    if (m.isValidField(cellIndex + QPoint(dx, 0))) g01 = (m.cell(cellIndex + QPoint(dx, 0)).center());
+    if (m.isValidField(cellIndex + QPoint(0, dy))) g10 = (m.cell(cellIndex + QPoint(0, dy)).center());
+    if (m.isValidField(cellIndex + QPoint(dx,dy))) g11 = (m.cell(cellIndex + QPoint(dx, dy)).center());
+
+    QList<Cell*> frontiers = m.frontiers(robot);
+
+    QPointF grad00(gradient(g00, frontiers));
+    QPointF grad01(gradient(g01, frontiers));
+    QPointF grad10(gradient(g10, frontiers));
+    QPointF grad11(gradient(g11, frontiers));
+
+    QPointF gradX0(diffx * grad00 + (1 - diffx) * grad01);
+    QPointF gradX1(diffx * grad10 + (1 - diffx) * grad11);
+
+    QPointF grad(diffy * gradX0 + (1 - diffy) * gradX1);
 
     return grad;
 }
