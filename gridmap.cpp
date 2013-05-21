@@ -839,15 +839,14 @@ QList<Path> GridMap::frontierPaths(const QPoint& start, const QList<Cell*>& fron
         // den Weg vom Ziel zum Start zurueckverfolgen und markieren
         int x = frontier->index().x();
         int y = frontier->index().y();
-        int nParent;
 
         Path path;
         while (true) {
-            pCell = &m_map[x][y];
-            nParent = pCell->m_pathParent;
             path.m_path.prepend(QPoint(x, y));
+            pCell = &m_map[x][y];
 
             // Abbrechen wenn wir am Startknoten angekommen sind
+            int nParent = pCell->m_pathParent;
             if( nParent == -1 )
                 break;
 
