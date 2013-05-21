@@ -42,6 +42,7 @@ class TestRun
 {
     public:
         TestRun();
+        int iterationForPercentExplored(qreal percent); // [0; 1]
         int testRun;
         QVector<Stats> stats;
 };
@@ -78,6 +79,13 @@ class Statistics : public QFrame
         qreal meanUnemployed(int iteration);
         qreal varianceUnemployed(int iteration);
         QPointF randomRobotPos(int robot);
+
+        /**
+         * Get the iteration (mean and variance) for which @p percent are explored.
+         * @param percent percent explored in inverval [0; 1]
+         */
+        void statsForPercentExplored(qreal percent, qreal & meanIteration, qreal & stdDeviation);
+
     protected Q_SLOTS:
         void startStopBatchProcess();
     private:

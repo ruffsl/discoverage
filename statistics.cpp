@@ -37,6 +37,16 @@
 #include <QtGui/QSpinBox>
 #include <QtGui/QPushButton>
 
+int TestRun::iterationForPercentExplored(qreal percent)
+{
+    for (int i = 0; i < stats.size(); ++i) {
+        if (stats[i].percentExplored >= percent)
+            return i;
+    }
+
+    return stats.size();
+}
+
 Stats::Stats()
     : iteration(0)
     , percentExplored(0.0)
@@ -111,7 +121,7 @@ void Statistics::paintEvent(QPaintEvent* event)
     p.restore();
 
     // Now paint batch statistics
-    p.drawText(QPoint(200, 20), QString("Run: %1").arg(m_testRuns.size()));
+    p.drawText(QPoint(220, 20), QString("Run: %1").arg(m_testRuns.size()));
 
     // prepare for progress line
     p.save();
@@ -139,6 +149,17 @@ void Statistics::paintEvent(QPaintEvent* event)
         p.drawPoint(i, mp + sqrt(varianceUnemployed(i)) * 100.0);
     }
     p.restore();
+
+    // Now paint batch statistics
+    qreal mean, sigma;
+    statsForPercentExplored(0.9, mean, sigma);
+    p.drawText(QPoint(820, 20), QString(" 90%: %1 (%2)").arg(mean).arg(sigma));
+    statsForPercentExplored(0.95, mean, sigma);
+    p.drawText(QPoint(820, 40), QString(" 95%: %1 (%2)").arg(mean).arg(sigma));
+    statsForPercentExplored(0.98, mean, sigma);
+    p.drawText(QPoint(820, 60), QString(" 98%: %1 (%2)").arg(mean).arg(sigma));
+    statsForPercentExplored(1, mean, sigma);
+    p.drawText(QPoint(820, 80), QString("100%: %1 (%2)").arg(mean).arg(sigma));
 
     p.end();
 
@@ -216,7 +237,7 @@ qreal Statistics::meanProgress(int iteration)
 
 qreal Statistics::varianceProgress(int iteration)
 {
-//     qDebug () << m_meanProgress.size() << iter ation;
+//     qDebug () << m_meanProgress.size() << iter action;
     if (iteration >= m_meanProgress.size()) return 0;
 
     const qreal mean = m_meanProgress[iteration];
@@ -250,7 +271,7 @@ qreal Statistics::meanUnemployed(int iteration)
 
 qreal Statistics::varianceUnemployed(int iteration)
 {
-//     qDebug () << m_meanUnemployed.size() << iter ation;
+//     qDebug () << m_meanUnemployed.size() << iter action;
     if (iteration >= m_meanUnemployed.size()) return 0;
 
     const qreal mean = m_meanUnemployed[iteration];
@@ -265,6 +286,31 @@ qreal Statistics::varianceUnemployed(int iteration)
         variance += (unemployed - mean) * (unemployed - mean);
     }
     return variance / N;
+}
+
+void Statistics::statsForPercentExplored(qreal percent, qreal & meanIteration, qreal & stdDeviation)
+{
+    meanIteration = 0;
+    stdDeviation = 0;
+
+    const int N = m_testRuns.size();
+
+    if (N < 2) return;
+
+    // calculate mean
+    for (int i = 0; i < N; ++i) {
+        meanIteration += m_testRuns[i].iterationForPercentExplored(percent);
+    }
+    meanIteration /= N;
+
+    // calculate variance
+    for (int i = 0; i < N; ++i) {
+        qreal it = m_testRuns[i].iterationForPercentExplored(percent);
+        stdDeviation += (it - meanIteration) * (it - meanIteration);
+    }
+
+    // empirical standard deviation
+    stdDeviation =  sqrt(stdDeviation / (N - 1));
 }
 
 QPointF Statistics::randomRobotPos(int robot)
