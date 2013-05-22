@@ -221,15 +221,21 @@ void MainWindow::saveSceneAs()
     }
 }
 
-void MainWindow::exportToTikz()
+QString MainWindow::sceneBaseName() const
 {
-    QString filename("scene");
+    QString filename("unnamed");
     if (!m_sceneFile.isEmpty()) {
         filename = m_sceneFile;
         if (filename.endsWith(".scene")) {
             filename = filename.left(filename.size() - 6);
         }
     }
+    return filename;
+}
+
+void MainWindow::exportToTikz()
+{
+    QString filename = sceneBaseName();
     filename += QString("-iteration-%1").arg(m_stats->iteration(), 3, 10, QChar('0'));
     const QString legend = filename + "-legend.tikz";
     const QString plot3 = filename + "-3dplot.tikz";
@@ -295,13 +301,7 @@ void MainWindow::tick()
 
     // record data if wanted
     if (actionRecord->isChecked()) {
-        QString filename("scene");
-        if (!m_sceneFile.isEmpty()) {
-            filename = m_sceneFile;
-            if (filename.endsWith(".scene")) {
-                filename = filename.left(filename.size() - 6);
-            }
-        }
+        QString filename = sceneBaseName();
         filename += QString("-iteration-%1").arg(m_stats->iteration(), 3, 10, QChar('0'));
         filename += ".png";
         m_scene->saveImage(filename);

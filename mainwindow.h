@@ -45,6 +45,8 @@ class MainWindow : public QMainWindow, protected Ui::MainWindow
 
         Scene* scene() const;
 
+        QString sceneBaseName() const;
+
     public slots:
         void loadScene(const QString& filename);
         void newScene();
