@@ -145,6 +145,7 @@ class GridMap : public QObject
         void unexploreAll();
 
         double explorationProgress() const;
+        int freeCellCount() const;
         QVector<Cell*> visibleCells(const QPointF& worldPos, double radius);
         QVector<Cell*> visibleCells(Robot* robot, double radius);
         void filterCells(QVector<Cell*> & cells, Robot* robot);

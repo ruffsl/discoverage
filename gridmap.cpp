@@ -728,6 +728,11 @@ double GridMap::explorationProgress() const
     return static_cast<double>(m_exploredCellCount) / m_freeCellCount;
 }
 
+int GridMap::freeCellCount() const
+{
+    return m_freeCellCount;
+}
+
 
 
 class PathField
