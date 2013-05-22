@@ -46,6 +46,11 @@ MinDistHandler::~MinDistHandler()
 {
 }
 
+QString MinDistHandler::name() const
+{
+    return QString("MinDist");
+}
+
 void MinDistHandler::toolHandlerActive(bool activated)
 {
 }

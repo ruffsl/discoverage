@@ -108,6 +108,12 @@ class ToolHandler
          */
         virtual QPointF gradient(Robot* robot, bool interpolate);
 
+        /**
+         * Return a GUI readable name of the strategy.
+         * Examples: "MinDist", "MaxArea", "DisCoverage", ...
+         */
+        virtual QString name() const;
+
     //
     // load & save, and export
     //

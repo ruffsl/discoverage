@@ -71,6 +71,7 @@ class DisCoverageHandler : public QObject, public ToolHandler
         virtual void save(QSettings& config);
 
         virtual QPointF gradient(Robot* robot, bool interpolate);
+        virtual QString name() const;
 
     private Q_SLOTS:
         void updateVectorField();

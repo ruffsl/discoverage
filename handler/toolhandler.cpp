@@ -210,6 +210,11 @@ QPointF ToolHandler::gradient(Robot* /*robot*/, bool /*interpolate*/)
 {
     return QPointF();
 }
+
+QString ToolHandler::name() const
+{
+    return QString();
+}
 //END ToolHandler
 
 

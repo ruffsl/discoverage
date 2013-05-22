@@ -51,6 +51,7 @@ class MinDistHandler : public QObject, public ToolHandler
         virtual void postProcess();
 
         virtual QPointF gradient(Robot* robot, bool interpolate);
+        virtual QString name() const;
 
         // serialization
         virtual void load(QSettings& config);

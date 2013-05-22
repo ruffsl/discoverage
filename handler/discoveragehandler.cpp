@@ -59,6 +59,11 @@ DisCoverageHandler::~DisCoverageHandler()
     delete m_ui;
 }
 
+QString DisCoverageHandler::name() const
+{
+    return QString("DisCoverage-orient-");
+}
+
 void DisCoverageHandler::toolHandlerActive(bool activated)
 {
     dockWidget()->setVisible(activated);

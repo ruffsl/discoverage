@@ -50,6 +50,11 @@ DisCoverageBulloHandler::~DisCoverageBulloHandler()
     delete m_ui;
 }
 
+QString DisCoverageBulloHandler::name() const
+{
+    return QString("DisCoverage-centroid");
+}
+
 void DisCoverageBulloHandler::toolHandlerActive(bool activated)
 {
     dockWidget()->setVisible(activated);
