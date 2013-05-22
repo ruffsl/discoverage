@@ -22,6 +22,7 @@
 #include "scene.h"
 #include "gridmap.h"
 #include "robotmanager.h"
+#include "tikzexport.h"
 
 #include <math.h>
 
@@ -36,6 +37,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QSpinBox>
 #include <QtGui/QPushButton>
+#include <QtAlgorithms>
 
 int TestRun::iterationForPercentExplored(qreal percent)
 {
@@ -60,6 +62,15 @@ TestRun::TestRun()
 {
 }
 
+BoxPlotItem::BoxPlotItem()
+{
+    minimum = 0;
+    lowerQuartile = 0;
+    median = 0;
+    upperQuartile = 0;
+    maximum = 0;
+}
+
 Statistics::Statistics(MainWindow* mainWindow, QWidget* parent)
     : QFrame(parent)
     , m_mainWindow(mainWindow)
@@ -79,6 +90,10 @@ Statistics::Statistics(MainWindow* mainWindow, QWidget* parent)
     m_btnStartStop = new QPushButton("Start", this);
     l->addWidget(m_btnStartStop, Qt::AlignRight);
     connect(m_btnStartStop, SIGNAL(clicked()), this, SLOT(startStopBatchProcess()));
+
+    QPushButton* btnExport = new QPushButton("TeX Export", this);
+    l->addWidget(btnExport, Qt::AlignRight);
+    connect(btnExport, SIGNAL(clicked()), this, SLOT(exportStatistics()));
 }
 
 Statistics::~Statistics()
@@ -121,7 +136,7 @@ void Statistics::paintEvent(QPaintEvent* event)
     p.restore();
 
     // Now paint batch statistics
-    p.drawText(QPoint(220, 20), QString("Run: %1").arg(m_testRuns.size()));
+    p.drawText(QPoint(230, 20), QString("Run: %1").arg(m_testRuns.size()));
 
     // prepare for progress line
     p.save();
@@ -148,18 +163,62 @@ void Statistics::paintEvent(QPaintEvent* event)
         p.setPen(Qt::gray);
         p.drawPoint(i, mp + sqrt(varianceUnemployed(i)) * 100.0);
     }
+
+    QPainterPath minPath;
+    QPainterPath maxPath;
+    QPainterPath medianPath;
+    QPainterPath lowerPath;
+    QPainterPath upperPath;
+    const int imax = m_boxPlot.size() - 1;
+    for (int i = 0; i < m_boxPlot.size(); ++i) {
+        if (i == 0) {
+            minPath.moveTo(QPointF(i, 100*m_boxPlot[i].minimum));
+            maxPath.moveTo(QPointF(imax - i, 100*m_boxPlot[imax - i].maximum));
+            medianPath.moveTo(QPointF(i, 100*m_boxPlot[i].median));
+            lowerPath.moveTo(QPointF(i, 100*m_boxPlot[i].lowerQuartile));
+            upperPath.moveTo(QPointF(imax - i, 100*m_boxPlot[imax - i].upperQuartile));
+        } else {
+            minPath.lineTo(QPointF(i, 100*m_boxPlot[i].minimum));
+            maxPath.lineTo(QPointF(imax - i, 100*m_boxPlot[imax - i].maximum));
+            medianPath.lineTo(QPointF(i, 100*m_boxPlot[i].median));
+            lowerPath.lineTo(QPointF(i, 100*m_boxPlot[i].lowerQuartile));
+            upperPath.lineTo(QPointF(imax - i, 100*m_boxPlot[imax - i].upperQuartile));
+        }
+    }
+
+    QPainterPath minMaxPath;
+    minMaxPath.addPath(minPath);
+    minMaxPath.connectPath(maxPath);
+    QPainterPath lowUpPath;
+    lowUpPath.addPath(lowerPath);
+    lowUpPath.connectPath(upperPath);
+
+    minMaxPath = minMaxPath.simplified();
+    lowUpPath = lowUpPath.simplified();
+
+    p.fillPath(minMaxPath, QColor(255, 225, 196));
+    p.fillPath(lowUpPath, QColor(255, 210, 210));
+    p.setPen(QColor(255, 128, 128));
+    p.drawPath(minPath);
+    p.setPen(QColor(128, 255, 128));
+    p.drawPath(maxPath);
+    p.setPen(QColor(128, 128, 255));
+    p.drawPath(medianPath);
+    p.setPen(QColor(180, 180, 180));
+    p.drawPath(lowerPath);
+    p.drawPath(upperPath);
     p.restore();
 
     // Now paint batch statistics
     qreal mean, sigma;
     statsForPercentExplored(0.9, mean, sigma);
-    p.drawText(QPoint(820, 20), QString(" 90%: %1 (%2)").arg(mean).arg(sigma));
+    p.drawText(QPoint(830, 20), QString(" 90%: %1 (%2)").arg(mean).arg(sigma));
     statsForPercentExplored(0.95, mean, sigma);
-    p.drawText(QPoint(820, 40), QString(" 95%: %1 (%2)").arg(mean).arg(sigma));
+    p.drawText(QPoint(830, 40), QString(" 95%: %1 (%2)").arg(mean).arg(sigma));
     statsForPercentExplored(0.98, mean, sigma);
-    p.drawText(QPoint(820, 60), QString(" 98%: %1 (%2)").arg(mean).arg(sigma));
+    p.drawText(QPoint(830, 60), QString(" 98%: %1 (%2)").arg(mean).arg(sigma));
     statsForPercentExplored(1, mean, sigma);
-    p.drawText(QPoint(820, 80), QString("100%: %1 (%2)").arg(mean).arg(sigma));
+    p.drawText(QPoint(830, 80), QString("100%: %1 (%2)").arg(mean).arg(sigma));
 
     p.end();
 
@@ -348,9 +407,12 @@ void Statistics::startStopBatchProcess()
 
         // prepare
         m_testRuns.clear();
+        m_boxPlot.clear();
 
         // reproducible random numbers
         srand(1);
+
+        int maxIterations = 0;
 
         int run = 0;
         while (m_batchProcessRunning && run < m_sbRuns->value()) {
@@ -366,7 +428,24 @@ void Statistics::startStopBatchProcess()
                 m_mainWindow->tick();
                 QApplication::processEvents();
             }
+            if (m_progress.size() > maxIterations) {
+                maxIterations = m_progress.size();
+            }
             ++run;
+        }
+
+        // generate box plots:
+        m_boxPlot.resize(maxIterations);
+        for (int it = 0; it < maxIterations; ++it) {
+            QVector<qreal> percentExploredList = percentList(it);
+            const int count = percentExploredList.size();
+            Q_ASSERT(count > 0);
+
+            m_boxPlot[it].minimum = percentExploredList.first();
+            m_boxPlot[it].maximum = percentExploredList.last();
+            m_boxPlot[it].median = percentExploredList[count * 0.5];
+            m_boxPlot[it].lowerQuartile = percentExploredList[count * 0.25];
+            m_boxPlot[it].upperQuartile = percentExploredList[count * 0.75];
         }
     }
 
@@ -376,4 +455,97 @@ void Statistics::startStopBatchProcess()
     }
 }
 
+QVector<qreal> Statistics::percentList(int iteration) const
+{
+    QVector<qreal> vec;
+    for (int run = 0; run < m_testRuns.size(); ++run) {
+        if (iteration < m_testRuns[run].stats.size()) {
+            vec.append(m_testRuns[run].stats[iteration].percentExplored);
+        } else {
+            vec.append(1.0);
+        }
+    }
+    qSort(vec.begin(), vec.end());
+    return vec;
+}
+
+void Statistics::exportStatistics()
+{
+    // create paths to export
+    QVector<QPointF> minPath;
+    QVector<QPointF> maxPath;
+    QVector<QPointF> medianPath;
+    QVector<QPointF> lowerPath;
+    QVector<QPointF> upperPath;
+    for (int i = 0; i < m_boxPlot.size(); ++i) {
+        minPath.append(QPointF(i, 100*m_boxPlot[i].minimum));
+        maxPath.append(QPointF(i, 100*m_boxPlot[i].maximum));
+        medianPath.append(QPointF(i, 100*m_boxPlot[i].median));
+        lowerPath.append(QPointF(i, 100*m_boxPlot[i].lowerQuartile));
+        upperPath.append(QPointF(i, 100*m_boxPlot[i].upperQuartile));
+    }
+
+    // create paths to fill
+    QVector<QPointF> minMaxPath = maxPath;
+    std::reverse(minMaxPath.begin(), minMaxPath.end());
+    minMaxPath = minPath + minMaxPath;
+
+    QVector<QPointF> lowUpPath = upperPath;
+    std::reverse(lowUpPath.begin(), lowUpPath.end());
+    lowUpPath = lowerPath + lowUpPath;
+
+    // compute time-optimal-case
+    const int totalCells = m_mainWindow->scene()->map().freeCellCount();
+    const qreal res = m_mainWindow->scene()->map().resolution();
+    const qreal range = RobotManager::self()->robot(0)->sensingRange();
+    const qreal startCells = 100.0 * RobotManager::self()->count() * M_PI * range * range / (res * res * totalCells);
+    const QPointF tocStart(0, startCells);
+    const qreal cellsPerIteration = RobotManager::self()->count() * 2 * range / res;
+    const QPointF tocEnd(totalCells / cellsPerIteration, 100);
+
+    // export file name
+    const QString numRobots = QString::number(RobotManager::self()->count());
+    QString fileName = m_mainWindow->sceneBaseName()
+        + "-" + mainWindow()->scene()->toolHandler()->name()
+        + "-robots-" + numRobots
+        + "-statistics.tikz";
+
+    QFile file(fileName);
+    if (file.open(QFile::WriteOnly | QFile::Truncate)) {
+        QTextStream ts(&file);
+        QTikzPicture tikzPicture;
+        tikzPicture.setStream(&ts);
+
+        tikzPicture.begin("yscale=0.05, xscale=0.1, thick");
+        tikzPicture.line(minMaxPath, "draw=orange!50!black, fill=orange!50");
+        tikzPicture.line(lowUpPath, "gray, densely dashed, fill=green!20");
+//         tikzPicture.line(minPath, "green!50!black");
+//         tikzPicture.line(maxPath, "darkRed");
+        tikzPicture.line(medianPath, "blue");
+
+        // time-optimal case
+        tikzPicture.line(tocStart, tocEnd, "black");
+
+        // axes
+        tikzPicture.newline();
+        tikzPicture.comment("axes");
+        tikzPicture.line(QPointF(0, 0), QPointF(m_boxPlot.size() + 5, 0), "->, >=stealth'");
+        tikzPicture.line(QPointF(0, 0), QPointF(0, 105), "->, >=stealth'");
+
+        tikzPicture.end();
+
+        file.close();
+    }
+
+//     // Now paint batch statistics
+//     qreal mean, sigma;
+//     statsForPercentExplored(0.9, mean, sigma);
+//     p.drawText(QPoint(830, 20), QString(" 90%: %1 (%2)").arg(mean).arg(sigma));
+//     statsForPercentExplored(0.95, mean, sigma);
+//     p.drawText(QPoint(830, 40), QString(" 95%: %1 (%2)").arg(mean).arg(sigma));
+//     statsForPercentExplored(0.98, mean, sigma);
+//     p.drawText(QPoint(830, 60), QString(" 98%: %1 (%2)").arg(mean).arg(sigma));
+//     statsForPercentExplored(1, mean, sigma);
+//     p.drawText(QPoint(830, 80), QString("100%: %1 (%2)").arg(mean).arg(sigma));
+}
 // kate: replace-tabs on; indent-width 4;

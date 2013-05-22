@@ -47,6 +47,17 @@ class TestRun
         QVector<Stats> stats;
 };
 
+class BoxPlotItem
+{
+    public:
+        BoxPlotItem();
+        qreal minimum;
+        qreal lowerQuartile;
+        qreal median;
+        qreal upperQuartile;
+        qreal maximum;
+};
+
 class Statistics : public QFrame
 {
     Q_OBJECT
@@ -88,6 +99,8 @@ class Statistics : public QFrame
 
     protected Q_SLOTS:
         void startStopBatchProcess();
+        void exportStatistics();
+
     private:
         bool m_batchProcessRunning;
         QPushButton * m_btnStartStop;
@@ -101,6 +114,10 @@ class Statistics : public QFrame
         QVector<TestRun> m_testRuns;
         QVector<qreal> m_meanProgress;
         QVector<qreal> m_meanUnemployed;
+
+        QVector<BoxPlotItem> m_boxPlot;
+    public:
+        QVector<qreal> percentList(int iterations) const;
 };
 
 #endif // STATISTICS_H
