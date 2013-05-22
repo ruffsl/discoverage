@@ -92,10 +92,19 @@ class ToolHandler
          */
         virtual void tick();
 
+        /**
+         * This function is called after tick().
+         * The idea is to prepare everything for the next iteration.
+         * Examples include the computation of the Voronoi partition, distance
+         * transforms or information needed when painting the environment.
+         */
         virtual void postProcess();
 
         /**
-         * TODO
+         * Return the gradient for @p robot at robot->position().
+         * Usually, @p interpolate is true. This means that the returned gradient
+         * should be interpolated between the 4 adjacent grid map cells of the
+         * current robot position.
          */
         virtual QPointF gradient(Robot* robot, bool interpolate);
 
