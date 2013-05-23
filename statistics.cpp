@@ -149,7 +149,7 @@ void Statistics::paintEvent(QPaintEvent* event)
 
     m_meanProgress.clear();
     m_meanUnemployed.clear();
-    for (int i = 0; i < 300; ++i) {
+    for (int i = 0; i < m_boxPlot.size(); ++i) {
         p.setPen(Qt::red);
         qreal mp = meanProgress(i) * 100.0;
         p.drawPoint(i, mp);
@@ -158,10 +158,8 @@ void Statistics::paintEvent(QPaintEvent* event)
 
 
         p.setPen(Qt::blue);
-        mp = meanUnemployed(i) * 100.0;
+        mp = 100 - meanUnemployed(i) * 100.0;
         p.drawPoint(i, mp);
-        p.setPen(Qt::gray);
-        p.drawPoint(i, mp + sqrt(varianceUnemployed(i)) * 100.0);
     }
 
     QPainterPath minPath;
@@ -197,10 +195,9 @@ void Statistics::paintEvent(QPaintEvent* event)
     lowUpPath = lowUpPath.simplified();
 
     p.fillPath(minMaxPath, QColor(255, 225, 196));
-    p.fillPath(lowUpPath, QColor(255, 210, 210));
-    p.setPen(QColor(255, 128, 128));
+    p.fillPath(lowUpPath, QColor(210, 255, 210));
+    p.setPen(QColor(255, 128, 0));
     p.drawPath(minPath);
-    p.setPen(QColor(128, 255, 128));
     p.drawPath(maxPath);
     p.setPen(QColor(128, 128, 255));
     p.drawPath(medianPath);
@@ -471,18 +468,22 @@ QVector<qreal> Statistics::percentList(int iteration) const
 
 void Statistics::exportStatistics()
 {
+    if (!m_boxPlot.size()) return;
+
     // create paths to export
     QVector<QPointF> minPath;
     QVector<QPointF> maxPath;
     QVector<QPointF> medianPath;
     QVector<QPointF> lowerPath;
     QVector<QPointF> upperPath;
+    QVector<QPointF> unemployedPath;
     for (int i = 0; i < m_boxPlot.size(); ++i) {
         minPath.append(QPointF(i, 100*m_boxPlot[i].minimum));
         maxPath.append(QPointF(i, 100*m_boxPlot[i].maximum));
         medianPath.append(QPointF(i, 100*m_boxPlot[i].median));
         lowerPath.append(QPointF(i, 100*m_boxPlot[i].lowerQuartile));
         upperPath.append(QPointF(i, 100*m_boxPlot[i].upperQuartile));
+        unemployedPath.append(QPointF(i, 100 - meanUnemployed(i) * 100.0));
     }
 
     // create paths to fill
@@ -519,30 +520,56 @@ void Statistics::exportStatistics()
         QTikzPicture tikzPicture;
         tikzPicture.setStream(&ts);
 
-        tikzPicture.begin("yscale=0.05, xscale=0.1, thick");
-        tikzPicture.line(minMaxPath, "draw=orange!50!black, fill=orange!50");
-        tikzPicture.line(lowUpPath, "gray, densely dashed, fill=green!20");
-//         tikzPicture.line(minPath, "green!50!black");
-//         tikzPicture.line(maxPath, "darkRed");
-        tikzPicture.line(medianPath, "blue");
+        tikzPicture.begin("thick, yscale=0.05");
 
-        // time-optimal case
-        tikzPicture.line(tocStart, tocEnd, "black");
+        // plot data, scaled to 8cm
+        tikzPicture.beginScope(QString("xscale=%1").arg(8.0 / m_boxPlot.size()));
 
-        // draw grid
-        tikzPicture << QString("\\draw[densely dashed, thin, black, ystep=20, xstep=10, opacity=0.3] (0, 0) grid (%1, 100);").arg(m_boxPlot.size());
+            tikzPicture.line(minMaxPath, "draw=orange, fill=orange!50");
+            tikzPicture.line(lowUpPath, "gray, densely dashed, fill=green!20");
+            tikzPicture.line(medianPath, "blue");
+            tikzPicture.line(unemployedPath, "densely dotted, magenta");
 
-        // axes
-        tikzPicture.newline();
-        tikzPicture.comment("axes");
-        tikzPicture.line(QPointF(0, 0), QPointF(m_boxPlot.size() + 5, 0), "->, >=stealth'");
+            // time-optimal case
+            tikzPicture.line(tocStart, tocEnd, "black");
+
+            // draw grid
+            tikzPicture << QString("\\draw[densely dashed, thin, black, ystep=20, xstep=10, opacity=0.3] (0, 0) grid (%1, 100);").arg(m_boxPlot.size());
+
+            // axes
+            tikzPicture.newline();
+            tikzPicture.comment("axis lables");
+            for (int i = 0; i <= m_boxPlot.size(); i += m_boxPlot.size() >= 100 ? 20 : 10) {
+                tikzPicture << QString("\\node[below] at (%1, 0) {%1};\n").arg(i);
+            }
+
+            // mean and variance of 90%, 95% and 98% explored
+            qreal mean, sigma;
+            statsForPercentExplored(0.9, mean, sigma);
+            tikzPicture << QString("\\draw[|-|] (%1, 90) -- (%2, 90);\n").arg(mean - sigma).arg(mean + sigma);
+            tikzPicture << QString("\\node[draw, circle, fill=white, inner sep=0mm, minimum size=1mm] (90) at (%1, 90) {};\n").arg(mean);
+            statsForPercentExplored(0.95, mean, sigma);
+            tikzPicture << QString("\\draw[|-|] (%1, 95) -- (%2, 95);\n").arg(mean - sigma).arg(mean + sigma);
+            tikzPicture << QString("\\node[draw, circle, fill=white, inner sep=0mm, minimum size=1mm] (95) at (%1, 95) {};\n").arg(mean);
+            statsForPercentExplored(0.98, mean, sigma);
+            tikzPicture << QString("\\draw[|-|] (%1, 98) -- (%2, 98);\n").arg(mean - sigma).arg(mean + sigma);
+            tikzPicture << QString("\\node[draw, circle, fill=white, inner sep=0mm, minimum size=1mm] (98) at (%1, 98) {};\n").arg(mean);
+
+        tikzPicture.endScope();
+
+        // y axis lables
         tikzPicture.line(QPointF(0, 0), QPointF(0, 100));
+        tikzPicture << "\\node[left] at (0, 20) {20};\n";
+        tikzPicture << "\\node[left] at (0, 40) {40};\n";
+        tikzPicture << "\\node[left] at (0, 60) {60};\n";
+        tikzPicture << "\\node[left] at (0, 80) {80};\n";
+        tikzPicture << "\\node[left] at (0, 100) {100};\n";
 
-        tikzPicture << "\\node[left] at (0, 20) {20\\%};\n";
-        tikzPicture << "\\node[left] at (0, 40) {40\\%};\n";
-        tikzPicture << "\\node[left] at (0, 60) {60\\%};\n";
-        tikzPicture << "\\node[left] at (0, 80) {80\\%};\n";
-        tikzPicture << "\\node[left] at (0, 100) {100\\%};\n";
+        tikzPicture << "\\node[rotate=90] at (-0.8, 50) {progress in \\%};\n";
+
+        // x axis lables
+        tikzPicture.line(QPointF(0, 0), QPointF(8.5, 0), "->, >=stealth'");
+        tikzPicture << "\\node[below] at (8.5, 0) {\\#it};\n";
 
         tikzPicture.end();
 
