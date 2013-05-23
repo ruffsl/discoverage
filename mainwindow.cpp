@@ -174,8 +174,8 @@ void MainWindow::reloadScene()
         loadScene(m_sceneFile);
     } else {
         m_scene->reset();
-        m_stats->reset();
     }
+    m_stats->reset();
 }
 
 void MainWindow::saveScene()

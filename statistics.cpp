@@ -495,13 +495,16 @@ void Statistics::exportStatistics()
     lowUpPath = lowerPath + lowUpPath;
 
     // compute time-optimal-case
-    const int totalCells = m_mainWindow->scene()->map().freeCellCount();
     const qreal res = m_mainWindow->scene()->map().resolution();
-    const qreal range = RobotManager::self()->robot(0)->sensingRange();
-    const qreal startCells = 100.0 * RobotManager::self()->count() * M_PI * range * range / (res * res * totalCells);
-    const QPointF tocStart(0, startCells);
-    const qreal cellsPerIteration = RobotManager::self()->count() * 2 * range / res;
-    const QPointF tocEnd(totalCells / cellsPerIteration, 100);
+    // (-res/1.75): cells must lie inside the circle, hence this approximate correction
+    const qreal range = RobotManager::self()->robot(0)->sensingRange() - res / 1.75;
+    const int totalCells = m_mainWindow->scene()->map().freeCellCount();
+    const int startCells = RobotManager::self()->count() * M_PI * range * range / (res * res);
+    const int restCells = totalCells - startCells;
+    const QPointF tocStart(0, (100.0 * startCells) / totalCells);
+    const qreal cellsPerIteration = RobotManager::self()->count() * 2.0 * range / res;
+    const qreal percentPerIteration = cellsPerIteration / restCells;
+    const QPointF tocEnd((1.0 - tocStart.y() / 100.0) / percentPerIteration, 100);
 
     // export file name
     const QString numRobots = QString::number(RobotManager::self()->count());
@@ -526,11 +529,20 @@ void Statistics::exportStatistics()
         // time-optimal case
         tikzPicture.line(tocStart, tocEnd, "black");
 
+        // draw grid
+        tikzPicture << QString("\\draw[densely dashed, thin, black, ystep=20, xstep=10, opacity=0.3] (0, 0) grid (%1, 100);").arg(m_boxPlot.size());
+
         // axes
         tikzPicture.newline();
         tikzPicture.comment("axes");
         tikzPicture.line(QPointF(0, 0), QPointF(m_boxPlot.size() + 5, 0), "->, >=stealth'");
-        tikzPicture.line(QPointF(0, 0), QPointF(0, 105), "->, >=stealth'");
+        tikzPicture.line(QPointF(0, 0), QPointF(0, 100));
+
+        tikzPicture << "\\node[left] at (0, 20) {20\\%};\n";
+        tikzPicture << "\\node[left] at (0, 40) {40\\%};\n";
+        tikzPicture << "\\node[left] at (0, 60) {60\\%};\n";
+        tikzPicture << "\\node[left] at (0, 80) {80\\%};\n";
+        tikzPicture << "\\node[left] at (0, 100) {100\\%};\n";
 
         tikzPicture.end();
 
