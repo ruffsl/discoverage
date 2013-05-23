@@ -520,10 +520,10 @@ void Statistics::exportStatistics()
         QTikzPicture tikzPicture;
         tikzPicture.setStream(&ts);
 
-        tikzPicture.begin("thick, yscale=0.05");
+        tikzPicture.begin("thick");
 
         // plot data, scaled to 8cm
-        tikzPicture.beginScope(QString("xscale=%1").arg(8.0 / m_boxPlot.size()));
+        tikzPicture.beginScope(QString("yscale=0.05, xscale=%1").arg(8.0 / m_boxPlot.size()));
 
             tikzPicture.line(minMaxPath, "draw=orange, fill=orange!50");
             tikzPicture.line(lowUpPath, "gray, densely dashed, fill=green!20");
@@ -557,19 +557,44 @@ void Statistics::exportStatistics()
 
         tikzPicture.endScope();
 
-        // y axis lables
-        tikzPicture.line(QPointF(0, 0), QPointF(0, 100));
-        tikzPicture << "\\node[left] at (0, 20) {20};\n";
-        tikzPicture << "\\node[left] at (0, 40) {40};\n";
-        tikzPicture << "\\node[left] at (0, 60) {60};\n";
-        tikzPicture << "\\node[left] at (0, 80) {80};\n";
-        tikzPicture << "\\node[left] at (0, 100) {100};\n";
+        tikzPicture.beginScope("yscale=0.05");
 
-        tikzPicture << "\\node[rotate=90] at (-0.8, 50) {progress in \\%};\n";
+            // y axis lables
+            tikzPicture.line(QPointF(0, 0), QPointF(0, 100));
+            tikzPicture << "\\node[left] at (0, 20) {20};\n";
+            tikzPicture << "\\node[left] at (0, 40) {40};\n";
+            tikzPicture << "\\node[left] at (0, 60) {60};\n";
+            tikzPicture << "\\node[left] at (0, 80) {80};\n";
+            tikzPicture << "\\node[left] at (0, 100) {100};\n";
 
-        // x axis lables
-        tikzPicture.line(QPointF(0, 0), QPointF(8.5, 0), "->, >=stealth'");
-        tikzPicture << "\\node[below] at (8.5, 0) {\\#it};\n";
+            tikzPicture << "\\node[rotate=90] at (-0.8, 50) {progress in \\%};\n";
+
+            // x axis lables
+            tikzPicture.line(QPointF(0, 0), QPointF(8.5, 0), "->, >=stealth'");
+            tikzPicture << "\\node[below] at (8.5, 0) {\\#it};\n";
+
+        tikzPicture.endScope();
+
+        tikzPicture.beginScope("xshift=6cm, yshift=2.5cm");
+
+            tikzPicture << "\\draw[semithick, fill=white, fill opacity=0.8] (0, -0.6) rectangle +(2.5, 2.6);\n";
+            tikzPicture << "\\scriptsize\n";
+
+            tikzPicture << "\\draw[semithick,|-|] (0.2, -.4) -- +(0.28, 0) node[right, black] {mean $\\pm$ var};\n";
+            tikzPicture << "\\node[semithick,draw, circle, fill=white, inner sep=0mm, minimum size=1mm] at (0.34, -0.4) {};\n";
+            tikzPicture << "\\draw (0.2, -.1) -- +(0.28, 0) node[right, black] {time-opt. case};\n";
+            tikzPicture << "\\draw[magenta, densely dotted] (0.2, 0.2) -- +(0.28, 0) node[right, black] {employed};\n";
+
+            tikzPicture << "\\fill[orange!50] (0.2, 0.5) rectangle +(0.28, 1.2);\n";
+            tikzPicture << "\\fill[green!20] (0.2, 0.8) rectangle +(0.28, 0.6);\n";
+
+            tikzPicture << "\\draw[orange] (0.2, 1.7) -- +(0.28, 0) node[right, black] {best case};\n";
+            tikzPicture << "\\draw[gray, densely dashed] (0.2, 1.4) -- +(0.28, 0) node[right, black] {median $+25\\%$};\n";
+            tikzPicture << "\\draw[blue] (0.2, 1.1) -- +(0.28, 0) node[right, black] {median};\n";
+            tikzPicture << "\\draw[gray, densely dashed] (0.2, 0.8) -- +(0.28, 0) node[right, black] {median $-25\\%$};\n";
+            tikzPicture << "\\draw[orange] (0.2, 0.5) -- +(0.28, 0) node[right, black] {worst case};\n";
+
+        tikzPicture.endScope();
 
         tikzPicture.end();
 
