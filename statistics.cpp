@@ -245,13 +245,15 @@ void Statistics::tick()
     update();
 
     if (m_testRuns.size()) {
-        qreal unemployed;
+        qreal unemployed = 0.0;
         const int count = RobotManager::self()->count();
-        for (int i = 0; i < count; ++i) {
-            if (RobotManager::self()->robot(i)->stats().isUnemployed())
-                unemployed += 1;
+        if (progress < 1.0) { // only count as unemployed, if exploration is not finished
+            for (int i = 0; i < count; ++i) {
+                if (RobotManager::self()->robot(i)->stats().isUnemployed())
+                    unemployed += 1;
+            }
+            unemployed /= count;
         }
-        unemployed /= count;
 
         m_testRuns.last().stats.append(Stats());
         m_testRuns.last().stats.last().iteration = m_progress.size();
@@ -313,9 +315,9 @@ qreal Statistics::varianceProgress(int iteration)
 qreal Statistics::meanUnemployed(int iteration)
 {
     const int N = m_testRuns.size();
-    qreal meanUnemployed= 0.0;
+    qreal meanUnemployed = 0.0;
     for (int i = 0; i < N; ++i) {
-        qreal unemployed = 1.0;
+        qreal unemployed = 0.0;
         if (iteration < m_testRuns[i].stats.size()) {
             unemployed = m_testRuns[i].stats[iteration].percentUnemployed;
         }
@@ -483,7 +485,7 @@ void Statistics::exportStatistics()
         medianPath.append(QPointF(i, 100*m_boxPlot[i].median));
         lowerPath.append(QPointF(i, 100*m_boxPlot[i].lowerQuartile));
         upperPath.append(QPointF(i, 100*m_boxPlot[i].upperQuartile));
-        unemployedPath.append(QPointF(i, 100 - meanUnemployed(i) * 100.0));
+        unemployedPath.append(QPointF(i, meanUnemployed(i) * 100.0));
     }
 
     // create paths to fill
@@ -512,6 +514,8 @@ void Statistics::exportStatistics()
     QString fileName = m_mainWindow->sceneBaseName()
         + "-" + mainWindow()->scene()->toolHandler()->name()
         + "-robots-" + numRobots
+        + "-range-" + QString::number(RobotManager::self()->robot(0)->sensingRange())
+        + "-runs-" + QString::number(m_testRuns.size())
         + "-statistics.tikz";
 
     QFile file(fileName);
@@ -523,6 +527,8 @@ void Statistics::exportStatistics()
         tikzPicture.begin("thick");
 
         // plot data, scaled to 8cm
+        tikzPicture.newline(2);
+        tikzPicture.comment("plot data, scaled to 8cm");
         tikzPicture.beginScope(QString("yscale=0.05, xscale=%1").arg(8.0 / m_boxPlot.size()));
 
             tikzPicture.line(minMaxPath, "draw=orange, fill=orange!50");
@@ -548,15 +554,21 @@ void Statistics::exportStatistics()
             statsForPercentExplored(0.9, mean, sigma);
             tikzPicture << QString("\\draw[|-|] (%1, 90) -- (%2, 90);\n").arg(mean - sigma).arg(mean + sigma);
             tikzPicture << QString("\\node[draw, circle, fill=white, inner sep=0mm, minimum size=1mm] (90) at (%1, 90) {};\n").arg(mean);
+            tikzPicture.comment(QString("90: %1  +-  %2").arg(mean).arg(sigma));
             statsForPercentExplored(0.95, mean, sigma);
             tikzPicture << QString("\\draw[|-|] (%1, 95) -- (%2, 95);\n").arg(mean - sigma).arg(mean + sigma);
             tikzPicture << QString("\\node[draw, circle, fill=white, inner sep=0mm, minimum size=1mm] (95) at (%1, 95) {};\n").arg(mean);
+            tikzPicture.comment(QString("95: %1  +-  %2").arg(mean).arg(sigma));
             statsForPercentExplored(0.98, mean, sigma);
             tikzPicture << QString("\\draw[|-|] (%1, 98) -- (%2, 98);\n").arg(mean - sigma).arg(mean + sigma);
             tikzPicture << QString("\\node[draw, circle, fill=white, inner sep=0mm, minimum size=1mm] (98) at (%1, 98) {};\n").arg(mean);
+            tikzPicture.comment(QString("98: %1  +-  %2").arg(mean).arg(sigma));
 
         tikzPicture.endScope();
 
+        // axes lables
+        tikzPicture.newline(2);
+        tikzPicture.comment("axes lables");
         tikzPicture.beginScope("yscale=0.05");
 
             // y axis lables
@@ -567,23 +579,26 @@ void Statistics::exportStatistics()
             tikzPicture << "\\node[left] at (0, 80) {80};\n";
             tikzPicture << "\\node[left] at (0, 100) {100};\n";
 
-            tikzPicture << "\\node[rotate=90] at (-0.8, 50) {progress in \\%};\n";
+            tikzPicture << "\\node[rotate=90] at (-0.8, 50) {exploration progress in \\%};\n";
 
             // x axis lables
             tikzPicture.line(QPointF(0, 0), QPointF(8.5, 0), "->, >=stealth'");
-            tikzPicture << "\\node[below] at (8.5, 0) {\\#it};\n";
+            tikzPicture << "\\node[below] at (8.5, 0) {it};\n";
 
         tikzPicture.endScope();
 
+        // legend
+        tikzPicture.newline(2);
+        tikzPicture.comment("legend");
         tikzPicture.beginScope("xshift=6cm, yshift=2.5cm");
 
             tikzPicture << "\\draw[semithick, fill=white, fill opacity=0.8] (0, -0.6) rectangle +(2.5, 2.6);\n";
             tikzPicture << "\\scriptsize\n";
 
-            tikzPicture << "\\draw[semithick,|-|] (0.2, -.4) -- +(0.28, 0) node[right, black] {mean $\\pm$ var};\n";
+            tikzPicture << "\\draw[semithick,|-|] (0.2, -.4) -- +(0.28, 0) node[right, black] {$\\text{mean} \\pm \\sqrt{\\text{var}}$};\n";
             tikzPicture << "\\node[semithick,draw, circle, fill=white, inner sep=0mm, minimum size=1mm] at (0.34, -0.4) {};\n";
             tikzPicture << "\\draw (0.2, -.1) -- +(0.28, 0) node[right, black] {time-opt. case};\n";
-            tikzPicture << "\\draw[magenta, densely dotted] (0.2, 0.2) -- +(0.28, 0) node[right, black] {employed};\n";
+            tikzPicture << "\\draw[magenta, densely dotted] (0.2, 0.2) -- +(0.28, 0) node[right, black] {unemployed};\n";
 
             tikzPicture << "\\fill[orange!50] (0.2, 0.5) rectangle +(0.28, 1.2);\n";
             tikzPicture << "\\fill[green!20] (0.2, 0.8) rectangle +(0.28, 0.6);\n";
@@ -600,16 +615,5 @@ void Statistics::exportStatistics()
 
         file.close();
     }
-
-//     // Now paint batch statistics
-//     qreal mean, sigma;
-//     statsForPercentExplored(0.9, mean, sigma);
-//     p.drawText(QPoint(830, 20), QString(" 90%: %1 (%2)").arg(mean).arg(sigma));
-//     statsForPercentExplored(0.95, mean, sigma);
-//     p.drawText(QPoint(830, 40), QString(" 95%: %1 (%2)").arg(mean).arg(sigma));
-//     statsForPercentExplored(0.98, mean, sigma);
-//     p.drawText(QPoint(830, 60), QString(" 98%: %1 (%2)").arg(mean).arg(sigma));
-//     statsForPercentExplored(1, mean, sigma);
-//     p.drawText(QPoint(830, 80), QString("100%: %1 (%2)").arg(mean).arg(sigma));
 }
 // kate: replace-tabs on; indent-width 4;
