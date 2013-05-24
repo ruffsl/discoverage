@@ -53,7 +53,7 @@ class QTikzPicture
         void beginScope(const QString& options = QString());
         void endScope();
 
-        void newline();
+        void newline(int count = 1);
         void comment(const QString& text);
 
         void path(const QPainterPath& path, const QString& options = QString());

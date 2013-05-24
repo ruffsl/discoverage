@@ -126,11 +126,13 @@ void QTikzPicture::endScope()
     (*ts) << "\\end{scope}\n";
 }
 
-void QTikzPicture::newline()
+void QTikzPicture::newline(int count)
 {
     if (!ts) return;
 
-    (*ts) << "\n";
+    for (int i = 0; i < count; ++i) {
+        (*ts) << "\n";
+    }
 }
 
 void QTikzPicture::comment(const QString& text)
