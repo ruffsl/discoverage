@@ -766,8 +766,8 @@ QList<Path> GridMap::frontierPaths(const QPoint& start, const QList<Cell*>& fron
         return QList<Path>();
     }
 
-    QTime time;
-    time.start();
+//     QTime time;
+//     time.start();
 
     // Multiset sowie ein Iterator
     std::multiset<PathField> queue;
@@ -886,8 +886,8 @@ Path GridMap::aStar(const QPoint& from, const QPoint& to)
 {
     QList<Cell*> dirtyCells;
 
-    QTime time;
-    time.start();
+//     QTime time;
+//     time.start();
 
     // Multiset sowie ein Iterator
     std::multiset<PathField> queue;
@@ -1228,8 +1228,8 @@ static inline int sgn(int val) {
 
 void GridMap::computeDistanceTransform(Robot* robot)
 {
-    QTime time;
-    time.start();
+//     QTime time;
+//     time.start();
 
     const QList<Cell*> f = frontiers(robot);
 
@@ -1334,13 +1334,13 @@ void GridMap::computeDistanceTransform(Robot* robot)
         cell->setPathState(Cell::PathNone);
     }
 
-    qDebug() << "computeDistanceTransform took " << time.elapsed() << "milli seconds";
+//     qDebug() << "computeDistanceTransform took " << time.elapsed() << "milli seconds";
 }
 
 void GridMap::computeVoronoiPartition()
 {
-    QTime time;
-    time.start();
+//     QTime time;
+//     time.start();
 
     // take shortcut: if only one robot, assign it to all cells
     if (RobotManager::self()->count() == 1) {
@@ -1351,7 +1351,7 @@ void GridMap::computeVoronoiPartition()
                 c.setRobot(robot);
             }
         }
-        qDebug() << "computeVoronoiPartition took " << time.elapsed() << "milli seconds";
+//         qDebug() << "computeVoronoiPartition took " << time.elapsed() << "milli seconds";
         return;
     }
 
@@ -1457,7 +1457,7 @@ void GridMap::computeVoronoiPartition()
         cell->setPathState(Cell::PathNone);
     }
 
-    qDebug() << "computeVoronoiPartition took " << time.elapsed() << "milli seconds";
+//     qDebug() << "computeVoronoiPartition took " << time.elapsed() << "milli seconds";
 }
 
 void GridMap::exportToTikz(QTikzPicture& tp)
