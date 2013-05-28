@@ -631,7 +631,7 @@ void Statistics::exportStatistics()
         tikzPicture.comment("legend");
         tikzPicture.beginScope("xshift=6cm, yshift=2.5cm");
 
-            tikzPicture << "\\draw[semithick, fill=white, fill opacity=0.8] (0, -0.6) rectangle +(2.5, 2.6);\n";
+            tikzPicture << "\\draw[semithick, fill=white, fill opacity=0.8] (0, -0.65) rectangle +(2.5, 2.6);\n";
             tikzPicture << "\\scriptsize\n";
 
             tikzPicture << "\\draw[semithick,|-|] (0.2, -.4) -- +(0.28, 0) node[right, black] {$\\text{mean} \\pm \\sqrt{\\text{var}}$};\n";
