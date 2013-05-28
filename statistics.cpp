@@ -553,16 +553,20 @@ void Statistics::exportStatistics()
             qreal mean, sigma;
             statsForPercentExplored(0.9, mean, sigma);
             tikzPicture << QString("\\draw[|-|] (%1, 90) -- (%2, 90);\n").arg(mean - sigma).arg(mean + sigma);
-            tikzPicture << QString("\\node[draw, circle, fill=white, inner sep=0mm, minimum size=1mm] (90) at (%1, 90) {};\n").arg(mean);
+            tikzPicture << QString("\\node[draw, circle, fill=white, inner sep=0mm, minimum size=1mm] at (%1, 90) {};\n").arg(mean);
             tikzPicture.comment(QString("90: %1  +-  %2").arg(mean).arg(sigma));
             statsForPercentExplored(0.95, mean, sigma);
             tikzPicture << QString("\\draw[|-|] (%1, 95) -- (%2, 95);\n").arg(mean - sigma).arg(mean + sigma);
-            tikzPicture << QString("\\node[draw, circle, fill=white, inner sep=0mm, minimum size=1mm] (95) at (%1, 95) {};\n").arg(mean);
+            tikzPicture << QString("\\node[draw, circle, fill=white, inner sep=0mm, minimum size=1mm] at (%1, 95) {};\n").arg(mean);
             tikzPicture.comment(QString("95: %1  +-  %2").arg(mean).arg(sigma));
             statsForPercentExplored(0.98, mean, sigma);
             tikzPicture << QString("\\draw[|-|] (%1, 98) -- (%2, 98);\n").arg(mean - sigma).arg(mean + sigma);
-            tikzPicture << QString("\\node[draw, circle, fill=white, inner sep=0mm, minimum size=1mm] (98) at (%1, 98) {};\n").arg(mean);
+            tikzPicture << QString("\\node[draw, circle, fill=white, inner sep=0mm, minimum size=1mm] at (%1, 98) {};\n").arg(mean);
             tikzPicture.comment(QString("98: %1  +-  %2").arg(mean).arg(sigma));
+            statsForPercentExplored(1.0, mean, sigma);
+            tikzPicture << QString("\\draw[|-|] (%1, 100) -- (%2, 100);\n").arg(mean - sigma).arg(mean + sigma);
+            tikzPicture << QString("\\node[draw, circle, fill=white, inner sep=0mm, minimum size=1mm] at (%1, 100) {};\n").arg(mean);
+            tikzPicture.comment(QString("100: %1  +-  %2").arg(mean).arg(sigma));
 
         tikzPicture.endScope();
 
