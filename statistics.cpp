@@ -477,6 +477,34 @@ QVector<qreal> Statistics::percentList(int iteration) const
     return vec;
 }
 
+inline static bool inCircle(qreal cellX, qreal cellY, qreal radius)
+{
+    return (cellX * cellX + cellY * cellY) <= radius*radius;
+}
+
+static int cellCountInCircle(qreal radius, qreal resolution)
+{
+    // compute amount of cells in one quadrant of the circle centered at (0, 0)
+    int cellCount = 0;
+    const int maxCellCount = ceil(radius / resolution);
+    for (int a = -maxCellCount; a < maxCellCount; ++a) {
+            const qreal startX = a * resolution - resolution / 2.0;
+            const qreal endX = (a + 1) * resolution - resolution / 2.0;
+        for (int b = -maxCellCount; b < maxCellCount; ++b) {
+            const qreal startY = b * resolution - resolution / 2.0;
+            const qreal endY = (b + 1) * resolution - resolution / 2.0;
+
+            // cell contained in circle?
+            if (inCircle(startX, startY, radius) &&
+                inCircle(startX, endY, radius) &&
+                inCircle(endX, startY, radius) &&
+                inCircle(endX, endY, radius))
+                ++cellCount;
+        }
+    }
+    return cellCount;
+}
+
 void Statistics::exportStatistics()
 {
     if (!m_boxPlot.size()) return;
@@ -508,22 +536,20 @@ void Statistics::exportStatistics()
 
     // compute time-optimal-case
     const qreal res = m_mainWindow->scene()->map().resolution();
-    // (-res/1.75): cells must lie inside the circle, hence this approximate correction
-    const qreal range = RobotManager::self()->robot(0)->sensingRange() - res / 1.75;
+    const qreal range = RobotManager::self()->robot(0)->sensingRange();
+    const int robotCount = RobotManager::self()->count();
     const int totalCells = m_mainWindow->scene()->map().freeCellCount();
-    const int startCells = RobotManager::self()->count() * M_PI * range * range / (res * res);
-    const int restCells = totalCells - startCells;
+    const int startCells = robotCount * cellCountInCircle(range, res);
+    const qreal cellsPerIteration = robotCount * 2.0 * floor(range / res);
+    const qreal percentPerIteration = cellsPerIteration / (totalCells - startCells);
     const QPointF tocStart(0, (100.0 * startCells) / totalCells);
-    const qreal cellsPerIteration = RobotManager::self()->count() * 2.0 * range / res;
-    const qreal percentPerIteration = cellsPerIteration / restCells;
     const QPointF tocEnd((1.0 - tocStart.y() / 100.0) / percentPerIteration, 100);
 
     // export file name
-    const QString numRobots = QString::number(RobotManager::self()->count());
     QString fileName = m_mainWindow->sceneBaseName()
         + "-" + mainWindow()->scene()->toolHandler()->name()
-        + "-robots-" + numRobots
-        + "-range-" + QString::number(RobotManager::self()->robot(0)->sensingRange())
+        + "-robots-" + QString::number(robotCount)
+        + "-range-" + QString::number(range)
         + "-runs-" + QString::number(m_testRuns.size())
         + "-statistics.tikz";
 
