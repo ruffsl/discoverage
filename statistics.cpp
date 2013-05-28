@@ -37,6 +37,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QSpinBox>
 #include <QtGui/QPushButton>
+#include <QTime>
 #include <QtAlgorithms>
 
 int TestRun::iterationForPercentExplored(qreal percent)
@@ -413,6 +414,9 @@ void Statistics::startStopBatchProcess()
 
         int maxIterations = 0;
 
+        QTime tStart;
+        tStart.start();
+
         int run = 0;
         while (m_batchProcessRunning && run < m_sbRuns->value()) {
             m_mainWindow->reloadScene();
@@ -431,6 +435,11 @@ void Statistics::startStopBatchProcess()
                 maxIterations = m_progress.size();
             }
             ++run;
+
+            // status info
+            QTime tAll = tStart.addMSecs(((m_sbRuns->value() * tStart.elapsed()) / run));
+            qDebug().nospace() << "[INFO] completed run " << run << " of " << m_sbRuns->value()
+                               << ", completion at: " << tAll.toString("hh:mm");
         }
 
         // generate box plots:
