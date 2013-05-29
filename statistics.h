@@ -24,6 +24,7 @@
 
 class QSpinBox;
 class QPushButton;
+class QCheckBox;
 class QPaintEvent;
 class MainWindow;
 class QContextMenuEvent;
@@ -105,6 +106,7 @@ class Statistics : public QFrame
         bool m_batchProcessRunning;
         QPushButton * m_btnStartStop;
         QSpinBox* m_sbRuns;
+        QCheckBox* m_cbAutoExport;
 
     private:
         MainWindow* m_mainWindow;

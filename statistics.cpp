@@ -37,6 +37,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QSpinBox>
 #include <QtGui/QPushButton>
+#include <QtGui/QCheckBox>
 #include <QTime>
 #include <QtAlgorithms>
 
@@ -91,6 +92,11 @@ Statistics::Statistics(MainWindow* mainWindow, QWidget* parent)
     m_btnStartStop = new QPushButton("Start", this);
     l->addWidget(m_btnStartStop, Qt::AlignRight);
     connect(m_btnStartStop, SIGNAL(clicked()), this, SLOT(startStopBatchProcess()));
+
+    m_cbAutoExport = new QCheckBox("Auto Export", this);
+    m_cbAutoExport->setToolTip("Invoke \"TeX Export\" at end of simulation");
+    m_cbAutoExport->setChecked(true);
+    l->addWidget(m_cbAutoExport, Qt::AlignRight);
 
     QPushButton* btnExport = new QPushButton("TeX Export", this);
     l->addWidget(btnExport, Qt::AlignRight);
@@ -454,6 +460,11 @@ void Statistics::startStopBatchProcess()
             m_boxPlot[it].median = percentExploredList[count * 0.5];
             m_boxPlot[it].lowerQuartile = percentExploredList[count * 0.25];
             m_boxPlot[it].upperQuartile = percentExploredList[count * 0.75];
+        }
+
+        // auto-export if wanted and simulation was not aborted
+        if (m_batchProcessRunning && m_cbAutoExport->isChecked()) {
+            exportStatistics();
         }
     }
 
