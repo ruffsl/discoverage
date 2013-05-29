@@ -157,16 +157,8 @@ void Statistics::paintEvent(QPaintEvent* event)
     m_meanProgress.clear();
     m_meanUnemployed.clear();
     for (int i = 0; i < m_boxPlot.size(); ++i) {
-        p.setPen(Qt::red);
-        qreal mp = meanProgress(i) * 100.0;
-        p.drawPoint(i, mp);
-        p.setPen(Qt::darkGreen);
-        p.drawPoint(i, mp - sqrt(varianceProgress(i)) * 100.0);
-
-
-        p.setPen(Qt::blue);
-        mp = 100 - meanUnemployed(i) * 100.0;
-        p.drawPoint(i, mp);
+        p.setPen(Qt::magenta);
+        p.drawPoint(i, meanUnemployed(i) * 100.0);
     }
 
     QPainterPath minPath;
