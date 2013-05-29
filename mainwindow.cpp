@@ -75,8 +75,8 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     scrollArea->setWidget(m_scene);
     scrollArea->installEventFilter(this);
 
-    RobotListView* robotListView = new RobotListView(this);
-    dwRobotManager->setWidget(robotListView);
+    m_robotListView = new RobotListView(this);
+    dwRobotManager->setWidget(m_robotListView);
 
 
     connect(actionQuit, SIGNAL(triggered()), qApp, SLOT(quit()));
@@ -330,6 +330,19 @@ void MainWindow::helpAbout()
 void MainWindow::helpAboutQt()
 {
     qApp->aboutQt();
+}
+
+void MainWindow::setStrategy(int strategyIdx)
+{
+    if (strategyIdx >= 0 && strategyIdx < m_toolsUi->cmbTool->count()) {
+        if (strategyIndex() != strategyIdx)
+            m_toolsUi->cmbTool->setCurrentIndex(strategyIdx);
+    }
+}
+
+int MainWindow::strategyIndex() const
+{
+    return m_toolsUi->cmbTool->currentIndex();
 }
 
 // kate: replace-tabs on; indent-width 4;

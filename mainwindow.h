@@ -27,6 +27,7 @@ class QPoint;
 class QLabel;
 class Scene;
 class Statistics;
+class RobotListView;
 
 namespace Ui {
     class ToolWidget;
@@ -62,6 +63,9 @@ class MainWindow : public QMainWindow, protected Ui::MainWindow
         void helpAbout();
         void helpAboutQt();
 
+        void setStrategy(int strategyIndex); // from combo box
+        int strategyIndex() const;
+
     protected:
         virtual void keyPressEvent(QKeyEvent* event);
         virtual bool eventFilter(QObject *obj, QEvent *event);
@@ -80,6 +84,8 @@ class MainWindow : public QMainWindow, protected Ui::MainWindow
         Scene* m_scene;
         QString m_sceneFile;
         Statistics* m_stats;
+
+        RobotListView* m_robotListView;
 };
 
 #endif // MAINWINDOW_H

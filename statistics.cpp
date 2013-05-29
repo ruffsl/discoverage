@@ -38,6 +38,8 @@
 #include <QtGui/QSpinBox>
 #include <QtGui/QPushButton>
 #include <QtGui/QCheckBox>
+#include <QtGui/QLineEdit>
+#include <QtGui/QLabel>
 #include <QTime>
 #include <QtAlgorithms>
 
@@ -81,7 +83,35 @@ Statistics::Statistics(MainWindow* mainWindow, QWidget* parent)
 
     QHBoxLayout * hl = new QHBoxLayout(this);
     hl->addStretch();
+
+    // 1st column
     QVBoxLayout * l = new QVBoxLayout();
+    hl->addLayout(l);
+    l->addWidget(new QLabel("Sensing ranges:", this));
+
+    m_edtRanges = new QLineEdit(this);
+    m_edtRanges->setToolTip("Comma separated list of sensing ranges [m], e.g.: 1, 2, 3");
+    m_edtRanges->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+    l->addWidget(m_edtRanges, Qt::AlignRight);
+
+    QFrame* hLine = new QFrame(this);
+    hLine->setFrameStyle(QFrame::HLine);
+    l->addWidget(hLine);
+
+    l->addWidget(new QLabel("Strategies:", this));
+
+    m_edtStrategies = new QLineEdit(this);
+    m_edtStrategies->setToolTip("Comma separated list of strategies in Combo Box, e.g.: 5, 6, 7");
+    m_edtStrategies->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
+    l->addWidget(m_edtStrategies, Qt::AlignRight);
+
+    // add separator v-line
+    QFrame* vLine = new QFrame(this);
+    vLine->setFrameStyle(QFrame::VLine);
+    hl->addWidget(vLine);
+
+    // last column
+    l = new QVBoxLayout();
     hl->addLayout(l);
     m_sbRuns = new QSpinBox(this);
     m_sbRuns->setRange(1, 1000);
@@ -397,72 +427,137 @@ QPointF Statistics::randomRobotPos(int robot)
     }
 }
 
+QVector<qreal> Statistics::sensingRanges() const
+{
+    QVector<qreal> ranges;
+    QStringList items = m_edtRanges->text().split(',', QString::SkipEmptyParts);
+
+    foreach (const QString & item, items) {
+        bool ok;
+        const qreal r = item.toDouble(&ok);
+        if (ok) {
+            ranges.append(r);
+        }
+    }
+
+    return ranges;
+}
+
+QVector<int> Statistics::strategies() const
+{
+    QVector<int> s;
+    QStringList items = m_edtStrategies->text().split(',', QString::SkipEmptyParts);
+
+    foreach (const QString & item, items) {
+        bool ok;
+        const int strat = item.toInt(&ok);
+        if (ok) {
+            s.append(strat);
+        }
+    }
+
+    // avoid no strategy
+    if (s.isEmpty()) {
+        s.append(m_mainWindow->strategyIndex());
+    }
+
+    return s;
+}
+
 void Statistics::startStopBatchProcess()
 {
     if (!m_batchProcessRunning) {
         m_batchProcessRunning = true;
         m_btnStartStop->setText("Stop");
 
-        // prepare
-        m_testRuns.clear();
-        m_boxPlot.clear();
+        const QVector<int> approaches = strategies();
+        const QVector<qreal> ranges = sensingRanges();
 
-        // reproducible random numbers
-        srand(1);
+        qDebug() << "approaches:" << approaches;
+        qDebug() << "ranges    :" << ranges;
 
-        int maxIterations = 0;
+        foreach (int index, approaches) {
+            if (!m_batchProcessRunning) break;
 
-        QTime tStart;
-        tStart.start();
-
-        int run = 0;
-        while (m_batchProcessRunning && run < m_sbRuns->value()) {
-            m_mainWindow->reloadScene();
-
-            // randomize robot positions
-            for (int i = 0; i < RobotManager::self()->count(); ++i) {
-                RobotManager::self()->robot(i)->setPosition(randomRobotPos(i));
+            if (ranges.isEmpty()) {
+                // no range specified -> do not touch
+                oneBatchRun(&index, 0);
+            } else {
+                // set sensing range for all robots and then run once
+                foreach (qreal r, ranges) {
+                    if (!m_batchProcessRunning) break;
+                    oneBatchRun(&index, &r);
+                }
             }
-
-            // do one run
-            while (m_batchProcessRunning && m_mainWindow->scene()->map().explorationProgress() < 1.0) {
-                m_mainWindow->tick();
-                QApplication::processEvents();
-            }
-            if (m_progress.size() > maxIterations) {
-                maxIterations = m_progress.size();
-            }
-            ++run;
-
-            // status info
-            QTime tAll = tStart.addMSecs(((m_sbRuns->value() * tStart.elapsed()) / run));
-            qDebug().nospace() << "[INFO] completed run " << run << " of " << m_sbRuns->value()
-                               << ", completion at: " << tAll.toString("hh:mm");
-        }
-
-        // generate box plots:
-        m_boxPlot.resize(maxIterations);
-        for (int it = 0; it < maxIterations; ++it) {
-            QVector<qreal> percentExploredList = percentList(it);
-            const int count = percentExploredList.size();
-            Q_ASSERT(count > 0);
-
-            m_boxPlot[it].minimum = percentExploredList.first();
-            m_boxPlot[it].maximum = percentExploredList.last();
-            m_boxPlot[it].median = percentExploredList[count * 0.5];
-            m_boxPlot[it].lowerQuartile = percentExploredList[count * 0.25];
-            m_boxPlot[it].upperQuartile = percentExploredList[count * 0.75];
-        }
-
-        // auto-export if wanted and simulation was not aborted
-        if (m_batchProcessRunning && m_cbAutoExport->isChecked()) {
-            exportStatistics();
         }
     }
 
     if (m_batchProcessRunning) {
         m_batchProcessRunning = false;
         m_btnStartStop->setText("Start");
+    }
+}
+
+void Statistics::oneBatchRun(int * strategy, qreal * range)
+{
+    // prepare
+    m_testRuns.clear();
+    m_boxPlot.clear();
+
+    // reproducible random numbers
+    srand(1);
+
+    int maxIterations = 0;
+
+    QTime tStart;
+    tStart.start();
+
+    int run = 0;
+    while (m_batchProcessRunning && run < m_sbRuns->value()) {
+        m_mainWindow->reloadScene();
+
+        m_mainWindow->setStrategy(*strategy);
+
+        // randomize robot positions
+        for (int i = 0; i < RobotManager::self()->count(); ++i) {
+            Robot* robot = RobotManager::self()->robot(i);
+            robot->setPosition(randomRobotPos(i));
+            if (range) robot->setSensingRange(*range);
+        }
+
+        // do one run
+        while (m_batchProcessRunning && m_mainWindow->scene()->map().explorationProgress() < 1.0) {
+            m_mainWindow->tick();
+            QApplication::processEvents();
+        }
+        if (m_progress.size() > maxIterations) {
+            maxIterations = m_progress.size();
+        }
+        ++run;
+
+        // status info
+        QTime tAll = tStart.addMSecs(((m_sbRuns->value() * tStart.elapsed()) / run));
+        qDebug().nospace() << "[INFO] completed run " << run << " of " << m_sbRuns->value()
+                            << ", completion at: " << tAll.toString("hh:mm");
+    }
+
+    // generate box plots:
+    m_boxPlot.resize(maxIterations);
+    for (int it = 0; it < maxIterations; ++it) {
+        QVector<qreal> percentExploredList = percentList(it);
+        const int count = percentExploredList.size();
+        Q_ASSERT(count > 0);
+
+        m_boxPlot[it].minimum = percentExploredList.first();
+        m_boxPlot[it].maximum = percentExploredList.last();
+        m_boxPlot[it].median = percentExploredList[count * 0.5];
+        m_boxPlot[it].lowerQuartile = percentExploredList[count * 0.25];
+        m_boxPlot[it].upperQuartile = percentExploredList[count * 0.75];
+    }
+
+    // auto-export if wanted and simulation was not aborted
+    if (m_batchProcessRunning && m_cbAutoExport->isChecked()) {
+        exportStatistics();
     }
 }
 

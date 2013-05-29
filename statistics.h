@@ -25,6 +25,7 @@
 class QSpinBox;
 class QPushButton;
 class QCheckBox;
+class QLineEdit;
 class QPaintEvent;
 class MainWindow;
 class QContextMenuEvent;
@@ -98,8 +99,12 @@ class Statistics : public QFrame
          */
         void statsForPercentExplored(qreal percent, qreal & meanIteration, qreal & stdDeviation);
 
+        QVector<qreal> sensingRanges() const;
+        QVector<int> strategies() const;
+
     protected Q_SLOTS:
         void startStopBatchProcess();
+        void oneBatchRun(int * strategy, qreal * range);
         void exportStatistics();
 
     private:
@@ -107,6 +112,8 @@ class Statistics : public QFrame
         QPushButton * m_btnStartStop;
         QSpinBox* m_sbRuns;
         QCheckBox* m_cbAutoExport;
+        QLineEdit* m_edtRanges;
+        QLineEdit* m_edtStrategies;
 
     private:
         MainWindow* m_mainWindow;
