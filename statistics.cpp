@@ -77,6 +77,7 @@ BoxPlotItem::BoxPlotItem()
 
 Statistics::Statistics(MainWindow* mainWindow, QWidget* parent)
     : QFrame(parent)
+    , m_batchProcessRunning(false)
     , m_mainWindow(mainWindow)
 {
     setFrameStyle(Panel | Sunken);
@@ -90,7 +91,7 @@ Statistics::Statistics(MainWindow* mainWindow, QWidget* parent)
     l->addWidget(new QLabel("Sensing ranges:", this));
 
     m_edtRanges = new QLineEdit(this);
-    m_edtRanges->setToolTip("Comma separated list of sensing ranges [m], e.g.: 1, 2, 3");
+    m_edtRanges->setToolTip("<p>Comma separated list of sensing ranges [m], e.g.: 1, 2, 3.</p><p>If empty, the sensing ranges remain untouched.</p>");
     m_edtRanges->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
     l->addWidget(m_edtRanges, Qt::AlignRight);
 
@@ -101,7 +102,7 @@ Statistics::Statistics(MainWindow* mainWindow, QWidget* parent)
     l->addWidget(new QLabel("Strategies:", this));
 
     m_edtStrategies = new QLineEdit(this);
-    m_edtStrategies->setToolTip("Comma separated list of strategies in Combo Box, e.g.: 5, 6, 7");
+    m_edtStrategies->setToolTip("<p>Comma separated list of strategies in Combo Box, e.g.: 5, 6, 7.</p><p>If empty, the current selected strategy is used.</p>");
     m_edtStrategies->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Preferred);
     l->addWidget(m_edtStrategies, Qt::AlignRight);
 
@@ -124,11 +125,12 @@ Statistics::Statistics(MainWindow* mainWindow, QWidget* parent)
     connect(m_btnStartStop, SIGNAL(clicked()), this, SLOT(startStopBatchProcess()));
 
     m_cbAutoExport = new QCheckBox("Auto Export", this);
-    m_cbAutoExport->setToolTip("Invoke \"TeX Export\" at end of simulation");
+    m_cbAutoExport->setToolTip("Invoke \"TeX Export\" at end of simulation.");
     m_cbAutoExport->setChecked(true);
     l->addWidget(m_cbAutoExport, Qt::AlignRight);
 
     QPushButton* btnExport = new QPushButton("TeX Export", this);
+    btnExport->setToolTip("Export TikZ to file: scene-strategy name-range-runs.tikz.");
     l->addWidget(btnExport, Qt::AlignRight);
     connect(btnExport, SIGNAL(clicked()), this, SLOT(exportStatistics()));
 }
@@ -537,9 +539,12 @@ void Statistics::oneBatchRun(int * strategy, qreal * range)
 
         // status info
         QTime tAll = tStart.addMSecs(((m_sbRuns->value() * tStart.elapsed()) / run));
-        qDebug().nospace() << "[INFO] completed run " << run << " of " << m_sbRuns->value()
-                            << ", completion at: " << tAll.toString("hh:mm");
+        fprintf(stdout, QString("\r[INFO] completed run %1 of %2, completion at: %3   ")
+                        .arg(run).arg(m_sbRuns->value()).arg(tAll.toString("hh:mm"))
+                        .toLatin1().data());
+        fflush(stdout);
     }
+    fprintf(stdout, "\n");
 
     // generate box plots:
     m_boxPlot.resize(maxIterations);
