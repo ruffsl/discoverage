@@ -24,7 +24,9 @@
 #include "robotmanager.h"
 #include "tikzexport.h"
 
-#include <math.h>
+#include <cmath>
+
+#include <algorithm>
 
 #include <QtCore/QDebug>
 #include <QtCore/QFile>

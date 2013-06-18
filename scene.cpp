@@ -49,6 +49,8 @@ Scene::Scene(MainWindow* mainWindow, QWidget* parent)
     , m_bulloHandler(this)
     , m_discoverageHandler(this, &m_bulloHandler)
     , m_minDistHandler(this, &m_bulloHandler)
+    , m_randomHandler(this)
+    , m_maxAreaHandler(this)
 {
     s_self = this;
 
@@ -209,6 +211,18 @@ void Scene::selectTool(int toolIndex)
         case 7:
             m_toolHandler->toolHandlerActive(false);
             m_toolHandler = &m_bulloHandler;
+            m_toolHandler->toolHandlerActive(true);
+            mainWindow()->statusBar()->clearMessage();
+            break;
+        case 8:
+            m_toolHandler->toolHandlerActive(false);
+            m_toolHandler = &m_randomHandler;
+            m_toolHandler->toolHandlerActive(true);
+            mainWindow()->statusBar()->clearMessage();
+            break;
+        case 9:
+            m_toolHandler->toolHandlerActive(false);
+            m_toolHandler = &m_maxAreaHandler;
             m_toolHandler->toolHandlerActive(true);
             mainWindow()->statusBar()->clearMessage();
             break;

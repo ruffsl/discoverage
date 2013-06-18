@@ -53,6 +53,8 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     m_toolsUi->cmbTool->addItem("DisCoverage (Orientation-based)"); // 5
     m_toolsUi->cmbTool->addItem("MinDist");              // 6
     m_toolsUi->cmbTool->addItem("DisCoverage (Frontier Weights)"); // 7
+    m_toolsUi->cmbTool->addItem("Random"); // 8
+    m_toolsUi->cmbTool->addItem("MaxArea"); // 9
     toolBar->insertWidget(actionDummy, toolsWidget);
     toolBar->removeAction(actionDummy);
 

@@ -21,7 +21,7 @@
 #define CELL_H
 
 #include <QRectF>
-
+#include <QColor>
 #include <QDebug>
 
 class QDataStream;

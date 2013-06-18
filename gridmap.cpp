@@ -652,6 +652,76 @@ QVector<Cell*> GridMap::visibleCells(const QPointF& worldPos, double radius)
     return cellVector;
 }
 
+int GridMap::numVisibleCellsUnrestricted(const QPointF& worldPos, double radius)
+{
+    const qreal x = worldPos.x();
+    const qreal y = worldPos.y();
+
+    int cellX = x / resolution();
+    int cellY = y / resolution();
+
+    int result = 0;
+    if (!isValidField(cellX, cellY)) {
+        return 0;
+    }
+
+    const int cellRadius = ceil(radius / resolution());
+
+    // TODO: warum bei yStart -1 und bei x nicht?
+    int xStart = cellX - cellRadius;
+    int xEnd = cellX + cellRadius;
+
+    int yStart = cellY - cellRadius - 1;
+    int yEnd = cellY + cellRadius;
+
+    for (int a = xStart; a <= xEnd; ++a) {
+        for (int b = yStart; b <= yEnd; ++b) {
+            if (isValidField(a, b))
+            {
+                Cell& c = m_map[a][b];
+                if (!(c.state() == (Cell::Explored | Cell::Obstacle))
+                    && pathVisibleUnrestricted(QPoint(cellX, cellY), QPoint(a, b)))
+                {
+                    const QRectF& r = c.rect();
+                    const qreal x1 = r.left();
+                    const qreal x2 = r.right();
+                    const qreal y1 = r.top();
+                    const qreal y2 = r.bottom();
+
+                    bool visible = inCircle(x, y, radius, x1, y1)
+                                || inCircle(x, y, radius, x1, y2)
+                                || inCircle(x, y, radius, x2, y1)
+                                || inCircle(x, y, radius, x2, y2);
+
+                    if (visible) {
+                        ++result;
+                    }
+                }
+            }
+            else if (pathVisibleUnrestricted(QPoint(cellX, cellY), QPoint(a, b)))
+            {
+                // create virtual cell
+                QRectF r(a * m_resolution, b * m_resolution, m_resolution, m_resolution);
+                
+                const qreal x1 = r.left();
+                const qreal x2 = r.right();
+                const qreal y1 = r.top();
+                const qreal y2 = r.bottom();
+
+                bool visible = inCircle(x, y, radius, x1, y1)
+                            || inCircle(x, y, radius, x1, y2)
+                            || inCircle(x, y, radius, x2, y1)
+                            || inCircle(x, y, radius, x2, y2);
+
+                if (visible) {
+                    ++result;
+                }
+            }
+        }
+    }
+    return result;
+}
+
 QVector<Cell*> GridMap::visibleCells(Robot* robot, double radius)
 {
     Q_ASSERT(robot);
@@ -1086,6 +1156,67 @@ bool GridMap::pathVisible(const QPoint& from, const QPoint& to)
     return true;
 }
 
+bool GridMap::pathVisibleUnrestricted(const QPoint& from, const QPoint& to)
+{
+    int ystep, xstep;    // the step on y and x axis
+    int error;           // the error accumulated during the increment
+    int y = from.y();
+    int x = from.x();    // the line points
+    int ddy, ddx;        // compulsory variables: the double values of dy and dx
+    int dx = to.x() - from.x();
+    int dy = to.y() - from.y();
+//     result.append( start );  // first point
+    // NB the last point can't be here, because of its previous point (which has to be verified)
+    if (dy < 0) {
+        ystep = -1;
+        dy = -dy;
+    } else {
+        ystep = 1;
+    }
+
+    if (dx < 0) {
+        xstep = -1;
+        dx = -dx;
+    } else {
+        xstep = 1;
+    }
+
+    ddy = 2 * dy;  // work with double values for full precision
+    ddx = 2 * dx;
+    if (ddx >= ddy) {  // first octant (0 <= slope <= 1)
+        // compulsory initialization (even for errorprev, needed when dx==dy)
+        error = dx;  // start in the middle of the square
+        for( int i = 0 ; i < dx ; ++i )
+        {  // do not use the first point (already done)
+            x += xstep;
+            error += ddy;
+            if (error > ddx) {  // increment y if AFTER the middle ( > )
+                y += ystep;
+                error -= ddx;
+            }
+            if (!isValidField(x, y) || i == dx - 1) return true;
+            if (m_map[x][y].state() & Cell::Obstacle && m_map[x][y].state() & Cell::Explored)
+                return false;
+//             result.append( QPoint( x, y ) );
+        }
+    } else {  // the same as above
+        error = dy;
+        for( int i = 0 ; i < dy ; ++i)
+        {
+            y += ystep;
+            error += ddx;
+            if (error > ddy) {
+                x += xstep;
+                error -= ddy;
+            }
+            if (!isValidField(x, y) || i == dy - 1) return true;
+            if (m_map[x][y].state() & Cell::Obstacle && m_map[x][y].state() & Cell::Explored)
+                return false;
+//             result.append( QPoint( x, y ) );
+        }
+    }
+    return true;
+}
 
 static inline int ipart(double x)
 {

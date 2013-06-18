@@ -29,6 +29,8 @@
 #include "discoveragehandler.h"
 #include "mindisthandler.h"
 #include "bullo.h"
+#include "randomhandler.h"
+#include "maxareahandler.h"
 
 class QPaintEvent;
 class QMouseEvent;
@@ -113,6 +115,8 @@ class Scene : public QFrame
         DisCoverageBulloHandler m_bulloHandler;
         DisCoverageHandler m_discoverageHandler;
         MinDistHandler m_minDistHandler;
+        RandomHandler m_randomHandler;
+        MaxAreaHandler m_maxAreaHandler;
 };
 
 #endif // SCENE_H

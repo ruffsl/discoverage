@@ -148,6 +148,7 @@ class GridMap : public QObject
         int freeCellCount() const;
         QVector<Cell*> visibleCells(const QPointF& worldPos, double radius);
         QVector<Cell*> visibleCells(Robot* robot, double radius);
+        int numVisibleCellsUnrestricted(const QPointF& worldPos, double radius);
         void filterCells(QVector<Cell*> & cells, Robot* robot);
 
     //
@@ -172,6 +173,7 @@ class GridMap : public QObject
     //
     public:
         bool pathVisible(const QPoint& from, const QPoint& to);
+        bool pathVisibleUnrestricted(const QPoint& from, const QPoint& to);
         bool aaPathVisible(const QPoint& from, const QPoint& to);
         QList<Path> frontierPaths(const QPoint& start, const QList<Cell*>& frontiers);
         Path aStar(const QPoint& from, const QPoint& to);
