@@ -17,6 +17,7 @@ set(discoverage_SRCS
   handler/discoveragehandler.cpp
   handler/bullo.cpp
   handler/randomhandler.cpp
+  handler/ruffinshandler.cpp
   handler/maxareahandler.cpp
 
   robot/robot.cpp
@@ -42,6 +43,7 @@ set(discoverage_MOC_HDRS
   handler/discoveragehandler.h
   handler/bullo.h
   handler/randomhandler.h
+  handler/ruffinshandler.h
   handler/maxareahandler.h
 
   robot/robotmanager.h

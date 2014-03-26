@@ -49,8 +49,9 @@ Scene::Scene(MainWindow* mainWindow, QWidget* parent)
     , m_bulloHandler(this)
     , m_discoverageHandler(this, &m_bulloHandler)
     , m_minDistHandler(this, &m_bulloHandler)
-    , m_randomHandler(this)
-    , m_maxAreaHandler(this)
+	, m_randomHandler(this)
+	, m_maxAreaHandler(this)
+	, m_ruffinsHandler(this)
 {
     s_self = this;
 
@@ -226,6 +227,12 @@ void Scene::selectTool(int toolIndex)
             m_toolHandler->toolHandlerActive(true);
             mainWindow()->statusBar()->clearMessage();
             break;
+		case 10:
+			m_toolHandler->toolHandlerActive(false);
+			m_toolHandler = &m_ruffinsHandler;
+			m_toolHandler->toolHandlerActive(true);
+			mainWindow()->statusBar()->clearMessage();
+			break;
 
         default:
             qWarning() << "Scene::selectTool() called with invalid index";

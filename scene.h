@@ -31,6 +31,7 @@
 #include "bullo.h"
 #include "randomhandler.h"
 #include "maxareahandler.h"
+#include "ruffinshandler.h"
 
 class QPaintEvent;
 class QMouseEvent;
@@ -117,6 +118,7 @@ class Scene : public QFrame
         MinDistHandler m_minDistHandler;
         RandomHandler m_randomHandler;
         MaxAreaHandler m_maxAreaHandler;
+		RuffinsHandler m_ruffinsHandler;
 };
 
 #endif // SCENE_H
