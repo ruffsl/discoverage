@@ -29,7 +29,7 @@ int main(int argc, char* argv[])
   Config::self();
 
   MainWindow* mw = new MainWindow();
-  mw->resize(1100, 750);
+  mw->resize(1240, 800);
   mw->show();
 
   int exitCode = app.exec();

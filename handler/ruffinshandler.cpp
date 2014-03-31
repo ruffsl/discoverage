@@ -50,7 +50,10 @@ QPointF RuffinsHandler::gradient(Robot* robot, bool interpolate)
 	if (rand() % 10) {
 		QPoint pos = m.worldToIndex(robot->position()) + grad.toPoint();
 		if (! m.cell(pos).isObstacle()) {
-			return grad;
+			return this->grad;
+		}
+		else{
+			std::cout << "oww I've crashed into an obstacle!" << std::endl;
 		}
 	}
 	
@@ -61,13 +64,18 @@ QPointF RuffinsHandler::gradient(Robot* robot, bool interpolate)
 		std::cout << x << " : " << y << std::endl;
 		double scale = sqrt(x * x + y * y);
 		QPointF newGrad(x / scale , y / scale);
-		robot->position();
+//		robot->position();
 
         //m = *robot->map();
 		QPoint pos = m.worldToIndex(robot->position()) + newGrad.toPoint();
 
 		if (! m.cell(pos).isObstacle()) {
 			grad = newGrad;
+			return newGrad;
+		}
+		else{
+			QPointF newGrad(-grad.x(), -grad.y());
+//			grad = newGrad;
 			return newGrad;
 		}
 	}
@@ -98,4 +106,5 @@ double RuffinsHandler::explorationPotential(GridMap& m, QPoint position, int rad
 			}
 		}
 	}
+	return result;
 }

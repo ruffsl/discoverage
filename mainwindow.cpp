@@ -33,6 +33,8 @@
 #include <QtCore/QSettings>
 #include <QMessageBox>
 
+#include <iostream>
+
 MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     : QMainWindow(parent, flags)
     , Ui::MainWindow()
@@ -238,6 +240,7 @@ QString MainWindow::sceneBaseName() const
 
 void MainWindow::exportToTikz()
 {
+	std::cout << "EXPORT!!!" << std::endl;
     QString filename = sceneBaseName();
     filename += QString("-iteration-%1").arg(m_stats->iteration(), 3, 10, QChar('0'));
     const QString legend = filename + "-legend.tikz";

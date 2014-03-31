@@ -522,10 +522,13 @@ void Statistics::oneBatchRun(int * strategy, qreal * range)
 
         m_mainWindow->setStrategy(*strategy);
 
+		QPointF commonPoint = randomRobotPos(0);
+
         // randomize robot positions
         for (int i = 0; i < RobotManager::self()->count(); ++i) {
-            Robot* robot = RobotManager::self()->robot(i);
-            robot->setPosition(randomRobotPos(i));
+			Robot* robot = RobotManager::self()->robot(i);
+//			robot->setPosition(randomRobotPos(i));
+			robot->setPosition(commonPoint);
             if (range) robot->setSensingRange(*range);
         }
 
@@ -651,14 +654,36 @@ void Statistics::exportStatistics()
     const QPointF tocEnd((1.0 - tocStart.y() / 100.0) / percentPerIteration, 100);
 
     // export file name
-    QString fileName = m_mainWindow->sceneBaseName()
-        + "-" + mainWindow()->scene()->toolHandler()->name()
-        + "-robots-" + QString::number(robotCount)
-        + "-range-" + QString::number(range)
-        + "-runs-" + QString::number(m_testRuns.size())
-        + "-statistics.tikz";
+	QString fileName = m_mainWindow->sceneBaseName()
+		+ "-" + mainWindow()->scene()->toolHandler()->name()
+		+ "-robots-" + QString::number(robotCount)
+		+ "-range-" + QString::number(range)
+		+ "-runs-" + QString::number(m_testRuns.size())
+		+ "-statistics";
 
-    QFile file(fileName);
+	QString fileNametxt = fileName + ".txt";
+	fileName = fileName + ".tikz";
+
+	QFile file(fileNametxt);
+	if (file.open(QFile::WriteOnly | QFile::Truncate)) {
+		QTextStream ts(&file);
+		qreal mean, sigma;
+		statsForPercentExplored(0.90, mean, sigma);
+		ts << "mean and variance of 90% :" << "\n";
+		ts << mean << " " << sigma << "\n";
+		statsForPercentExplored(0.95, mean, sigma);
+		ts << "mean and variance of 95% :" << "\n";
+		ts << mean << " " << sigma << "\n";
+		statsForPercentExplored(0.98, mean, sigma);
+		ts << "mean and variance of 98% :" << "\n";
+		ts << mean << " " << sigma << "\n";
+		statsForPercentExplored(1.00, mean, sigma);
+		ts << "mean and variance of 100% :" << "\n";
+		ts << mean << " " << sigma << "\n";
+	}
+	file.close();
+
+	file.setFileName(fileName);
     if (file.open(QFile::WriteOnly | QFile::Truncate)) {
         QTextStream ts(&file);
         QTikzPicture tikzPicture;
@@ -690,7 +715,7 @@ void Statistics::exportStatistics()
             }
 
             // mean and variance of 90%, 95% and 98% explored
-            qreal mean, sigma;
+			qreal mean, sigma;
             statsForPercentExplored(0.9, mean, sigma);
             tikzPicture << QString("\\draw[|-|] (%1, 90) -- (%2, 90);\n").arg(mean - sigma).arg(mean + sigma);
             tikzPicture << QString("\\node[draw, circle, fill=white, inner sep=0mm, minimum size=1mm] at (%1, 90) {};\n").arg(mean);
