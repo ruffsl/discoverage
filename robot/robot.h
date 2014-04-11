@@ -71,9 +71,9 @@ class Robot
         virtual void setPosition(const QPointF& position, bool trackTrajectory = false);
         virtual const QPointF& position() const;
 
-        virtual bool hasOrientation() const;
+		virtual bool hasOrientation() const;
 
-        // orientation of last move in [-pi; pi]
+		// orientation of last move in [-pi; pi]
         virtual qreal orientation() const;
         // orientation of last move as unit vector
         virtual QPointF orientationVector() const;

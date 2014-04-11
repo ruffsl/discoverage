@@ -31,6 +31,8 @@
 #include <QtCore/QTime>
 #include <QtCore/QBitArray>
 
+//#include <iostream>
+
 #include <math.h>
 #include <set>
 
@@ -853,6 +855,7 @@ QList<Path> GridMap::frontierPaths(const QPoint& start, const QList<Cell*>& fron
     while (!queue.empty())
     {
         // Knoten mit den niedrigsten Kosten aus der Liste holen
+		// Get the node with the lowest cost from the list
         PathField f = *queue.begin();
         queue.erase(queue.begin());
 
@@ -860,37 +863,45 @@ QList<Path> GridMap::frontierPaths(const QPoint& start, const QList<Cell*>& fron
         int x = f.x, y = f.y;
 
         // Alle angrenzenden Felder bearbeiten
+		// Process all adjacent fields
         for (int i = 0; i < 8; ++i) {
             // Nachbarzelle
             int ax = x + directionMap[i][0];
             int ay = y + directionMap[i][1];
 
             // Testen ob neue x/y-Position gueltig ist ( Rand ist ausgenommen )
+			// Test whether new x/y-Pposition is valid (edge is excluded)
             if (!isValidField(ax, ay))
                 continue;
 
             pCell = &m_map[ax][ay];
 
             // Kosten um zu diesem Feld zu gelangen:
+			// Cost to get to this box:
             const float factor = i > 3 ? 1.41421356f : 1.0f;
             float G = f.cell->m_costG + factor * pCell->cellCost();   // Vorherige + aktuelle Kosten vom Start
 
             // Ignorieren wenn Knoten geschlossen ist und bessere Kosten hat
+			// Ignore if node is closed and has better cost
             if (pCell->pathState() == Cell::PathClose && pCell->m_costG < G)
                 continue;
 
             // Cell ist bereits in der Queue, nur ersetzen wenn Kosten besser
+			// Cell is already in the queue, only replace if better cost
             if (pCell->pathState() == Cell::PathOpen)
             {
                 if (pCell->m_costG < G)
                     continue;
 
                 // Alten Eintrag aus der Queue entfernen
+				// Remove the old entry from the queue
                 itr = queue.find(PathField(QPoint( ax, ay), pCell));
                 if (itr != queue.end())
                 {
                     // Es k�nnen mehrere Eintr�ge mit den gleichen Kosten vorhanden sein
                     // wir m�ssen den richtigen suchen
+					// There can be several records with all same cost exist
+					// We need the right search
                     while ((*itr).cell != pCell)
                         itr++;
 
@@ -899,11 +910,13 @@ QList<Path> GridMap::frontierPaths(const QPoint& start, const QList<Cell*>& fron
             }
 
             // Knoten berechnen
+			// Get node
             pCell->m_costG  = G;
             pCell->m_costF  = G + 0;
             pCell->m_pathParent = i;
 
             // Zu OPEN hinzufuegen
+			// Add to OPEN
             pCell->setPathState(Cell::PathOpen);
             queue.insert(PathField( QPoint( ax, ay ), pCell));
         }
@@ -1468,6 +1481,33 @@ void GridMap::computeDistanceTransform(Robot* robot)
 //     qDebug() << "computeDistanceTransform took " << time.elapsed() << "milli seconds";
 }
 
+
+bool GridMap::cellInCentroid(const QPointF& worldPos, double radius, int a, int b)
+{
+	const qreal x = worldPos.x();
+	const qreal y = worldPos.y();
+
+//	int cellX = x / resolution();
+//	int cellY = y / resolution();
+
+	Cell& c = m_map[a][b];
+
+	const QRectF& r = c.rect();
+	const qreal x1 = r.left();
+	const qreal x2 = r.right();
+	const qreal y1 = r.top();
+	const qreal y2 = r.bottom();
+
+	bool visible = inCircle(x, y, radius, x1, y1)
+				|| inCircle(x, y, radius, x1, y2)
+				|| inCircle(x, y, radius, x2, y1)
+				|| inCircle(x, y, radius, x2, y2);
+
+	return visible;
+}
+
+
+//Ruffin's Bookmark
 void GridMap::computeVoronoiPartition()
 {
 //     QTime time;
@@ -1508,6 +1548,20 @@ void GridMap::computeVoronoiPartition()
         }
     }
 
+	// Ruffin's Code
+	//###########################################################
+
+	QPointF centroid;
+	// get centroid of all robots
+	for (int i = 0; i < RobotManager::self()->count(); ++i) {
+		Robot* robot = RobotManager::self()->robot(i);
+		centroid += robot->position();
+	}
+	centroid /= RobotManager::self()->count();
+
+	qDebug() << "centroid: x" << centroid.x() << " y"<< centroid.y();
+	//###########################################################
+
     QList<Cell*> dirtyCells;
     // now we have all robots as seeds in the queue
     // next, as long as the queue is not empty, flood by iterating the neighbors
@@ -1524,9 +1578,16 @@ void GridMap::computeVoronoiPartition()
             const int x = xBase + directionMap[i][0];
             const int y = yBase + directionMap[i][1];
 
-            // check validity
-            if (!isValidField(x, y))
-                continue;
+			// check validity
+			if (!isValidField(x, y))
+				continue;
+
+			//####################################
+			// check if in range
+			qreal radius = 3;
+			if (!cellInCentroid(centroid, radius, x, y))
+				continue;
+			//####################################
 
             Cell* cell = &m_map[x][y];
 

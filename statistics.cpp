@@ -419,6 +419,7 @@ QPointF Statistics::randomRobotPos(int robot)
             continue;
         }
 
+		// Ruffin's Bookmark
         // make sure no other robots is in the same cell
         for (int i = 0; i < robot; ++i) {
             const QPoint robotIndex = m_mainWindow->scene()->map().worldToIndex(
@@ -470,6 +471,7 @@ QVector<int> Statistics::strategies() const
 
 void Statistics::startStopBatchProcess()
 {
+	srand(42);
     if (!m_batchProcessRunning) {
         m_batchProcessRunning = true;
         m_btnStartStop->setText("Stop");
@@ -524,6 +526,7 @@ void Statistics::oneBatchRun(int * strategy, qreal * range)
 
 		QPointF commonPoint = randomRobotPos(0);
 
+		// Ruffin's Mod
         // randomize robot positions
         for (int i = 0; i < RobotManager::self()->count(); ++i) {
 			Robot* robot = RobotManager::self()->robot(i);
@@ -534,7 +537,7 @@ void Statistics::oneBatchRun(int * strategy, qreal * range)
 
         // do one run
         while (m_batchProcessRunning && m_mainWindow->scene()->map().explorationProgress() < 1.0) {
-            m_mainWindow->tick();
+			m_mainWindow->tick();
             QApplication::processEvents();
         }
         if (m_progress.size() > maxIterations) {

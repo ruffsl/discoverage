@@ -98,7 +98,7 @@ MainWindow::MainWindow(QWidget* parent, Qt::WindowFlags flags)
     connect(actionStatistics, SIGNAL(triggered(bool)), dwStatistics, SLOT(setVisible(bool)));
     connect(actionExport, SIGNAL(triggered()), this, SLOT(exportToTikz()));
     connect(actionReload, SIGNAL(triggered()), this, SLOT(reloadScene()));
-    connect(actionStep, SIGNAL(triggered()), this, SLOT(tick()));
+	connect(actionStep, SIGNAL(triggered()), this, SLOT(tick()));
     connect(m_toolsUi->cmbTool, SIGNAL(currentIndexChanged(int)), m_scene, SLOT(selectTool(int)));
     connect(m_toolsUi->sbRadius, SIGNAL(valueChanged(double)), m_scene, SLOT(setOperationRadius(double)));
 
@@ -310,7 +310,7 @@ void MainWindow::tick()
         QString filename = sceneBaseName();
         filename += QString("-iteration-%1").arg(m_stats->iteration(), 3, 10, QChar('0'));
         filename += ".png";
-        m_scene->saveImage(filename);
+		m_scene->saveImage(filename);
     }
 }
 
