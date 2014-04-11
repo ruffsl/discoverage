@@ -139,7 +139,8 @@ class GridMap : public QObject
     //
     public:
         void computeDistanceTransform(Robot* robot = 0);
-		bool cellInCentroid(const QPointF& worldPos, double radius, int a, int b);
+		bool cellInCentroid(const Cell& cell ,const QPointF& worldPos, double radius);
+		bool cellInGraph   (const Cell& cell ,const QPointF& worldPos, double radius);
         void computeVoronoiPartition();
         void updateDensity();
         bool exploreInRadius(const QPointF& worldPos, double radius, bool markAsExplored);

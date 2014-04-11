@@ -1482,7 +1482,7 @@ void GridMap::computeDistanceTransform(Robot* robot)
 }
 
 
-bool GridMap::cellInCentroid(const QPointF& worldPos, double radius, int a, int b)
+bool GridMap::cellInCentroid(const Cell& cell ,const QPointF& worldPos, double radius)
 {
 	const qreal x = worldPos.x();
 	const qreal y = worldPos.y();
@@ -1490,9 +1490,7 @@ bool GridMap::cellInCentroid(const QPointF& worldPos, double radius, int a, int 
 //	int cellX = x / resolution();
 //	int cellY = y / resolution();
 
-	Cell& c = m_map[a][b];
-
-	const QRectF& r = c.rect();
+	const QRectF& r = cell.rect();
 	const qreal x1 = r.left();
 	const qreal x2 = r.right();
 	const qreal y1 = r.top();
@@ -1504,6 +1502,25 @@ bool GridMap::cellInCentroid(const QPointF& worldPos, double radius, int a, int 
 				|| inCircle(x, y, radius, x2, y2);
 
 	return visible;
+}
+
+
+bool GridMap::cellInGraph(const Cell& cell ,const QPointF& worldPos, double radius)
+{
+	int count = 0;
+	for (int i = 0; i < RobotManager::self()->count(); ++i) {
+		Robot* robot = RobotManager::self()->robot(i);
+		if (cellInCentroid(cell, robot->position(), radius))
+			count++;
+		}
+
+	if (count < 2)
+		return false;
+	else
+		return true;
+
+
+
 }
 
 
@@ -1582,14 +1599,24 @@ void GridMap::computeVoronoiPartition()
 			if (!isValidField(x, y))
 				continue;
 
+
+			Cell* cell = &m_map[x][y];
+
+//			//####################################
+//			// check if in range
+//			qreal radius = 3;
+//			if (!cellInCentroid(*cell, centroid, radius))
+//				continue;
+//			//####################################
+
+
 			//####################################
-			// check if in range
+			// check if in range of all robots
 			qreal radius = 3;
-			if (!cellInCentroid(centroid, radius, x, y))
+			if (!cellInGraph(*cell, centroid, radius))
 				continue;
 			//####################################
 
-            Cell* cell = &m_map[x][y];
 
             // obstacle or not explored
 //             if (!(cell->state() == (Cell::Free | Cell::Explored)))
