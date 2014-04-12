@@ -40,9 +40,10 @@ RobotListView::RobotListView(QWidget* parent)
     l->addLayout(hbox);
 
     // combo box with dynamics
-    m_cbRobots = new QComboBox(widget());
-    m_cbRobots->addItem("Integrator Dynamics");
-    m_cbRobots->addItem("Unicycle Dynamics");
+	m_cbRobots = new QComboBox(widget());
+	m_cbRobots->addItem("Integrator Dynamics");
+	m_cbRobots->addItem("Unicycle Dynamics");
+	m_cbRobots->setCurrentIndex(1);
     hbox->addWidget(m_cbRobots);
 
     // add button

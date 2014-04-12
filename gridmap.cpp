@@ -1505,7 +1505,7 @@ bool GridMap::cellInCentroid(const Cell& cell ,const QPointF& worldPos, double r
 }
 
 
-bool GridMap::cellInGraph(const Cell& cell ,const QPointF& worldPos, double radius)
+bool GridMap::cellInNetwork(const Cell& cell ,const QPointF& worldPos, double radius)
 {
 	int count = 0;
 	for (int i = 0; i < RobotManager::self()->count(); ++i) {
@@ -1516,11 +1516,43 @@ bool GridMap::cellInGraph(const Cell& cell ,const QPointF& worldPos, double radi
 
 	if (count < 2)
 		return false;
-	else
-		return true;
 
+	return true;
+}
 
+bool GridMap::robotsInNetwork(const Cell& cell , double radius)
+{
 
+	QList<Robot*> robots;
+	for (int i = 0; i < RobotManager::self()->count(); ++i) {
+		Robot* robot = RobotManager::self()->robot(i);
+		robots.append(robot);
+		}
+
+	Robot* startRobot = cell.robot();
+
+	robotInRange(startRobot, &robots, radius);
+
+//	return true;
+
+	if (robots.size())
+		return false;
+	return true;
+}
+
+void GridMap::robotInRange(Robot* startRobot, QList<Robot*>* robots, double radius){
+
+	robots->removeOne(startRobot);
+
+	foreach(Robot* robot, *robots) {
+		qreal x = startRobot->position().x();
+		qreal y = startRobot->position().y();
+		qreal x1 = robot->position().x();
+		qreal y1 = robot->position().y();
+
+		if(inCircle(x, y, radius+1, x1, y1))
+			robotInRange(robot, robots, radius);
+	}
 }
 
 
@@ -1567,7 +1599,7 @@ void GridMap::computeVoronoiPartition()
 
 	// Ruffin's Code
 	//###########################################################
-
+	qreal radius = 4;
 	QPointF centroid;
 	// get centroid of all robots
 	for (int i = 0; i < RobotManager::self()->count(); ++i) {
@@ -1604,17 +1636,28 @@ void GridMap::computeVoronoiPartition()
 
 //			//####################################
 //			// check if in range
-//			qreal radius = 3;
 //			if (!cellInCentroid(*cell, centroid, radius))
 //				continue;
 //			//####################################
 
+//			//####################################
+//			// check if in range of all robots
+//			if (!cellInNetwork(*cell, centroid, radius))
+//				continue;
+//			//####################################
 
 			//####################################
 			// check if in range of all robots
-			qreal radius = 3;
-			if (!cellInGraph(*cell, centroid, radius))
-				continue;
+			qreal unemployed = 0.0;
+			const int count = RobotManager::self()->count();
+			for (int i = 0; i < count; ++i) {
+				if (RobotManager::self()->robot(i)->stats().isUnemployed())
+					unemployed += 1;
+			}
+			unemployed /= count;
+			if (unemployed < 1.0)
+				if (!cellInNetwork(*cell, centroid, radius))
+					continue;
 			//####################################
 
 
@@ -1672,7 +1715,10 @@ void GridMap::computeVoronoiPartition()
     }
 
     // cleanup again
-    foreach (Cell* cell, dirtyCells) {
+	foreach (Cell* cell, dirtyCells) {
+		if (!robotsInNetwork(*cell, radius))
+				if (cell->state() == (Cell::Unknown | Cell::Explored))
+					cell->setRobot(0);
         cell->setPathState(Cell::PathNone);
     }
 

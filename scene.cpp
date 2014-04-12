@@ -68,7 +68,7 @@ Scene::Scene(MainWindow* mainWindow, QWidget* parent)
 
 
     // add one robot by default
-    RobotManager::self()->addRobot(Robot::IntegratorDynamics);
+	RobotManager::self()->addRobot(Robot::Unicycle);
 
     connect(RobotManager::self(), SIGNAL(robotCountChanged()), this, SLOT(update()), Qt::QueuedConnection);
     connect(RobotManager::self(), SIGNAL(activeRobotChanged(Robot*)), this, SLOT(update()));

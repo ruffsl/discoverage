@@ -33,9 +33,9 @@
 Robot::Robot(Scene* scene)
     : m_scene(scene)
     , m_position(scene->map().center())
-    , m_sensingRange(3.0)
-    , m_fillSensingRange(false)
-    , m_stats(this)
+	, m_sensingRange(1.0)
+	, m_fillSensingRange(false)
+	, m_stats(this)
 {
 }
 
@@ -267,7 +267,7 @@ const RobotStats& Robot::stats() const
 void Robot::load(QSettings& config)
 {
     setPosition(config.value("position", QPointF(0.0, 0.0)).toPointF());
-    setSensingRange(config.value("sensing-range", 3.0).toDouble());
+	setSensingRange(config.value("sensing-range", 1.0).toDouble());
     setFillSensingRange(config.value("fill-sensing-range", false).toBool());
 
     // load trajectory
