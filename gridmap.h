@@ -196,8 +196,9 @@ class GridMap : public QObject
 
         // track a list of frontiers for fast lookup/iteration
         QList<Cell*> m_frontierCache;
-        int m_freeCellCount;
-        int m_exploredCellCount;
+		int m_freeCellCount;
+		int m_exploredCellCount;
+		int m_oldexploredCellCount;
 };
 
 //

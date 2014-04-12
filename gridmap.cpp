@@ -160,6 +160,7 @@ GridMap::GridMap(Scene* scene, double width, double height, double resolution)
 
     m_frontierCache.clear();
     m_exploredCellCount = 0;
+	m_oldexploredCellCount = 0;
     m_freeCellCount = (xCellCount - 2 * (border+1)) * (yCellCount - 2 * (border+1));
 
     updateCache();
@@ -1655,7 +1656,10 @@ void GridMap::computeVoronoiPartition()
 					unemployed += 1;
 			}
 			unemployed /= count;
-			if (unemployed < 1.0)
+			if (unemployed == 1.0)
+				m_oldexploredCellCount = m_exploredCellCount;
+
+			if (m_exploredCellCount != m_oldexploredCellCount)
 				if (!cellInNetwork(*cell, centroid, radius))
 					continue;
 			//####################################
