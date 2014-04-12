@@ -1534,8 +1534,6 @@ bool GridMap::robotsInNetwork(const Cell& cell , double radius)
 
 	robotInRange(startRobot, &robots, radius);
 
-//	return true;
-
 	if (robots.size())
 		return false;
 	return true;
@@ -1720,9 +1718,9 @@ void GridMap::computeVoronoiPartition()
 
     // cleanup again
 	foreach (Cell* cell, dirtyCells) {
-		if (!robotsInNetwork(*cell, radius))
-				if (cell->state() == (Cell::Unknown | Cell::Explored))
-					cell->setRobot(0);
+//		if (!robotsInNetwork(*cell, radius))
+//				if (cell->state() == (Cell::Unknown | Cell::Explored))
+//					cell->setRobot(0);
         cell->setPathState(Cell::PathNone);
     }
 
