@@ -139,9 +139,9 @@ class GridMap : public QObject
     //
     public:
         void computeDistanceTransform(Robot* robot = 0);
-		bool cellInCentroid	(const Cell& cell ,const QPointF& worldPos, double radius);
-		bool cellInNetwork	(const Cell& cell ,const QPointF& worldPos, double radius);
-		bool robotsInNetwork(const Cell& cell , double radius);
+		bool cellInCentroid	(const Cell& cell, const QPointF& worldPos, double radius);
+		bool cellInNetwork	(const Cell& cell, double radius);
+		bool robotsInNetwork(const Cell& cell, double radius);
 		void robotInRange(Robot* startRobot, QList<Robot*>* robots, double radius);
         void computeVoronoiPartition();
         void updateDensity();
@@ -199,6 +199,7 @@ class GridMap : public QObject
 		int m_freeCellCount;
 		int m_exploredCellCount;
 		int m_oldexploredCellCount;
+		bool m_isunemployed;
 };
 
 //

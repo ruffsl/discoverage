@@ -161,6 +161,7 @@ GridMap::GridMap(Scene* scene, double width, double height, double resolution)
     m_frontierCache.clear();
     m_exploredCellCount = 0;
 	m_oldexploredCellCount = 0;
+	m_isunemployed = false;
     m_freeCellCount = (xCellCount - 2 * (border+1)) * (yCellCount - 2 * (border+1));
 
     updateCache();
@@ -1506,7 +1507,7 @@ bool GridMap::cellInCentroid(const Cell& cell ,const QPointF& worldPos, double r
 }
 
 
-bool GridMap::cellInNetwork(const Cell& cell ,const QPointF& worldPos, double radius)
+bool GridMap::cellInNetwork(const Cell& cell, double radius)
 {
 	int count = 0;
 	for (int i = 0; i < RobotManager::self()->count(); ++i) {
@@ -1542,15 +1543,16 @@ bool GridMap::robotsInNetwork(const Cell& cell , double radius)
 void GridMap::robotInRange(Robot* startRobot, QList<Robot*>* robots, double radius){
 
 	robots->removeOne(startRobot);
-
 	foreach(Robot* robot, *robots) {
-		qreal x = startRobot->position().x();
-		qreal y = startRobot->position().y();
-		qreal x1 = robot->position().x();
-		qreal y1 = robot->position().y();
+		if (startRobot){
+			qreal x = startRobot->position().x();
+			qreal y = startRobot->position().y();
+			qreal x1 = robot->position().x();
+			qreal y1 = robot->position().y();
 
-		if(inCircle(x, y, radius+1, x1, y1))
-			robotInRange(robot, robots, radius);
+			if(inCircle(x, y, radius+1, x1, y1))
+				robotInRange(robot, robots, radius);
+		}
 	}
 }
 
@@ -1560,6 +1562,24 @@ void GridMap::computeVoronoiPartition()
 {
 //     QTime time;
 //     time.start();
+
+
+	float mindist = HUGE_VALF;
+	Robot* minRobot;
+	if (m_isunemployed){
+		for (int a = 0; a < m_map.size(); ++a) {
+			for (int b = 0; b < m_map[a].size(); ++b) {
+				Cell& c = m_map[a][b];
+				if((c.state()==(Cell::Free | Cell::Frontier))|(c.state()==(Cell::Unknown | Cell::Frontier))|(c.state()==(Cell::Obstacle | Cell::Frontier))){
+					int dist = c.robotDist();
+					if(dist <= mindist){
+						mindist = c.robotDist();
+						minRobot = c.robot();
+					}
+				}
+			}
+		}
+	}
 
     // take shortcut: if only one robot, assign it to all cells
     if (RobotManager::self()->count() == 1) {
@@ -1598,7 +1618,7 @@ void GridMap::computeVoronoiPartition()
 
 	// Ruffin's Code
 	//###########################################################
-	qreal radius = 4;
+	qreal radius = 5;
 	QPointF centroid;
 	// get centroid of all robots
 	for (int i = 0; i < RobotManager::self()->count(); ++i) {
@@ -1608,6 +1628,7 @@ void GridMap::computeVoronoiPartition()
 	centroid /= RobotManager::self()->count();
 
 	qDebug() << "centroid: x" << centroid.x() << " y"<< centroid.y();
+
 	//###########################################################
 
     QList<Cell*> dirtyCells;
@@ -1641,12 +1662,16 @@ void GridMap::computeVoronoiPartition()
 
 //			//####################################
 //			// check if in range of all robots
-//			if (!cellInNetwork(*cell, centroid, radius))
+//			if (!cellInNetwork(*cell, radius))
 //				continue;
 //			//####################################
 
 			//####################################
 			// check if in range of all robots
+			if(m_oldexploredCellCount != m_exploredCellCount){
+				m_isunemployed = false;
+			}
+
 			qreal unemployed = 0.0;
 			const int count = RobotManager::self()->count();
 			for (int i = 0; i < count; ++i) {
@@ -1654,12 +1679,28 @@ void GridMap::computeVoronoiPartition()
 					unemployed += 1;
 			}
 			unemployed /= count;
-			if (unemployed == 1.0)
+			if (unemployed == 1.0){
 				m_oldexploredCellCount = m_exploredCellCount;
+				m_isunemployed = true;
+				minRobot = 0;
+			}
 
-			if (m_exploredCellCount != m_oldexploredCellCount)
-				if (!cellInNetwork(*cell, centroid, radius))
+			if (!m_isunemployed){
+				if (!cellInNetwork(*cell, radius))
 					continue;
+			}
+			else{
+				Robot* myrobot = baseCell->robot();
+				if ((myrobot == minRobot)|(minRobot==0)){
+					int lol;
+					lol = 1;
+				}
+				else{
+					if (!cellInNetwork(*cell, radius)){
+						continue;
+					}
+				}
+			}
 			//####################################
 
 
@@ -1718,9 +1759,9 @@ void GridMap::computeVoronoiPartition()
 
     // cleanup again
 	foreach (Cell* cell, dirtyCells) {
-//		if (!robotsInNetwork(*cell, radius))
-//				if (cell->state() == (Cell::Unknown | Cell::Explored))
-//					cell->setRobot(0);
+		if (!robotsInNetwork(*cell, radius))
+				if (cell->state() == (Cell::Unknown))
+					cell->setRobot(0);
         cell->setPathState(Cell::PathNone);
     }
 
